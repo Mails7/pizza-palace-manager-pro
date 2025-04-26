@@ -6,6 +6,7 @@ import StatusBadge from "@/components/StatusBadge";
 import PrioritySelect from "@/components/PrioritySelect";
 import EmptyState from "@/components/EmptyState";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { 
   Table, 
   TableBody, 
@@ -22,13 +23,33 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Edit, Trash2, Search } from "lucide-react";
+import { ShoppingBag, Edit, Trash2, Search, UserPlus, X } from "lucide-react";
 import { Priority } from "@/types";
+import ClientSearchModal from "@/components/modals/ClientSearchModal";
+import OrderFormModal from "@/components/modals/OrderFormModal";
 
 const Pedidos = () => {
   const { orders, updateOrderStatus, deleteOrder } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("Todos");
+  const [isClientSearchOpen, setIsClientSearchOpen] = useState(false);
+  const [isOrderFormOpen, setIsOrderFormOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<any>(null);
+
+  const handleClientSelected = (client: any) => {
+    setSelectedClient(client);
+    setIsClientSearchOpen(false);
+    setIsOrderFormOpen(true);
+  };
+
+  const handleNewOrderClick = () => {
+    setIsClientSearchOpen(true);
+  };
+
+  const handleOrderFormClose = () => {
+    setIsOrderFormOpen(false);
+    setSelectedClient(null);
+  };
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('pt-BR', {
@@ -62,9 +83,33 @@ const Pedidos = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // Função para calcular o progresso do pedido
+  const calculateProgress = (status: string) => {
+    switch (status) {
+      case 'Pendente':
+        return 20;
+      case 'Em Preparo':
+        return 40;
+      case 'Pronto':
+        return 60;
+      case 'Em Entrega':
+        return 80;
+      case 'Entregue':
+        return 100;
+      case 'Cancelado':
+        return 100;
+      default:
+        return 0;
+    }
+  };
+
   return (
     <div className="p-6">
-      <PageHeader title="Pedidos" actionLabel="Novo Pedido" actionHref="/pedidos/novo" />
+      <PageHeader 
+        title="Pedidos" 
+        actionLabel="Novo Pedido" 
+        onAction={handleNewOrderClick} 
+      />
       
       <div className="bg-white shadow-sm rounded-lg p-6 mb-6">
         <h2 className="text-lg font-medium mb-4">Filtros</h2>
@@ -109,6 +154,7 @@ const Pedidos = () => {
                 <TableHead>Telefone</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Progresso</TableHead>
                 <TableHead>Prioridade</TableHead>
                 <TableHead>Data</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
@@ -122,6 +168,9 @@ const Pedidos = () => {
                   <TableCell>{formatCurrency(order.total)}</TableCell>
                   <TableCell>
                     <StatusBadge status={order.status} />
+                  </TableCell>
+                  <TableCell className="w-32">
+                    <Progress value={calculateProgress(order.status)} className="h-2" />
                   </TableCell>
                   <TableCell>
                     <PrioritySelect 
@@ -149,6 +198,22 @@ const Pedidos = () => {
             </TableBody>
           </Table>
         </div>
+      )}
+
+      {/* Modal de busca de cliente */}
+      <ClientSearchModal 
+        isOpen={isClientSearchOpen}
+        onClose={() => setIsClientSearchOpen(false)}
+        onClientSelected={handleClientSelected}
+      />
+
+      {/* Modal de formulário de pedido */}
+      {selectedClient && (
+        <OrderFormModal 
+          isOpen={isOrderFormOpen}
+          onClose={handleOrderFormClose}
+          client={selectedClient}
+        />
       )}
     </div>
   );

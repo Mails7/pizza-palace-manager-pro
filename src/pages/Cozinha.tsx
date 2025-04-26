@@ -1,16 +1,90 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, RefreshCw } from "lucide-react";
-import EmptyState from "@/components/EmptyState";
+import { Progress } from "@/components/ui/progress";
+import { Clock, Check, Bell } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { OrderStatus } from "@/types";
+import { toast } from "@/components/ui/sonner";
+import useSound from "use-sound";
 
 const Cozinha = () => {
-  const { kitchenOrders, updateOrderStatus, autoUpdateEnabled, toggleAutoUpdate } = useApp();
+  const { 
+    kitchenOrders, 
+    updateOrderStatus, 
+    autoUpdateEnabled, 
+    toggleAutoUpdate 
+  } = useApp();
+  
+  // Carregando som de notificação
+  const [playNewOrder] = useSound("/notification-sound.mp3", { volume: 0.5 });
+
+  // Automação de pedidos quando autoUpdateEnabled está ativo
+  useEffect(() => {
+    if (!autoUpdateEnabled) return;
+    
+    const intervals: NodeJS.Timeout[] = [];
+    
+    // Processamento automático para pedidos pendentes
+    kitchenOrders.pending.forEach(order => {
+      const timer = setTimeout(() => {
+        updateOrderStatus(order.id, "Em Preparo");
+        toast("Pedido atualizado", {
+          description: `Pedido ${order.id} agora está Em Preparo.`
+        });
+      }, 60000); // 1 minuto
+      intervals.push(timer);
+    });
+    
+    // Processamento automático para pedidos em preparo
+    kitchenOrders.preparing.forEach(order => {
+      const timer = setTimeout(() => {
+        updateOrderStatus(order.id, "Pronto");
+        toast("Pedido atualizado", {
+          description: `Pedido ${order.id} agora está Pronto.`
+        });
+      }, 120000); // 2 minutos
+      intervals.push(timer);
+    });
+    
+    // Processamento automático para pedidos prontos
+    kitchenOrders.ready.forEach(order => {
+      const timer = setTimeout(() => {
+        updateOrderStatus(order.id, "Em Entrega");
+        toast("Pedido atualizado", {
+          description: `Pedido ${order.id} agora está Em Entrega.`
+        });
+      }, 300000); // 5 minutos
+      intervals.push(timer);
+    });
+    
+    // Processamento automático para pedidos em entrega
+    kitchenOrders.delivering.forEach(order => {
+      const timer = setTimeout(() => {
+        updateOrderStatus(order.id, "Entregue");
+        toast("Pedido atualizado", {
+          description: `Pedido ${order.id} agora está Entregue.`
+        });
+      }, 2400000); // 40 minutos
+      intervals.push(timer);
+    });
+    
+    // Limpar todos os timers quando o componente desmontar ou quando as ordens mudarem
+    return () => {
+      intervals.forEach(interval => clearTimeout(interval));
+    };
+  }, [kitchenOrders, autoUpdateEnabled, updateOrderStatus]);
+  
+  // Tocar som quando chegar um novo pedido
+  useEffect(() => {
+    const pendingCount = kitchenOrders.pending.length;
+    if (pendingCount > 0) {
+      playNewOrder();
+    }
+  }, [kitchenOrders.pending.length, playNewOrder]);
   
   const moveToNextStatus = (orderId: string, currentStatus: OrderStatus) => {
     let nextStatus: OrderStatus;
@@ -33,6 +107,24 @@ const Cozinha = () => {
     }
     
     updateOrderStatus(orderId, nextStatus);
+  };
+  
+  // Calcular progresso baseado no status
+  const calculateProgress = (status: OrderStatus) => {
+    switch (status) {
+      case 'Pendente':
+        return 20;
+      case 'Em Preparo':
+        return 40;
+      case 'Pronto':
+        return 60;
+      case 'Em Entrega':
+        return 80;
+      case 'Entregue':
+        return 100;
+      default:
+        return 0;
+    }
   };
   
   const OrderItem = ({ productName, quantity, size, observations }: { 
@@ -78,6 +170,7 @@ const Cozinha = () => {
             </div>
           )}
         </div>
+        <Progress value={calculateProgress(order.status)} className="h-2 mt-2" />
       </CardHeader>
       <CardContent>
         <div className="space-y-2 mb-4">
@@ -152,7 +245,7 @@ const Cozinha = () => {
             />
           </div>
           <Button variant="outline" size="icon">
-            <RefreshCw className="h-4 w-4" />
+            <Bell className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -215,9 +308,10 @@ const Cozinha = () => {
                         </span>
                       </div>
                     </div>
+                    <Progress value={100} className="h-2 mt-2" />
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2">
+                    <div className="space-y-2 mb-4">
                       {order.items.map((item: any, index: number) => (
                         <OrderItem
                           key={index}
@@ -228,6 +322,14 @@ const Cozinha = () => {
                         />
                       ))}
                     </div>
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
+                      onClick={() => deleteOrder(order.id)}
+                    >
+                      <Check className="mr-2 h-4 w-4" />
+                      Finalizado
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
