@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -27,6 +28,11 @@ export default {
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
+				},
+				pizza: {
+					DEFAULT: '#FF4500',
+					light: '#FF7F50',
+					dark: '#CC3700',
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
