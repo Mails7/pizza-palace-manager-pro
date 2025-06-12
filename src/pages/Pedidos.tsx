@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Edit, Trash2, Search, UserPlus, X } from "lucide-react";
+import { ShoppingBag, Edit, Trash2, Search, UserPlus, X, Plus } from "lucide-react";
 import { Priority } from "@/types";
 import ClientSearchModal from "@/components/modals/ClientSearchModal";
 import OrderFormModal from "@/components/modals/OrderFormModal";
@@ -108,6 +108,7 @@ const Pedidos = () => {
       <PageHeader 
         title="Pedidos" 
         actionLabel="Novo Pedido" 
+        actionIcon={Plus}
         onAction={handleNewOrderClick} 
       />
       
