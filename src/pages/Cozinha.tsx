@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +14,7 @@ const Cozinha = () => {
   const { 
     kitchenOrders, 
     updateOrderStatus, 
+    deleteOrder,
     autoUpdateEnabled, 
     toggleAutoUpdate 
   } = useApp();
@@ -298,7 +298,6 @@ const Cozinha = () => {
                   <CardHeader className="pb-2">
                     <div className="flex justify-between">
                       <CardTitle>
-                        <Badge variant="outline" className="bg-gray-100 text-gray-800 mr-2">Baixa</Badge>
                         Cliente: {order.clientName}
                       </CardTitle>
                       <div className="flex items-center">
@@ -313,13 +312,15 @@ const Cozinha = () => {
                   <CardContent>
                     <div className="space-y-2 mb-4">
                       {order.items.map((item: any, index: number) => (
-                        <OrderItem
-                          key={index}
-                          productName={item.productName}
-                          quantity={item.quantity}
-                          size={item.size}
-                          observations={item.observations}
-                        />
+                        <div key={index} className="py-2 border-b border-gray-100 last:border-0">
+                          <div className="flex justify-between">
+                            <span className="font-medium">{item.quantity}x {item.productName}</span>
+                            <span className="text-sm text-gray-500">Tamanho: {item.size}</span>
+                          </div>
+                          {item.observations && (
+                            <p className="text-sm text-gray-500 mt-1">Obs: {item.observations}</p>
+                          )}
+                        </div>
                       ))}
                     </div>
                     <Button 
