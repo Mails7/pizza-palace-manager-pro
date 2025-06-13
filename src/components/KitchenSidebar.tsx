@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Sidebar,
@@ -114,7 +113,6 @@ const KitchenSidebar: React.FC<KitchenSidebarProps> = ({
                 <Switch 
                   checked={autoUpdateEnabled}
                   onCheckedChange={toggleAutoUpdate}
-                  size="sm"
                 />
               </div>
             </SidebarMenuItem>
