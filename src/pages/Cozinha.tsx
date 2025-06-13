@@ -1,14 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useApp } from "@/contexts/AppContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Clock, Check, Bell } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { OrderStatus } from "@/types";
 import { toast } from "@/components/ui/sonner";
 import useSound from "use-sound";
+import KitchenSidebar from "@/components/KitchenSidebar";
+import CompactOrderCard from "@/components/CompactOrderCard";
+import ExpandedOrderCard from "@/components/ExpandedOrderCard";
 
 const Cozinha = () => {
   const { 
@@ -18,6 +17,8 @@ const Cozinha = () => {
     autoUpdateEnabled, 
     toggleAutoUpdate 
   } = useApp();
+  
+  const [expandedOrder, setExpandedOrder] = useState<any>(null);
   
   // Carregando som de notificação
   const [playNewOrder] = useSound("/notification-sound.mp3", { volume: 0.5 });
@@ -107,238 +108,166 @@ const Cozinha = () => {
     }
     
     updateOrderStatus(orderId, nextStatus);
+    setExpandedOrder(null);
   };
-  
-  // Calcular progresso baseado no status
-  const calculateProgress = (status: OrderStatus) => {
+
+  const getActionLabel = (status: OrderStatus) => {
     switch (status) {
       case 'Pendente':
-        return 20;
+        return 'Iniciar Preparo';
       case 'Em Preparo':
-        return 40;
+        return 'Marcar como Pronto';
       case 'Pronto':
-        return 60;
+        return 'Enviar para Entrega';
       case 'Em Entrega':
-        return 80;
-      case 'Entregue':
-        return 100;
+        return 'Confirmar Entrega';
       default:
-        return 0;
+        return '';
     }
   };
-  
-  const OrderItem = ({ productName, quantity, size, observations }: { 
-    productName: string, 
-    quantity: number, 
-    size: string,
-    observations?: string 
-  }) => (
-    <div className="py-2 border-b border-gray-100 last:border-0">
-      <div className="flex justify-between">
-        <span className="font-medium">{quantity}x {productName}</span>
-        <span className="text-sm text-gray-500">Tamanho: {size}</span>
-      </div>
-      {observations && (
-        <p className="text-sm text-gray-500 mt-1">Obs: {observations}</p>
-      )}
-    </div>
-  );
-  
-  const OrderCard = ({ 
-    order, 
-    statusLabel, 
-    actionLabel, 
-    nextAction 
-  }: { 
-    order: any, 
-    statusLabel: string, 
-    actionLabel: string,
-    nextAction: () => void
-  }) => (
-    <Card className="mb-4">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between">
-          <CardTitle>
-            Cliente: {order.clientName}
-          </CardTitle>
-          {order.preparationTime && (
-            <div className="flex items-center">
-              <Clock className="h-4 w-4 mr-1 text-gray-500" />
-              <span className="text-sm text-gray-500">
-                {order.preparationTime} min
-              </span>
-            </div>
-          )}
-        </div>
-        <Progress value={calculateProgress(order.status)} className="h-2 mt-2" />
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2 mb-4">
-          {order.items.map((item: any, index: number) => (
-            <OrderItem
-              key={index}
-              productName={item.productName}
-              quantity={item.quantity}
-              size={item.size}
-              observations={item.observations}
-            />
-          ))}
-        </div>
-        <div className="flex justify-between">
-          <Button onClick={nextAction} className="w-full">
-            {actionLabel}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-  
-  const KitchenSection = ({ 
+
+  const getSectionTitle = (status: OrderStatus) => {
+    switch (status) {
+      case 'Pendente':
+        return 'Pendentes';
+      case 'Em Preparo':
+        return 'Em Preparo';
+      case 'Pronto':
+        return 'Prontos';
+      case 'Em Entrega':
+        return 'Em Entrega';
+      case 'Entregue':
+        return 'Entregues';
+      default:
+        return '';
+    }
+  };
+
+  const getSectionColor = (status: OrderStatus) => {
+    switch (status) {
+      case 'Pendente':
+        return 'border-t-amber-500 bg-amber-50';
+      case 'Em Preparo':
+        return 'border-t-blue-500 bg-blue-50';
+      case 'Pronto':
+        return 'border-t-green-500 bg-green-50';
+      case 'Em Entrega':
+        return 'border-t-purple-500 bg-purple-50';
+      case 'Entregue':
+        return 'border-t-gray-500 bg-gray-50';
+      default:
+        return 'border-t-gray-500 bg-gray-50';
+    }
+  };
+
+  const OrderSection = ({ 
     title, 
     orders, 
-    actionLabel, 
-    count 
+    status,
+    actionLabel
   }: { 
-    title: string, 
-    orders: any[],
-    actionLabel: string,
-    count: number
+    title: string;
+    orders: any[];
+    status: OrderStatus;
+    actionLabel: string;
   }) => (
-    <div className="flex-1">
+    <div className={`flex-1 min-w-0 border-t-4 rounded-lg ${getSectionColor(status)} p-4`}>
       <div className="flex items-center gap-2 mb-4">
         <h2 className="text-xl font-semibold">{title}</h2>
-        <Badge variant="outline" className="bg-gray-100">
-          ({count})
+        <Badge variant="outline" className="bg-white">
+          {orders.length}
         </Badge>
       </div>
       
-      {orders.length === 0 ? (
-        <div className="bg-gray-50 border border-gray-200 border-dashed rounded-lg p-6 text-center">
-          <p className="text-gray-500">Nenhum pedido {title.toLowerCase()}</p>
-        </div>
-      ) : (
-        <div>
-          {orders.map(order => (
-            <OrderCard
+      <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
+        {orders.length === 0 ? (
+          <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <p className="text-gray-500">Nenhum pedido {title.toLowerCase()}</p>
+          </div>
+        ) : (
+          orders.map(order => (
+            <CompactOrderCard
               key={order.id}
               order={order}
-              statusLabel={order.status}
+              onExpand={() => setExpandedOrder(order)}
+              onNextAction={() => moveToNextStatus(order.id, order.status)}
               actionLabel={actionLabel}
-              nextAction={() => moveToNextStatus(order.id, order.status)}
             />
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold mb-4 md:mb-0">Cozinha</h1>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center space-x-2">
-            <span>Atualização automática:</span>
-            <Switch 
-              checked={autoUpdateEnabled}
-              onCheckedChange={toggleAutoUpdate}
-            />
-          </div>
-          <Button variant="outline" size="icon">
-            <Bell className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-        <KitchenSection
-          title="Pendentes"
-          orders={kitchenOrders.pending}
-          actionLabel="Iniciar Preparo"
-          count={kitchenOrders.pending.length}
+    <SidebarProvider>
+      <div className="flex h-screen w-full">
+        <KitchenSidebar 
+          kitchenOrders={kitchenOrders}
+          autoUpdateEnabled={autoUpdateEnabled}
+          toggleAutoUpdate={toggleAutoUpdate}
         />
         
-        <KitchenSection
-          title="Em Preparo"
-          orders={kitchenOrders.preparing}
-          actionLabel="Marcar como Pronto"
-          count={kitchenOrders.preparing.length}
-        />
-        
-        <KitchenSection
-          title="Prontos"
-          orders={kitchenOrders.ready}
-          actionLabel="Enviar para Entrega"
-          count={kitchenOrders.ready.length}
-        />
-        
-        <KitchenSection
-          title="Em Entrega"
-          orders={kitchenOrders.delivering}
-          actionLabel="Confirmar Entrega"
-          count={kitchenOrders.delivering.length}
-        />
-        
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-xl font-semibold">Entregues</h2>
-            <Badge variant="outline" className="bg-gray-100">
-              ({kitchenOrders.delivered.length})
-            </Badge>
-          </div>
-          
-          {kitchenOrders.delivered.length === 0 ? (
-            <div className="bg-gray-50 border border-gray-200 border-dashed rounded-lg p-6 text-center">
-              <p className="text-gray-500">Nenhum pedido entregue</p>
+        <SidebarInset className="flex-1">
+          <div className="h-full flex flex-col">
+            <div className="border-b bg-white p-4">
+              <div className="flex items-center gap-4">
+                <SidebarTrigger />
+                <h1 className="text-2xl font-bold">Cozinha - Sistema de Pedidos</h1>
+              </div>
             </div>
-          ) : (
-            <div>
-              {kitchenOrders.delivered.map(order => (
-                <Card key={order.id} className="mb-4">
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between">
-                      <CardTitle>
-                        Cliente: {order.clientName}
-                      </CardTitle>
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-1 text-gray-500" />
-                        <span className="text-sm text-gray-500">
-                          {order.preparationTime || 0} min
-                        </span>
-                      </div>
-                    </div>
-                    <Progress value={100} className="h-2 mt-2" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 mb-4">
-                      {order.items.map((item: any, index: number) => (
-                        <div key={index} className="py-2 border-b border-gray-100 last:border-0">
-                          <div className="flex justify-between">
-                            <span className="font-medium">{item.quantity}x {item.productName}</span>
-                            <span className="text-sm text-gray-500">Tamanho: {item.size}</span>
-                          </div>
-                          {item.observations && (
-                            <p className="text-sm text-gray-500 mt-1">Obs: {item.observations}</p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                    <Button 
-                      className="w-full" 
-                      variant="outline"
-                      onClick={() => deleteOrder(order.id)}
-                    >
-                      <Check className="mr-2 h-4 w-4" />
-                      Finalizado
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+            
+            <div className="flex-1 p-4 bg-gray-100">
+              <div className="flex gap-4 h-full">
+                <OrderSection
+                  title="Pendentes"
+                  orders={kitchenOrders.pending}
+                  status="Pendente"
+                  actionLabel="Iniciar Preparo"
+                />
+                
+                <OrderSection
+                  title="Em Preparo"
+                  orders={kitchenOrders.preparing}
+                  status="Em Preparo"
+                  actionLabel="Marcar como Pronto"
+                />
+                
+                <OrderSection
+                  title="Prontos"
+                  orders={kitchenOrders.ready}
+                  status="Pronto"
+                  actionLabel="Enviar para Entrega"
+                />
+                
+                <OrderSection
+                  title="Em Entrega"
+                  orders={kitchenOrders.delivering}
+                  status="Em Entrega"
+                  actionLabel="Confirmar Entrega"
+                />
+                
+                <OrderSection
+                  title="Entregues"
+                  orders={kitchenOrders.delivered}
+                  status="Entregue"
+                  actionLabel=""
+                />
+              </div>
             </div>
-          )}
-        </div>
+          </div>
+        </SidebarInset>
+        
+        {expandedOrder && (
+          <ExpandedOrderCard
+            order={expandedOrder}
+            onClose={() => setExpandedOrder(null)}
+            onNextAction={() => moveToNextStatus(expandedOrder.id, expandedOrder.status)}
+            actionLabel={getActionLabel(expandedOrder.status)}
+          />
+        )}
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
