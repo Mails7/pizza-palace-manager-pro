@@ -1,5 +1,5 @@
 
-export type PizzaSize = 'P' | 'M' | 'G' | 'GG';
+export type PizzaSize = 'MINI' | 'P' | 'M' | 'G' | 'GG';
 
 export type OrderStatus = 'Pendente' | 'Em Preparo' | 'Pronto' | 'Em Entrega' | 'Entregue' | 'Cancelado';
 
@@ -31,6 +31,12 @@ export interface OrderItem {
   size: PizzaSize;
   unitPrice: number;
   observations?: string;
+  isHalfPizza?: boolean;
+  halfPizzaFlavors?: {
+    flavor1: string;
+    flavor2: string;
+  };
+  hasCrust?: boolean;
 }
 
 export interface Client {

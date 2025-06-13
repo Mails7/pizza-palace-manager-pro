@@ -3,6 +3,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { Clock, X, User, Phone, MapPin } from "lucide-react";
 import { OrderStatus } from "@/types";
 
@@ -100,15 +101,30 @@ const ExpandedOrderCard: React.FC<ExpandedOrderCardProps> = ({
                 {order.items.map((item: any, index: number) => (
                   <div key={index} className="border rounded-lg p-4 bg-gray-50">
                     <div className="flex justify-between items-start mb-2">
-                      <span className="font-medium text-lg">
-                        {item.quantity}x {item.productName}
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="font-medium text-lg">
+                          {item.quantity}x {item.productName}
+                        </span>
+                        <div className="flex gap-2 mt-1">
+                          <Badge variant="outline">Tamanho: {item.size}</Badge>
+                          {item.isHalfPizza && (
+                            <Badge variant="secondary">Meia Pizza</Badge>
+                          )}
+                          {item.hasCrust !== undefined && (
+                            <Badge variant="outline">
+                              {item.hasCrust ? "Com Borda" : "Sem Borda"}
+                            </Badge>
+                          )}
+                        </div>
+                        {item.halfPizzaFlavors && (
+                          <div className="text-sm text-gray-600 mt-1">
+                            Sabores: {item.halfPizzaFlavors.flavor1} / {item.halfPizzaFlavors.flavor2}
+                          </div>
+                        )}
+                      </div>
                       <span className="font-semibold text-green-600">
-                        R$ {(item.price * item.quantity).toFixed(2)}
+                        R$ {(item.unitPrice * item.quantity).toFixed(2)}
                       </span>
-                    </div>
-                    <div className="text-sm text-gray-600 mb-1">
-                      Tamanho: {item.size}
                     </div>
                     {item.observations && (
                       <div className="text-sm text-gray-700 bg-yellow-50 p-2 rounded border-l-4 border-yellow-400">

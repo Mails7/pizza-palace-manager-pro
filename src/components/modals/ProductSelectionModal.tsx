@@ -7,12 +7,14 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Plus, Minus } from "lucide-react";
 
 interface ProductSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddItem: (product: any, quantity: number, size: string, observations?: string) => void;
+  onAddItem: (product: any, quantity: number, size: string, observations?: string, isHalfPizza?: boolean, halfPizzaFlavors?: any, hasCrust?: boolean) => void;
 }
 
 const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
@@ -26,6 +28,10 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [observations, setObservations] = useState("");
+  const [isHalfPizza, setIsHalfPizza] = useState(false);
+  const [flavor1, setFlavor1] = useState("");
+  const [flavor2, setFlavor2] = useState("");
+  const [hasCrust, setHasCrust] = useState(true);
 
   const filteredProducts = products.filter(
     (product) =>
@@ -34,16 +40,39 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
         product.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const pizzaProducts = products.filter(
+    (product) => product.available && product.category.toLowerCase().includes('pizza')
+  );
+
   const handleProductSelect = (product: any) => {
     setSelectedProduct(product);
     setSelectedSize(product.prices[0]?.size || "");
     setQuantity(1);
     setObservations("");
+    setIsHalfPizza(false);
+    setFlavor1("");
+    setFlavor2("");
+    setHasCrust(true);
   };
 
   const handleAddToOrder = () => {
     if (selectedProduct && selectedSize && quantity > 0) {
-      onAddItem(selectedProduct, quantity, selectedSize, observations);
+      const halfPizzaFlavors = isHalfPizza ? { flavor1, flavor2 } : undefined;
+      
+      if (isHalfPizza && (!flavor1 || !flavor2)) {
+        alert("Para meia pizza, selecione dois sabores");
+        return;
+      }
+      
+      onAddItem(
+        selectedProduct, 
+        quantity, 
+        selectedSize, 
+        observations, 
+        isHalfPizza, 
+        halfPizzaFlavors, 
+        hasCrust
+      );
       resetForm();
     }
   };
@@ -53,6 +82,10 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
     setSelectedSize("");
     setQuantity(1);
     setObservations("");
+    setIsHalfPizza(false);
+    setFlavor1("");
+    setFlavor2("");
+    setHasCrust(true);
     setSearchTerm("");
   };
 
@@ -74,11 +107,13 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
     return priceObj ? priceObj.price : 0;
   };
 
+  const isPizzaProduct = selectedProduct && selectedProduct.category.toLowerCase().includes('pizza');
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!open) handleClose();
     }}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Selecionar Produto</DialogTitle>
         </DialogHeader>
@@ -149,6 +184,62 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
                 ))}
               </RadioGroup>
             </div>
+
+            {isPizzaProduct && (
+              <>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Meia Pizza (máximo 2 sabores)</label>
+                  <Switch 
+                    checked={isHalfPizza}
+                    onCheckedChange={setIsHalfPizza}
+                  />
+                </div>
+
+                {isHalfPizza && (
+                  <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Primeiro Sabor</label>
+                      <Select value={flavor1} onValueChange={setFlavor1}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o primeiro sabor" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {pizzaProducts.map((pizza) => (
+                            <SelectItem key={pizza.id} value={pizza.name}>
+                              {pizza.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Segundo Sabor</label>
+                      <Select value={flavor2} onValueChange={setFlavor2}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o segundo sabor" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {pizzaProducts.map((pizza) => (
+                            <SelectItem key={pizza.id} value={pizza.name}>
+                              {pizza.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Com Borda</label>
+                  <Switch 
+                    checked={hasCrust}
+                    onCheckedChange={setHasCrust}
+                  />
+                </div>
+              </>
+            )}
 
             <div>
               <label className="block text-sm font-medium mb-2">Quantidade</label>

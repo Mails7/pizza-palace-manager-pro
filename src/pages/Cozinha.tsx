@@ -1,13 +1,17 @@
+
 import React, { useEffect, useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { OrderStatus } from "@/types";
 import { toast } from "@/components/ui/sonner";
+import { Expand } from "lucide-react";
 import useSound from "use-sound";
 import KitchenSidebar from "@/components/KitchenSidebar";
 import CompactOrderCard from "@/components/CompactOrderCard";
 import ExpandedOrderCard from "@/components/ExpandedOrderCard";
+import KitchenStageExpanded from "@/components/KitchenStageExpanded";
 
 const Cozinha = () => {
   const { 
@@ -19,57 +23,58 @@ const Cozinha = () => {
   } = useApp();
   
   const [expandedOrder, setExpandedOrder] = useState<any>(null);
+  const [expandedStage, setExpandedStage] = useState<OrderStatus | null>(null);
   
   // Carregando som de notificação
   const [playNewOrder] = useSound("/notification-sound.mp3", { volume: 0.5 });
 
-  // Automação de pedidos quando autoUpdateEnabled está ativo
+  // Automação de pedidos com novos tempos
   useEffect(() => {
     if (!autoUpdateEnabled) return;
     
     const intervals: NodeJS.Timeout[] = [];
     
-    // Processamento automático para pedidos pendentes
+    // Processamento automático para pedidos pendentes (30 segundos)
     kitchenOrders.pending.forEach(order => {
       const timer = setTimeout(() => {
         updateOrderStatus(order.id, "Em Preparo");
         toast("Pedido atualizado", {
           description: `Pedido ${order.id} agora está Em Preparo.`
         });
-      }, 60000); // 1 minuto
+      }, 30000); // 30 segundos
       intervals.push(timer);
     });
     
-    // Processamento automático para pedidos em preparo
+    // Processamento automático para pedidos em preparo (3 minutos)
     kitchenOrders.preparing.forEach(order => {
       const timer = setTimeout(() => {
         updateOrderStatus(order.id, "Pronto");
         toast("Pedido atualizado", {
           description: `Pedido ${order.id} agora está Pronto.`
         });
-      }, 120000); // 2 minutos
+      }, 180000); // 3 minutos
       intervals.push(timer);
     });
     
-    // Processamento automático para pedidos prontos
+    // Processamento automático para pedidos prontos (2 minutos)
     kitchenOrders.ready.forEach(order => {
       const timer = setTimeout(() => {
         updateOrderStatus(order.id, "Em Entrega");
         toast("Pedido atualizado", {
           description: `Pedido ${order.id} agora está Em Entrega.`
         });
-      }, 300000); // 5 minutos
+      }, 120000); // 2 minutos
       intervals.push(timer);
     });
     
-    // Processamento automático para pedidos em entrega
+    // Processamento automático para pedidos em entrega (30 minutos)
     kitchenOrders.delivering.forEach(order => {
       const timer = setTimeout(() => {
         updateOrderStatus(order.id, "Entregue");
         toast("Pedido atualizado", {
           description: `Pedido ${order.id} agora está Entregue.`
         });
-      }, 2400000); // 40 minutos
+      }, 1800000); // 30 minutos
       intervals.push(timer);
     });
     
@@ -172,11 +177,23 @@ const Cozinha = () => {
     actionLabel: string;
   }) => (
     <div className={`flex-1 min-w-0 border-t-4 rounded-lg ${getSectionColor(status)} p-4`}>
-      <div className="flex items-center gap-2 mb-4">
-        <h2 className="text-xl font-semibold">{title}</h2>
-        <Badge variant="outline" className="bg-white">
-          {orders.length}
-        </Badge>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-semibold">{title}</h2>
+          <Badge variant="outline" className="bg-white">
+            {orders.length}
+          </Badge>
+        </div>
+        {orders.length > 3 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setExpandedStage(status)}
+            className="p-1"
+          >
+            <Expand className="h-4 w-4" />
+          </Button>
+        )}
       </div>
       
       <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
@@ -185,7 +202,7 @@ const Cozinha = () => {
             <p className="text-gray-500">Nenhum pedido {title.toLowerCase()}</p>
           </div>
         ) : (
-          orders.map(order => (
+          orders.slice(0, 3).map(order => (
             <CompactOrderCard
               key={order.id}
               order={order}
@@ -194,6 +211,11 @@ const Cozinha = () => {
               actionLabel={actionLabel}
             />
           ))
+        )}
+        {orders.length > 3 && (
+          <div className="text-center text-sm text-gray-500 py-2">
+            +{orders.length - 3} pedidos adicionais
+          </div>
         )}
       </div>
     </div>
@@ -264,6 +286,21 @@ const Cozinha = () => {
             onClose={() => setExpandedOrder(null)}
             onNextAction={() => moveToNextStatus(expandedOrder.id, expandedOrder.status)}
             actionLabel={getActionLabel(expandedOrder.status)}
+          />
+        )}
+        
+        {expandedStage && (
+          <KitchenStageExpanded
+            title={getSectionTitle(expandedStage)}
+            orders={kitchenOrders[expandedStage === 'Pendente' ? 'pending' : 
+                              expandedStage === 'Em Preparo' ? 'preparing' :
+                              expandedStage === 'Pronto' ? 'ready' :
+                              expandedStage === 'Em Entrega' ? 'delivering' : 'delivered']}
+            status={expandedStage}
+            actionLabel={getActionLabel(expandedStage)}
+            onClose={() => setExpandedStage(null)}
+            onOrderExpand={setExpandedOrder}
+            onOrderAction={moveToNextStatus}
           />
         )}
       </div>

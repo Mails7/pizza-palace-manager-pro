@@ -41,16 +41,37 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
     return items.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
   };
 
-  const handleAddItem = (product: any, quantity: number, size: any, observations?: string) => {
+  const handleAddItem = (
+    product: any, 
+    quantity: number, 
+    size: any, 
+    observations?: string,
+    isHalfPizza?: boolean,
+    halfPizzaFlavors?: any,
+    hasCrust?: boolean
+  ) => {
+    let productName = product.name;
+    
+    if (isHalfPizza && halfPizzaFlavors) {
+      productName = `${halfPizzaFlavors.flavor1} / ${halfPizzaFlavors.flavor2}`;
+    }
+    
+    if (hasCrust !== undefined) {
+      productName += hasCrust ? " (Com Borda)" : " (Sem Borda)";
+    }
+
     setItems((prevItems) => [
       ...prevItems,
       {
         productId: product.id,
-        productName: product.name,
+        productName,
         quantity,
         size,
         unitPrice: product.prices.find((p: any) => p.size === size).price,
         observations,
+        isHalfPizza,
+        halfPizzaFlavors,
+        hasCrust,
       },
     ]);
     setIsProductSelectionOpen(false);
@@ -99,7 +120,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
       <Dialog open={isOpen} onOpenChange={(open) => {
         if (!open) onClose();
       }}>
-        <DialogContent className="sm:max-w-xl">
+        <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Novo Pedido</DialogTitle>
           </DialogHeader>
@@ -183,6 +204,14 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
                             {item.quantity}x {item.productName}
                           </span>
                           <Badge variant="outline">{item.size}</Badge>
+                          {item.isHalfPizza && (
+                            <Badge variant="secondary">Meia Pizza</Badge>
+                          )}
+                          {item.hasCrust !== undefined && (
+                            <Badge variant="outline">
+                              {item.hasCrust ? "Com Borda" : "Sem Borda"}
+                            </Badge>
+                          )}
                         </div>
                         {item.observations && (
                           <p className="text-sm text-gray-500">
