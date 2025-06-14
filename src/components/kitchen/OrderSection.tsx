@@ -2,7 +2,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Expand } from "lucide-react";
+import { Expand, Eye } from "lucide-react";
 import { OrderStatus } from "@/types";
 import CompactOrderCard from "@/components/CompactOrderCard";
 
@@ -51,16 +51,28 @@ const OrderSection: React.FC<OrderSectionProps> = ({
             {orders.length}
           </Badge>
         </div>
-        {orders.length > 3 && (
+        <div className="flex gap-1">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onExpandStage(status)}
             className="p-1"
+            title="Visualizar todos os pedidos"
           >
-            <Expand className="h-4 w-4" />
+            <Eye className="h-4 w-4" />
           </Button>
-        )}
+          {orders.length > 3 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onExpandStage(status)}
+              className="p-1"
+              title="Expandir visualização"
+            >
+              <Expand className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
       
       <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
