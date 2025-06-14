@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Sidebar,
@@ -69,7 +68,7 @@ const KitchenSidebar: React.FC<KitchenSidebarProps> = ({
   ];
 
   return (
-    <Sidebar className="border-r">
+    <Sidebar className="border-r" collapsible="icon">
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center gap-2">
           <ChefHat className="h-8 w-8 text-orange-500" />
@@ -108,16 +107,18 @@ const KitchenSidebar: React.FC<KitchenSidebarProps> = ({
             <h3 className="font-semibold mb-3">Configurações</h3>
             
             <SidebarMenuItem className="mb-3">
-              <div className="flex items-center justify-between w-full px-2">
-                <div className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  <span className="text-sm">Atualização Automática</span>
+              <SidebarMenuButton>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    <span className="text-sm">Atualização Automática</span>
+                  </div>
+                  <Switch 
+                    checked={autoUpdateEnabled}
+                    onCheckedChange={toggleAutoUpdate}
+                  />
                 </div>
-                <Switch 
-                  checked={autoUpdateEnabled}
-                  onCheckedChange={toggleAutoUpdate}
-                />
-              </div>
+              </SidebarMenuButton>
             </SidebarMenuItem>
 
             <SidebarMenuItem>
