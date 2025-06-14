@@ -40,7 +40,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
   const [isHalfPizza, setIsHalfPizza] = useState(false);
   const [flavor1, setFlavor1] = useState("");
   const [flavor2, setFlavor2] = useState("");
-  const [hasCrust, setHasCrust] = useState(true);
+  const [hasCrust, setHasCrust] = useState(false);
   const [selectedCrustFlavor, setSelectedCrustFlavor] = useState<string>("");
 
   // Encontra todos os produtos pizza disponíveis
@@ -49,6 +49,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
   );
 
   const handleProductSelect = (product: any) => {
+    console.log('Produto selecionado:', product);
     setSelectedProduct(product);
     setSelectedSize(product.prices[0]?.size || "");
     setQuantity(1);
@@ -56,12 +57,27 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
     setIsHalfPizza(false);
     setFlavor1("");
     setFlavor2("");
-    setHasCrust(product.hasCrust ?? true);
+    
+    // Verificar se é pizza baseado na categoria
+    const isPizza = product.category?.toLowerCase().includes('pizza');
+    console.log('É pizza?', isPizza, 'Categoria:', product.category);
+    
+    // Definir se tem borda baseado no produto
+    setHasCrust(isPizza && (product.hasCrust || product.crustFlavors?.length > 0));
     setSelectedCrustFlavor("");
   };
 
+  // Verifica se o produto selecionado é uma pizza
   const isPizzaProduct = selectedProduct && selectedProduct.category?.toLowerCase().includes('pizza');
-  const hasBordaCampos = selectedProduct && selectedProduct.hasCrust && Array.isArray(selectedProduct.crustFlavors) && selectedProduct.crustFlavors.length > 0;
+  
+  // Verifica se o produto tem opções de borda configuradas
+  const hasBordaCampos = selectedProduct && 
+    (selectedProduct.hasCrust || 
+     (Array.isArray(selectedProduct.crustFlavors) && selectedProduct.crustFlavors.length > 0));
+
+  console.log('isPizzaProduct:', isPizzaProduct);
+  console.log('hasBordaCampos:', hasBordaCampos);
+  console.log('selectedProduct:', selectedProduct);
 
   const crustFlavorsArray = (selectedProduct && selectedProduct.crustFlavors) || [];
   const crustPricesArray = (selectedProduct && selectedProduct.crustPrices) || [];
@@ -80,10 +96,20 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
       let crustFlavorName: string | undefined = undefined;
       let crustPrice: number | undefined = undefined;
 
-      if (isPizza && hasBordaCampos && hasCrust) {
+      if (isPizza && hasCrust && selectedCrustFlavor) {
         crustFlavorName = selectedCrustFlavor;
         crustPrice = selectedCrustPrice;
       }
+
+      console.log('Adicionando item:', {
+        product: selectedProduct.name,
+        isPizza,
+        hasCrust,
+        crustFlavorName,
+        crustPrice,
+        isHalfPizza,
+        halfPizzaFlavors
+      });
 
       onAddItem(
         selectedProduct,
@@ -108,7 +134,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
     setIsHalfPizza(false);
     setFlavor1("");
     setFlavor2("");
-    setHasCrust(true);
+    setHasCrust(false);
     setSelectedCrustFlavor("");
     setSearchTerm("");
   };
@@ -131,7 +157,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
     let basePrice = priceObj ? priceObj.price : 0;
 
     // Se for pizza com borda, some o preço da borda
-    if (isPizzaProduct && hasCrust && hasBordaCampos && selectedCrustPrice > 0) {
+    if (isPizzaProduct && hasCrust && selectedCrustPrice > 0) {
       basePrice += selectedCrustPrice;
     }
 
@@ -160,6 +186,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
             <div className="border-b pb-4">
               <h3 className="font-medium text-lg">{selectedProduct.name}</h3>
               <p className="text-sm text-gray-500">{selectedProduct.description}</p>
+              <p className="text-xs text-blue-500">Categoria: {selectedProduct.category}</p>
             </div>
 
             <ProductSizeSelector
@@ -169,9 +196,11 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
               formatCurrency={formatCurrency}
             />
 
-            {/* Pizza: opções padrão */}
+            {/* Opções de Pizza - sempre mostrar se for pizza */}
             {isPizzaProduct && (
-              <>
+              <div className="border rounded-lg p-4 bg-blue-50">
+                <h4 className="font-medium mb-3 text-blue-900">Opções da Pizza</h4>
+                
                 <PizzaOptionsSelector
                   isHalfPizza={isHalfPizza}
                   setIsHalfPizza={setIsHalfPizza}
@@ -184,14 +213,14 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
                   pizzaProducts={pizzaProducts}
                 />
 
-                {/* Se a pizza tem sabores de borda e borda marcada, mostra campos para sabor e preço da borda */}
-                {hasCrust && hasBordaCampos && (
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
+                {/* Opções de borda se estiver marcado para ter borda */}
+                {hasCrust && crustFlavorsArray.length > 0 && (
+                  <div className="mt-4 p-3 bg-white rounded border">
+                    <label className="block text-sm font-medium mb-2">
                       Sabor da borda
                     </label>
                     <select
-                      className="border rounded px-2 py-1 w-full"
+                      className="border rounded px-3 py-2 w-full"
                       value={selectedCrustFlavor}
                       onChange={e => setSelectedCrustFlavor(e.target.value)}
                     >
@@ -202,12 +231,14 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
                         </option>
                       ))}
                     </select>
-                    <p className="text-xs mt-1">
-                      Preço da borda: <strong>{formatCurrency(selectedCrustPrice)}</strong>
-                    </p>
+                    {selectedCrustPrice > 0 && (
+                      <p className="text-xs mt-1 text-green-600">
+                        Adicional da borda: <strong>{formatCurrency(selectedCrustPrice)}</strong>
+                      </p>
+                    )}
                   </div>
                 )}
-              </>
+              </div>
             )}
 
             <QuantitySelector
