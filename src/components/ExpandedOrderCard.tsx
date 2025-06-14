@@ -1,10 +1,9 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Clock, X, User, Phone, MapPin } from "lucide-react";
+import { Clock, X, User, Phone, MapPin, Check } from "lucide-react";
 import { OrderStatus } from "@/types";
 
 interface ExpandedOrderCardProps {
@@ -155,7 +154,18 @@ const ExpandedOrderCard: React.FC<ExpandedOrderCardProps> = ({
               </div>
             </div>
 
-            {order.status !== 'Entregue' && (
+            {order.status === 'Em Entrega' && (
+              <Button 
+                onClick={onNextAction}
+                className="w-full mt-4 bg-green-600 hover:bg-green-700"
+                size="lg"
+              >
+                <Check className="h-5 w-5 mr-2" />
+                Marcar como Entregue
+              </Button>
+            )}
+
+            {order.status !== 'Entregue' && order.status !== 'Em Entrega' && (
               <Button 
                 onClick={onNextAction}
                 className="w-full mt-4"

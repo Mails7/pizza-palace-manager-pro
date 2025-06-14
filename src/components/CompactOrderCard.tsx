@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Clock, Expand, User } from "lucide-react";
+import { Clock, Expand, User, Check } from "lucide-react";
 import { OrderStatus } from "@/types";
 
 interface CompactOrderCardProps {
@@ -125,7 +125,18 @@ const CompactOrderCard: React.FC<CompactOrderCardProps> = ({
           </div>
         </div>
         
-        {order.status !== 'Entregue' && (
+        {order.status === 'Em Entrega' && (
+          <Button 
+            onClick={onNextAction}
+            className="w-full bg-green-600 hover:bg-green-700"
+            size="sm"
+          >
+            <Check className="h-4 w-4 mr-1" />
+            Marcar como Entregue
+          </Button>
+        )}
+        
+        {order.status !== 'Entregue' && order.status !== 'Em Entrega' && (
           <Button 
             onClick={onNextAction}
             className="w-full"
