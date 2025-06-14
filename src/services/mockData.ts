@@ -165,23 +165,28 @@ export const orders: Order[] = [
     phone: "4567890",
     items: [
       {
+        id: "item1",
         productId: "1",
         productName: "Pizza Calabresa",
         quantity: 1,
         size: "P",
+        price: 32.90,
         unitPrice: 32.90
       },
       {
+        id: "item2",
         productId: "3",
         productName: "Pizza Margherita Especial",
         quantity: 1,
         size: "P",
+        price: 39.90,
         unitPrice: 39.90
       }
     ],
     total: 75.80,
     status: "Entregue" as OrderStatus,
     priority: "Baixa" as Priority,
+    orderType: "Entrega",
     createdAt: new Date('2025-04-26T03:45:00')
   },
   {
@@ -191,23 +196,28 @@ export const orders: Order[] = [
     phone: "61983606393",
     items: [
       {
+        id: "item3",
         productId: "2",
         productName: "Pizza Calabresa",
         quantity: 1,
         size: "G",
+        price: 42.90,
         unitPrice: 42.90
       },
       {
+        id: "item4",
         productId: "3",
         productName: "Pizza Margherita Especial",
         quantity: 1,
         size: "G",
+        price: 59.90,
         unitPrice: 59.90
       }
     ],
     total: 107.70,
     status: "Cancelado" as OrderStatus,
     priority: "Baixa" as Priority,
+    orderType: "Entrega",
     createdAt: new Date('2025-04-25T21:43:00')
   },
   {
@@ -217,23 +227,28 @@ export const orders: Order[] = [
     phone: "61983606393",
     items: [
       {
+        id: "item5",
         productId: "1",
         productName: "Pizza Margherita",
         quantity: 1,
         size: "P",
+        price: 35.90,
         unitPrice: 35.90
       },
       {
+        id: "item6",
         productId: "2",
         productName: "Pizza Calabresa",
         quantity: 1,
         size: "P",
+        price: 32.90,
         unitPrice: 32.90
       }
     ],
     total: 71.80,
     status: "Cancelado" as OrderStatus,
     priority: "Baixa" as Priority,
+    orderType: "Entrega",
     createdAt: new Date('2025-04-25T21:36:00')
   },
   {
@@ -243,23 +258,28 @@ export const orders: Order[] = [
     phone: "89",
     items: [
       {
+        id: "item7",
         productId: "3",
         productName: "Pizza Margherita Especial",
         quantity: 2,
         size: "P",
+        price: 39.90,
         unitPrice: 39.90
       },
       {
+        id: "item8",
         productId: "4",
         productName: "Pizza Calabresa Especial",
         quantity: 1,
         size: "P",
+        price: 18.90,
         unitPrice: 18.90
       }
     ],
     total: 98.70,
     status: "Cancelado" as OrderStatus,
     priority: "Baixa" as Priority,
+    orderType: "Entrega",
     createdAt: new Date('2025-04-25T15:16:00')
   },
   {
@@ -269,23 +289,28 @@ export const orders: Order[] = [
     phone: "61983606393",
     items: [
       {
+        id: "item9",
         productId: "4",
         productName: "Pizza Calabresa Especial",
         quantity: 2,
         size: "G",
+        price: 62.90,
         unitPrice: 62.90
       },
       {
+        id: "item10",
         productId: "1",
         productName: "Pizza Margherita",
         quantity: 1,
         size: "P",
+        price: 18.80,
         unitPrice: 18.80
       }
     ],
     total: 144.60,
     status: "Entregue" as OrderStatus,
     priority: "Baixa" as Priority,
+    orderType: "Entrega",
     createdAt: new Date('2025-04-25T15:12:00')
   },
   {
@@ -295,23 +320,28 @@ export const orders: Order[] = [
     phone: "4567890",
     items: [
       {
+        id: "item11",
         productId: "1",
         productName: "Pizza Calabresa",
         quantity: 1,
         size: "P",
+        price: 32.90,
         unitPrice: 32.90
       },
       {
+        id: "item12",
         productId: "1",
         productName: "Pizza Calabresa",
         quantity: 1,
         size: "P",
+        price: 32.90,
         unitPrice: 32.90
       }
     ],
     total: 65.80,
     status: "Entregue" as OrderStatus,
     priority: "Baixa" as Priority,
+    orderType: "Entrega",
     createdAt: new Date('2025-04-25T13:45:00'),
     preparationTime: 2
   }

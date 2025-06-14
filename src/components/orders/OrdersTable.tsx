@@ -87,9 +87,9 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
               <TableCell>
                 <div>
                   <p className="font-medium">{order.clientName}</p>
-                  {order.table && (
+                  {order.tableId && (
                     <Badge variant="outline" className="text-xs">
-                      Mesa {order.table}
+                      Mesa {order.tableId}
                     </Badge>
                   )}
                   {order.deliveryAddress && (
