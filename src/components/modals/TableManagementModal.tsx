@@ -42,6 +42,16 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
     order.tableId === table?.id && order.status !== "Entregue" && order.status !== "Cancelado"
   );
 
+  // Buscar o cliente mais recente da mesa
+  const getTableClient = () => {
+    if (tableOrders.length > 0) {
+      const mostRecentOrder = tableOrders[tableOrders.length - 1];
+      return clients.find(client => client.id === mostRecentOrder.clientId) || 
+             { id: mostRecentOrder.clientId, name: mostRecentOrder.clientName, phone: mostRecentOrder.phone || "" };
+    }
+    return null;
+  };
+
   // Calcular total da mesa
   const tableTotal = tableOrders.reduce((sum, order) => sum + order.total, 0);
 
@@ -87,20 +97,34 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
     setSelectedClient(null);
   };
 
+  // Novo handler para pedido direto quando mesa já tem cliente
+  const handleNewOrderForTable = () => {
+    const tableClient = getTableClient();
+    if (tableClient) {
+      // Se a mesa já tem um cliente, usar diretamente
+      setSelectedClient({
+        ...tableClient,
+        tableId: table?.id
+      });
+      setIsOrderModalOpen(true);
+    } else {
+      // Se não tem cliente, abrir busca de cliente
+      setIsClientModalOpen(true);
+    }
+  };
+
   const handleMergeTables = () => {
     if (!selectedTableToMerge) return;
     
     const tableToMerge = tables.find(t => t.id === selectedTableToMerge);
     if (!tableToMerge) return;
 
-    // Atualizar mesa principal
     updateTable(table.id, {
       mergedWith: [...(table.mergedWith || []), selectedTableToMerge],
       capacity: table.capacity + tableToMerge.capacity,
       name: `${table.name} + ${tableToMerge.name}`
     });
 
-    // Marcar mesa secundária como não disponível
     updateTable(selectedTableToMerge, {
       isAvailable: false,
       notes: `Juntada com Mesa ${table.name}`
@@ -112,7 +136,6 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
   const handleSplitTable = () => {
     const splitCapacity = Math.floor(table.capacity / 2);
     
-    // Criar nova mesa dividida
     const newTable = {
       name: `${table.name}B`,
       capacity: splitCapacity,
@@ -124,7 +147,6 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
 
     addTable(newTable);
 
-    // Atualizar mesa original
     updateTable(table.id, {
       capacity: table.capacity - splitCapacity,
       name: `${table.name}A`
@@ -134,7 +156,6 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
   const handleUnsplitTable = () => {
     if (!table.mergedWith?.length) return;
 
-    // Restaurar mesas juntadas
     table.mergedWith.forEach((mergedTableId: string) => {
       const mergedTable = tables.find(t => t.id === mergedTableId);
       if (mergedTable) {
@@ -145,11 +166,10 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
       }
     });
 
-    // Restaurar mesa principal
     updateTable(table.id, {
       mergedWith: [],
-      capacity: table.capacity, // Seria necessário calcular a capacidade original
-      name: table.name.split(' + ')[0] // Pegar apenas o primeiro nome
+      capacity: table.capacity,
+      name: table.name.split(' + ')[0]
     });
   };
 
@@ -179,15 +199,32 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
             </TabsList>
 
             <TabsContent value="orders" className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Pedidos da Mesa</h3>
-                <Button
-                  onClick={() => setIsClientModalOpen(true)}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Novo Pedido
-                </Button>
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Pedidos da Mesa</h3>
+                  <Button
+                    onClick={handleNewOrderForTable}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Novo Pedido
+                  </Button>
+                </div>
+                
+                {/* Mostrar cliente atual da mesa */}
+                {getTableClient() && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <UserCheck className="h-4 w-4 text-blue-600" />
+                      <span className="font-medium text-blue-800">
+                        Cliente da Mesa: {getTableClient()?.name}
+                      </span>
+                    </div>
+                    <p className="text-sm text-blue-600 mt-1">
+                      Novos pedidos serão automaticamente associados a este cliente
+                    </p>
+                  </div>
+                )}
               </div>
 
               {tableOrders.length > 0 ? (
@@ -455,10 +492,7 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
         <OrderFormModal
           isOpen={isOrderModalOpen}
           onClose={handleOrderComplete}
-          client={{
-            ...selectedClient,
-            tableId: table?.id
-          }}
+          client={selectedClient}
           forceTableOrder={true}
           tableId={table?.id}
         />
