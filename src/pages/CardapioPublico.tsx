@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
@@ -226,20 +225,10 @@ const CardapioPublicoContent = () => {
       deliveryAddress: clientData.address.trim(),
     };
 
-    console.log('📄 === DADOS COMPLETOS DO PEDIDO PARA ENVIO ===');
-    console.log('🆔 Client ID:', orderData.clientId);
-    console.log('👤 Cliente:', orderData.clientName);
-    console.log('📞 Telefone:', orderData.phone);
-    console.log('📍 Status:', orderData.status);
-    console.log('🎯 Prioridade:', orderData.priority);
-    console.log('🚚 Tipo:', orderData.orderType);
-    console.log('💳 Pagamento:', orderData.paymentMethod);
-    console.log('💰 Total:', orderData.total);
-    console.log('⏱️ Tempo estimado:', orderData.estimatedTime);
-    console.log('🏠 Endereço:', orderData.deliveryAddress);
-    console.log('📦 Itens (', orderData.items.length, '):', orderData.items);
-    console.log('📄 Objeto completo para addOrder:', orderData);
-    
+    // LOG ADICIONAL: Objeto do pedido antes do envio
+    console.log('✅ [CARDAPIO_PUBLICO] Pedido a ser enviado para addOrder:', JSON.stringify(orderData, null, 2));
+    console.log('📋 [CARDAPIO_PUBLICO] Tipos - clientId:', typeof orderData.clientId, '| items.length:', orderData.items.length, '| status:', orderData.status, '| Estimado:', orderData.estimatedTime);
+
     try {
       console.log('📞 === EXECUTANDO addOrder ===');
       console.log('🔍 Verificando tipo da função addOrder:', typeof addOrder);

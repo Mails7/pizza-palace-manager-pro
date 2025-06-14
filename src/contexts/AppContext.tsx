@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { 
   Client, 
@@ -237,12 +236,37 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Order actions
   const addOrder = (order: Omit<Order, 'id' | 'createdAt'>) => {
-    console.log('🚀 === ADDORDER FUNÇÃO INICIADA ===');
-    console.log('📋 Dados do pedido recebido:', order);
-    console.log('📍 Status do pedido recebido:', order.status);
-    console.log('📱 Cliente ID recebido:', order.clientId);
-    console.log('👤 Nome do cliente:', order.clientName);
-    
+    console.log('🚀 === [AppContext] ADDORDER FUNÇÃO INICIADA (CARDÁPIO PÚBLICO OU SISTEMA) ===');
+    console.log('📋 [AppContext] Dados do pedido recebido:', JSON.stringify(order, null, 2));
+    console.log('📍 [AppContext] Status recebido:', order.status);
+    console.log('📱 [AppContext] Cliente ID recebido:', order.clientId);
+
+    // Validação de dados obrigatórios do pedido
+    if (!order.clientName || !order.clientId || !order.phone || !order.items || !Array.isArray(order.items)) {
+      console.error("[AppContext] ERRO: Pedido faltando dados obrigatórios!", order);
+      toast({
+        title: "Erro ao criar pedido",
+        description: "Faltam dados obrigatórios do cliente ou itens.",
+        variant: "destructive"
+      });
+      return;
+    }
+    if (!order.status) {
+      console.warn("[AppContext] Corrigindo status vazio para 'Pendente'");
+      order.status = "Pendente";
+    }
+    if (!order.priority) {
+      order.priority = "Média";
+    }
+    if (!order.orderType) {
+      order.orderType = "Entrega";
+    }
+    if (!order.paymentMethod) {
+      order.paymentMethod = "Dinheiro";
+    }
+    if (!order.total) order.total = 0;
+    if (!order.estimatedTime) order.estimatedTime = 30;
+
     try {
       // Verificar se o cliente existe, se não, criar um temporário
       let finalClientId = order.clientId;
