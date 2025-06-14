@@ -19,14 +19,14 @@ export const useKitchenAutomation = ({
     
     const intervals: NodeJS.Timeout[] = [];
     
-    // Processamento automático para pedidos pendentes (IMEDIATO - assim que chega)
+    // Processamento automático para pedidos pendentes (30 segundos)
     kitchenOrders.pending.forEach((order: any) => {
       const timer = setTimeout(() => {
         updateOrderStatus(order.id, "Em Preparo");
         toast("Pedido iniciado automaticamente", {
           description: `Pedido ${order.id} agora está Em Preparo.`
         });
-      }, 1000); // 1 segundo apenas para dar tempo de processar
+      }, 30000); // 30 segundos
       intervals.push(timer);
     });
     
@@ -73,14 +73,14 @@ export const useKitchenAutomation = ({
   useEffect(() => {
     const intervals: NodeJS.Timeout[] = [];
     
-    // Sempre iniciar pedidos pendentes automaticamente (independente da automação geral)
+    // Sempre iniciar pedidos pendentes automaticamente (30 segundos)
     kitchenOrders.pending.forEach((order: any) => {
       const timer = setTimeout(() => {
         updateOrderStatus(order.id, "Em Preparo");
         toast("Pedido iniciado", {
           description: `Pedido ${order.id} foi iniciado automaticamente.`
         });
-      }, 2000); // 2 segundos para iniciar automaticamente
+      }, 30000); // 30 segundos
       intervals.push(timer);
     });
     

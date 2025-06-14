@@ -1,11 +1,15 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Package } from "lucide-react";
 import KitchenSidebar from "@/components/KitchenSidebar";
 import OrderSection from "@/components/kitchen/OrderSection";
 import ExpandedOrderCard from "@/components/ExpandedOrderCard";
 import KitchenStageExpanded from "@/components/KitchenStageExpanded";
+import DeliveredOrdersSection from "@/components/kitchen/DeliveredOrdersSection";
 import { useKitchenOrders } from "@/hooks/useKitchenOrders";
 import { useKitchenAutomation } from "@/hooks/useKitchenAutomation";
 
@@ -19,6 +23,8 @@ const Cozinha = () => {
     autoUpdateEnabled, 
     toggleAutoUpdate 
   } = useApp();
+  
+  const [showDelivered, setShowDelivered] = useState(false);
   
   const {
     expandedOrder,
@@ -54,9 +60,18 @@ const Cozinha = () => {
         <SidebarInset className="flex-1 min-w-0">
           <div className="h-full flex flex-col">
             <header className="border-b bg-white p-4 flex-shrink-0">
-              <div className="flex items-center gap-4">
-                
+              <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold">Cozinha - Sistema de Pedidos</h1>
+                
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDelivered(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Package className="h-4 w-4" />
+                  Pedidos Entregues
+                  <Badge variant="secondary">{kitchenOrders.delivered.length}</Badge>
+                </Button>
               </div>
             </header>
             
@@ -101,16 +116,6 @@ const Cozinha = () => {
                   onOrderAction={moveToNextStatus}
                   onExpandStage={setExpandedStage}
                 />
-                
-                <OrderSection
-                  title="Entregues"
-                  orders={kitchenOrders.delivered}
-                  status="Entregue"
-                  actionLabel=""
-                  onOrderExpand={setExpandedOrder}
-                  onOrderAction={moveToNextStatus}
-                  onExpandStage={setExpandedStage}
-                />
               </div>
             </main>
           </div>
@@ -138,6 +143,14 @@ const Cozinha = () => {
           onClose={() => setExpandedStage(null)}
           onOrderExpand={setExpandedOrder}
           onOrderAction={moveToNextStatus}
+        />
+      )}
+      
+      {showDelivered && (
+        <DeliveredOrdersSection
+          orders={kitchenOrders.delivered}
+          onOrderExpand={setExpandedOrder}
+          onClose={() => setShowDelivered(false)}
         />
       )}
     </SidebarProvider>
