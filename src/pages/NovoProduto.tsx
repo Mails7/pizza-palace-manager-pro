@@ -15,8 +15,6 @@ import PricingForm from "@/components/forms/PricingForm";
 import ConfigurationForm from "@/components/forms/ConfigurationForm";
 import PizzaCrustOptions from "@/components/forms/PizzaCrustOptions";
 
-// ... schemas the same ...
-
 const priceSchema = z.object({
   size: z.enum(['MINI', 'P', 'M', 'G', 'GG']),
   price: z.number().positive("O preço deve ser maior que zero."),
@@ -33,8 +31,6 @@ const productFormSchema = z.object({
   isKitchenItem: z.boolean().default(true),
   taxExempt: z.boolean().default(false),
   preparationTime: z.coerce.number().int().positive("Deve ser um número positivo.").optional(),
-
-  // Os campos de borda não são validados pelo zod aqui, pois são opcionais/dinâmicos 
 });
 
 const pizzaSizes: PizzaSize[] = ['MINI', 'P', 'M', 'G', 'GG'];
@@ -49,7 +45,7 @@ const NovoProduto = () => {
       name: "",
       description: "",
       category: "",
-      type: "Pizza",
+      type: "Bebida",
       image: "",
       prices: [{ size: 'M' as PizzaSize, price: 0 }],
       available: true,
@@ -70,6 +66,22 @@ const NovoProduto = () => {
   );
   const watchPrices = form.watch("prices");
 
+  // Atualizar preços quando o tipo muda
+  React.useEffect(() => {
+    const isPizza = watchType?.toLowerCase().includes('pizza');
+    
+    if (isPizza) {
+      // Se mudou para pizza, garantir que tem pelo menos um preço com tamanho
+      const currentPrices = form.getValues("prices");
+      if (currentPrices.length === 1 && !currentPrices[0].size) {
+        form.setValue("prices", [{ size: 'M' as PizzaSize, price: 0 }]);
+      }
+    } else {
+      // Se mudou para não-pizza, usar apenas um preço único
+      form.setValue("prices", [{ size: 'M' as PizzaSize, price: 0 }]);
+    }
+  }, [watchType, form]);
+
   React.useEffect(() => {
     // Mantém crustPrices sincronizado com os tamanhos selecionados na pricing (caso usuário adicione/remova tamanhos)
     setCrustPrices(prev =>
@@ -77,7 +89,6 @@ const NovoProduto = () => {
         p => prev.find(crust => crust.size === p.size) || { size: p.size, price: 0 }
       )
     );
-    // eslint-disable-next-line
   }, [JSON.stringify(watchPrices)]);
 
   function onSubmit(data: ProductFormValues) {

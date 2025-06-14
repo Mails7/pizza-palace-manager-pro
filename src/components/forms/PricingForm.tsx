@@ -35,75 +35,113 @@ const PricingForm = ({ control, errors }: PricingFormProps) => {
     name: "prices",
   });
 
+  // Watch the type field to determine if it's a pizza
+  const watchType = React.useMemo(() => {
+    return control._formValues?.type || "";
+  }, [control._formValues?.type]);
+
+  const isPizza = watchType.toLowerCase().includes('pizza');
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Preços</CardTitle>
-        <CardDescription>Defina os preços para os diferentes tamanhos.</CardDescription>
+        <CardDescription>
+          {isPizza ? "Defina os preços para os diferentes tamanhos." : "Defina o preço do produto."}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {fields.map((field, index) => (
-          <div key={field.id} className="flex items-end gap-4">
-            <FormField
-              control={control}
-              name={`prices.${index}.size`}
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>Tamanho</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Tamanho" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {pizzaSizes.map(size => <SelectItem key={size} value={size}>{size}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name={`prices.${index}.price`}
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>Preço (R$)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      step="0.01" 
-                      {...field} 
-                      onChange={e => {
-                        const value = parseFloat(e.target.value);
-                        field.onChange(isNaN(value) ? 0 : value);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {isPizza ? (
+          // Campos para pizza (com tamanhos)
+          <>
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex items-end gap-4">
+                <FormField
+                  control={control}
+                  name={`prices.${index}.size`}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Tamanho</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Tamanho" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {pizzaSizes.map(size => <SelectItem key={size} value={size}>{size}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name={`prices.${index}.price`}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Preço (R$)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          step="0.01" 
+                          {...field} 
+                          onChange={e => {
+                            const value = parseFloat(e.target.value);
+                            field.onChange(isNaN(value) ? 0 : value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => remove(index)}
+                  disabled={fields.length <= 1}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
             <Button
               type="button"
-              variant="destructive"
-              size="icon"
-              onClick={() => remove(index)}
-              disabled={fields.length <= 1}
+              variant="outline"
+              onClick={() => append({ size: 'P' as PizzaSize, price: 0 })}
             >
-              <Trash2 className="h-4 w-4" />
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Adicionar Preço
             </Button>
-          </div>
-        ))}
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => append({ size: 'P' as PizzaSize, price: 0 })}
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Adicionar Preço
-        </Button>
+          </>
+        ) : (
+          // Campo simples para produtos não-pizza
+          <FormField
+            control={control}
+            name="prices.0.price"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Preço (R$)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    placeholder="0,00"
+                    {...field} 
+                    onChange={e => {
+                      const value = parseFloat(e.target.value);
+                      field.onChange(isNaN(value) ? 0 : value);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
       </CardContent>
     </Card>
   );

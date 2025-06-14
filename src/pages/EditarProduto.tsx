@@ -56,7 +56,7 @@ const EditarProduto = () => {
       name: product?.name || "",
       description: product?.description || "",
       category: product?.category || "",
-      type: product?.type || "Pizza",
+      type: product?.type || "Bebida",
       image: product?.image || "",
       prices: product?.prices || [{ size: 'M' as PizzaSize, price: 0 }],
       available: product?.available ?? true,
@@ -77,6 +77,19 @@ const EditarProduto = () => {
     pizzaSizes.map(size => ({ size, price: 0 }))
   );
   const watchPrices = form.watch("prices");
+
+  // Atualizar preços quando o tipo muda
+  React.useEffect(() => {
+    const isPizza = watchType?.toLowerCase().includes('pizza');
+    
+    if (!isPizza) {
+      // Se mudou para não-pizza, garantir que tem apenas um preço
+      const currentPrices = form.getValues("prices");
+      if (currentPrices.length > 1) {
+        form.setValue("prices", [{ size: 'M' as PizzaSize, price: currentPrices[0]?.price || 0 }]);
+      }
+    }
+  }, [watchType, form]);
 
   React.useEffect(() => {
     // Mantém crustPrices sincronizado com os tamanhos selecionados na pricing
