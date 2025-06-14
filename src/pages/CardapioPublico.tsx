@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,7 @@ import ClientDataForm from "@/components/forms/ClientDataForm";
 import ShoppingCartModal from "@/components/modals/ShoppingCartModal";
 import FloatingCartButton from "@/components/FloatingCartButton";
 import { ShoppingCartProvider, useShoppingCart } from "@/contexts/ShoppingCartContext";
+import { OrderItem } from "@/types";
 
 interface ClientData {
   name: string;
@@ -30,7 +33,8 @@ interface BannerConfig {
 }
 
 const CardapioPublicoContent = () => {
-  const { products } = useApp();
+  const navigate = useNavigate();
+  const { products, addOrder } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
@@ -52,7 +56,8 @@ const CardapioPublicoContent = () => {
     addToCart, 
     getTotalItems, 
     getTotalPrice, 
-    cartItems 
+    cartItems,
+    clearCart 
   } = useShoppingCart();
 
   console.log('CardapioPublico - cartItems:', cartItems, 'totalItems:', getTotalItems(), 'totalPrice:', getTotalPrice());
@@ -148,20 +153,66 @@ const CardapioPublicoContent = () => {
     toast.success("Dados removidos com sucesso!");
   };
 
+  const getEstimatedPreparationTime = () => {
+    const maxTime = Math.max(...cartItems.map(item => item.preparationTime || 15));
+    return maxTime + Math.floor(cartItems.length / 3) * 5;
+  };
+
   const handleCheckout = () => {
     if (cartItems.length === 0) {
       toast.error("Carrinho vazio!");
       return;
     }
+
+    if (!clientData) {
+      toast.error("Dados do cliente não encontrados!");
+      return;
+    }
     
-    // Aqui você pode implementar a lógica de checkout
-    // Por exemplo, redirecionar para uma página de finalização
-    toast.success("Redirecionando para finalização do pedido...");
-    console.log("Dados do pedido:", {
-      cliente: clientData,
-      itens: cartItems,
-      total: getTotalPrice()
-    });
+    // Converter itens do carrinho para OrderItem
+    const orderItems: OrderItem[] = cartItems.map(cartItem => ({
+      id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      productId: cartItem.productId,
+      productName: cartItem.productName,
+      quantity: cartItem.quantity,
+      price: cartItem.unitPrice,
+      unitPrice: cartItem.unitPrice,
+      size: cartItem.size,
+      observations: cartItem.observations || "",
+      preparationTime: cartItem.preparationTime || 15
+    }));
+
+    const orderData = {
+      clientName: clientData.name.trim(),
+      clientId: `client-${Date.now()}`,
+      phone: clientData.phone.trim(),
+      items: orderItems,
+      total: getTotalPrice(),
+      status: "Pendente" as const,
+      priority: "Média" as const,
+      orderType: "Entrega" as const,
+      paymentMethod: "Dinheiro" as const,
+      notes: "",
+      estimatedTime: getEstimatedPreparationTime(),
+      deliveryAddress: clientData.address.trim(),
+    };
+
+    console.log('Criando pedido do cardápio público:', orderData);
+    
+    try {
+      addOrder(orderData);
+      clearCart();
+      toast.success("Pedido criado com sucesso! Redirecionando...");
+      
+      // Redirecionar para página de confirmação ou sucesso
+      setTimeout(() => {
+        toast.success("Pedido enviado para a cozinha!");
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Erro ao criar pedido:', error);
+      toast.error("Erro ao criar pedido. Tente novamente.");
+    }
   };
 
   const formatCurrency = (value: number) => {
