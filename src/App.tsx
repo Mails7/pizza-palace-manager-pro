@@ -36,6 +36,9 @@ const App = () => (
               {/* Rota pública para o cardápio */}
               <Route path="/cardapio-publico" element={<CardapioPublico />} />
               
+              {/* Rota da Cozinha com layout próprio */}
+              <Route path="/cozinha" element={<Cozinha />} />
+
               {/* Rotas administrativas no layout principal */}
               <Route path="/" element={<MainLayout />}>
                 <Route index element={<Dashboard />} />
@@ -48,7 +51,6 @@ const App = () => (
                 <Route path="mesas/nova" element={<NovaMesa />} />
                 <Route path="clientes" element={<Clientes />} />
                 <Route path="clientes/novo" element={<NovoCliente />} />
-                <Route path="cozinha" element={<Cozinha />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
