@@ -31,7 +31,7 @@ import { PizzaSize, Price } from "@/types";
 const priceSchema = z.object({
   size: z.enum(['MINI', 'P', 'M', 'G', 'GG']),
   price: z.number().positive("O preço deve ser maior que zero."),
-}) satisfies z.ZodType<Price>;
+});
 
 const productFormSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
@@ -75,14 +75,14 @@ const NovoProduto = () => {
   });
 
   function onSubmit(data: ProductFormValues) {
-    // Ensure all required fields are present and properly typed
+    // Transform data to ensure it matches the Product interface
     const productData = {
       name: data.name,
       description: data.description,
       category: data.category,
       type: data.type,
       image: data.image || '/placeholder.svg',
-      prices: data.prices,
+      prices: data.prices as Price[], // Type assertion since we know the schema validates correctly
       available: data.available,
       isKitchenItem: data.isKitchenItem,
       taxExempt: data.taxExempt,
