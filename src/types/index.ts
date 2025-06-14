@@ -22,6 +22,7 @@ export interface Product {
   available: boolean;
   isKitchenItem?: boolean;
   taxExempt?: boolean;
+  preparationTime?: number; // em minutos
 }
 
 export interface OrderItem {
@@ -47,6 +48,7 @@ export interface Client {
   orderCount: number;
   totalSpent: number;
   lastOrderDate?: Date;
+  notes?: string; // observações sobre o cliente
 }
 
 export interface Order {
@@ -61,6 +63,10 @@ export interface Order {
   createdAt: Date;
   table?: string;
   preparationTime?: number;
+  estimatedDeliveryTime?: Date;
+  deliveryAddress?: string;
+  paymentMethod?: 'Dinheiro' | 'Cartão' | 'PIX';
+  orderNotes?: string;
 }
 
 export interface Table {

@@ -5,6 +5,7 @@ import ProductSelectionModal from "./ProductSelectionModal";
 import OrderTypeSelector from "./OrderTypeSelector";
 import OrderItemsList from "./OrderItemsList";
 import OrderSummary from "./OrderSummary";
+import OrderDetailsSection from "./OrderDetailsSection";
 import { useOrderForm } from "@/hooks/useOrderForm";
 
 interface OrderFormModalProps {
@@ -27,7 +28,14 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
     setIsProductSelectionOpen,
     items,
     tables,
+    paymentMethod,
+    setPaymentMethod,
+    orderNotes,
+    setOrderNotes,
+    deliveryAddress,
+    setDeliveryAddress,
     calculateTotal,
+    getEstimatedPreparationTime,
     handleAddItem,
     handleRemoveItem,
     handleSubmit,
@@ -38,7 +46,7 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
       <Dialog open={isOpen} onOpenChange={(open) => {
         if (!open) onClose();
       }}>
-        <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Novo Pedido</DialogTitle>
           </DialogHeader>
@@ -53,8 +61,9 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
 
             <div>
               <p className="mb-2 font-medium">Cliente</p>
-              <div className="p-2 bg-gray-50 rounded-md">
-                <p>{client.name} - {client.phone}</p>
+              <div className="p-3 bg-gray-50 rounded-md">
+                <p className="font-medium">{client.name}</p>
+                <p className="text-sm text-gray-600">{client.phone}</p>
                 {client.address && <p className="text-sm text-gray-500">{client.address}</p>}
               </div>
             </div>
@@ -64,6 +73,19 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
               onRemoveItem={handleRemoveItem}
               onAddProduct={() => setIsProductSelectionOpen(true)}
             />
+
+            {items.length > 0 && (
+              <OrderDetailsSection
+                orderType={orderType}
+                paymentMethod={paymentMethod}
+                setPaymentMethod={setPaymentMethod}
+                orderNotes={orderNotes}
+                setOrderNotes={setOrderNotes}
+                deliveryAddress={deliveryAddress}
+                setDeliveryAddress={setDeliveryAddress}
+                estimatedTime={getEstimatedPreparationTime()}
+              />
+            )}
 
             <OrderSummary
               total={calculateTotal()}
