@@ -3,17 +3,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { useShoppingCart } from "@/contexts/ShoppingCartContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/sonner";
-import { ShoppingBag, User, Phone, MapPin, CreditCard, Clock } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { OrderType, PaymentMethod, OrderItem } from "@/types";
+import ClientInfoForm from "@/components/forms/ClientInfoForm";
+import CartSummary from "@/components/cart/CartSummary";
+import OrderFormActions from "@/components/forms/OrderFormActions";
 
 const NovoPedido = () => {
   const navigate = useNavigate();
@@ -50,21 +45,12 @@ const NovoPedido = () => {
     }
   }, [cartItems, navigate]);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
-
   const getEstimatedPreparationTime = () => {
     const maxTime = Math.max(...cartItems.map(item => item.preparationTime || 15));
     return maxTime + Math.floor(cartItems.length / 3) * 5;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSubmit = () => {
     if (!clientName.trim()) {
       toast.error("Nome do cliente é obrigatório");
       return;
@@ -121,6 +107,10 @@ const NovoPedido = () => {
     navigate("/pedidos");
   };
 
+  const handleBack = () => {
+    navigate("/cardapio-publico");
+  };
+
   if (cartItems.length === 0) {
     return null;
   }
@@ -138,217 +128,41 @@ const NovoPedido = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Formulário do Pedido */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Dados do Pedido
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="clientName">Nome do Cliente *</Label>
-                  <Input
-                    id="clientName"
-                    value={clientName}
-                    onChange={(e) => setClientName(e.target.value)}
-                    placeholder="Digite o nome completo"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="clientPhone">Telefone *</Label>
-                  <Input
-                    id="clientPhone"
-                    value={clientPhone}
-                    onChange={(e) => setClientPhone(e.target.value)}
-                    placeholder="(00) 00000-0000"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="orderType">Tipo do Pedido *</Label>
-                  <Select value={orderType} onValueChange={(value: OrderType) => setOrderType(value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Balcão">Balcão</SelectItem>
-                      <SelectItem value="Mesa">Mesa</SelectItem>
-                      <SelectItem value="Entrega">Entrega</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {orderType === "Mesa" && (
-                  <div>
-                    <Label htmlFor="table">Mesa *</Label>
-                    <Select value={selectedTable} onValueChange={setSelectedTable}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione uma mesa" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {tables
-                          .filter(table => table.isAvailable)
-                          .map((table) => (
-                            <SelectItem key={table.id} value={table.id}>
-                              {table.name}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
-                {orderType === "Entrega" && (
-                  <div>
-                    <Label htmlFor="deliveryAddress">Endereço de Entrega *</Label>
-                    <Textarea
-                      id="deliveryAddress"
-                      value={deliveryAddress}
-                      onChange={(e) => setDeliveryAddress(e.target.value)}
-                      placeholder="Endereço completo para entrega"
-                      rows={3}
-                      required
-                    />
-                  </div>
-                )}
-
-                <div>
-                  <Label htmlFor="paymentMethod">Forma de Pagamento</Label>
-                  <Select value={paymentMethod} onValueChange={(value: PaymentMethod) => setPaymentMethod(value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Dinheiro">Dinheiro</SelectItem>
-                      <SelectItem value="Cartão">Cartão</SelectItem>
-                      <SelectItem value="PIX">PIX</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="orderNotes">Observações</Label>
-                  <Textarea
-                    id="orderNotes"
-                    value={orderNotes}
-                    onChange={(e) => setOrderNotes(e.target.value)}
-                    placeholder="Observações adicionais sobre o pedido"
-                    rows={3}
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => navigate("/cardapio-publico")}
-                    className="flex-1"
-                  >
-                    Voltar ao Cardápio
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="flex-1 bg-orange-500 hover:bg-orange-600"
-                  >
-                    Finalizar Pedido
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+          <div>
+            <ClientInfoForm
+              clientName={clientName}
+              setClientName={setClientName}
+              clientPhone={clientPhone}
+              setClientPhone={setClientPhone}
+              deliveryAddress={deliveryAddress}
+              setDeliveryAddress={setDeliveryAddress}
+              orderType={orderType}
+              setOrderType={setOrderType}
+              selectedTable={selectedTable}
+              setSelectedTable={setSelectedTable}
+              paymentMethod={paymentMethod}
+              setPaymentMethod={setPaymentMethod}
+              orderNotes={orderNotes}
+              setOrderNotes={setOrderNotes}
+              tables={tables}
+            />
+            
+            <OrderFormActions
+              onBack={handleBack}
+              onSubmit={handleSubmit}
+            />
+          </div>
 
           {/* Resumo do Pedido */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ShoppingBag className="h-5 w-5" />
-                Resumo do Pedido
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {cartItems.map((item) => (
-                  <div key={item.cartId} className="bg-gray-50 rounded-lg p-3">
-                    <div className="flex justify-between items-start mb-1">
-                      <h4 className="font-medium text-gray-800">{item.productName}</h4>
-                      <Badge variant="secondary">{item.quantity}x</Badge>
-                    </div>
-                    {item.observations && (
-                      <p className="text-sm text-gray-600 mb-2">
-                        Obs: {item.observations}
-                      </p>
-                    )}
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">
-                        {formatCurrency(item.unitPrice)} cada
-                      </span>
-                      <span className="font-semibold text-orange-600">
-                        {formatCurrency(item.price)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <Separator className="my-4" />
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    Tempo estimado:
-                  </span>
-                  <span className="font-medium">{getEstimatedPreparationTime()} min</span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="flex items-center gap-2">
-                    <CreditCard className="h-4 w-4" />
-                    Forma de pagamento:
-                  </span>
-                  <span className="font-medium">{paymentMethod}</span>
-                </div>
-
-                {orderType === "Entrega" && (
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      Tipo:
-                    </span>
-                    <span className="font-medium">Entrega</span>
-                  </div>
-                )}
-
-                {orderType === "Mesa" && selectedTable && (
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      Mesa:
-                    </span>
-                    <span className="font-medium">
-                      {tables.find(t => t.id === selectedTable)?.name}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              <Separator className="my-4" />
-
-              <div className="bg-orange-50 rounded-lg p-4">
-                <div className="flex justify-between items-center text-xl font-bold">
-                  <span>Total:</span>
-                  <span className="text-orange-600">
-                    {formatCurrency(getTotalPrice())}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <CartSummary
+            cartItems={cartItems}
+            orderType={orderType}
+            paymentMethod={paymentMethod}
+            selectedTable={selectedTable}
+            tables={tables}
+            getTotalPrice={getTotalPrice}
+            getEstimatedPreparationTime={getEstimatedPreparationTime}
+          />
         </div>
       </div>
     </div>
