@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -221,28 +220,25 @@ const CardapioPublicoContent = () => {
       <div className="w-full px-4 sm:px-6 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto">
           <div className="relative bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl overflow-hidden shadow-lg border border-orange-200/50">
-            {/* Banner com imagem configurável */}
-            <div className={`relative h-32 sm:h-40 md:h-48 ${
-              bannerConfig.backgroundImage 
-                ? '' 
-                : 'bg-gradient-to-r from-orange-400 via-red-400 to-pink-400'
-            }`}>
-              {bannerConfig.backgroundImage && (
-                <img 
-                  src={bannerConfig.backgroundImage} 
-                  alt="Banner promocional"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              )}
+            {/* Banner sem imagem de fundo */}
+            <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400">
               <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative h-full flex items-center justify-center">
                 <div className="text-center text-white">
                   <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
                     {bannerConfig.title}
                   </h2>
-                  <p className="text-sm sm:text-lg opacity-90">
+                  <p className="text-sm sm:text-lg opacity-90 mb-4">
                     {bannerConfig.subtitle}
                   </p>
+                  {/* Mostrar imagem abaixo do texto promocional */}
+                  {bannerConfig.backgroundImage && (
+                    <img 
+                      src={bannerConfig.backgroundImage} 
+                      alt="Imagem promocional"
+                      className="mx-auto max-w-xs sm:max-w-sm md:max-w-md rounded-lg shadow-lg border-2 border-white/30"
+                    />
+                  )}
                 </div>
               </div>
             </div>
