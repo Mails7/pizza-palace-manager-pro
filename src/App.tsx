@@ -38,7 +38,7 @@ const App = () => (
               {/* Rota pública para o cardápio */}
               <Route path="/cardapio-publico" element={<CardapioPublico />} />
               
-              {/* Rota da Cozinha com layout próprio */}
+              {/* Rota da Cozinha agora dentro do AppProvider */}
               <Route path="/cozinha" element={<Cozinha />} />
 
               {/* Rotas administrativas no layout principal */}
