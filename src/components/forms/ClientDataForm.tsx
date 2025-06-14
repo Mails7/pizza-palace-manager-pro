@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/sonner';
+import { ChefHat, Utensils, Heart } from 'lucide-react';
 
 interface ClientData {
   name: string;
@@ -84,83 +85,116 @@ const ClientDataForm: React.FC<ClientDataFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Dados para Acesso</CardTitle>
-          <p className="text-gray-600 mt-2">
-            Para acessar nosso cardápio, precisamos de algumas informações
-          </p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="name">Nome Completo *</Label>
-              <Input
-                id="name"
-                type="text"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                className={errors.name ? 'border-red-500' : ''}
-                placeholder="Digite seu nome completo"
-              />
-              {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-              )}
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center p-4">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-20 left-20">
+          <ChefHat className="h-24 w-24 text-orange-300" />
+        </div>
+        <div className="absolute top-40 right-32">
+          <Utensils className="h-20 w-20 text-red-300" />
+        </div>
+        <div className="absolute bottom-32 left-32">
+          <Heart className="h-16 w-16 text-pink-300" />
+        </div>
+      </div>
 
-            <div>
-              <Label htmlFor="phone">Telefone *</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => handleInputChange('phone', formatPhone(e.target.value))}
-                className={errors.phone ? 'border-red-500' : ''}
-                placeholder="(00) 00000-0000"
-                maxLength={15}
-              />
-              {errors.phone && (
-                <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-              )}
-            </div>
+      <div className="w-full max-w-lg relative z-10">
+        {/* Welcome Section */}
+        <div className="text-center mb-8">
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-3xl p-8 shadow-2xl mb-6">
+            <ChefHat className="h-16 w-16 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold mb-2">Bem-vindo!</h1>
+            <p className="text-orange-100 text-lg">
+              Descubra sabores únicos em nosso cardápio especial
+            </p>
+          </div>
+        </div>
 
-            <div>
-              <Label htmlFor="email">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                className={errors.email ? 'border-red-500' : ''}
-                placeholder="seuemail@exemplo.com"
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-              )}
-            </div>
+        <Card className="shadow-2xl border-0 rounded-3xl overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-center py-8">
+            <CardTitle className="text-2xl font-bold">Acesso ao Cardápio</CardTitle>
+            <p className="text-orange-100 mt-2">
+              Para uma experiência personalizada, precisamos de algumas informações
+            </p>
+          </CardHeader>
+          <CardContent className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <Label htmlFor="name" className="text-lg font-medium text-gray-700">Nome Completo *</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className={`mt-2 h-12 text-lg rounded-xl border-2 ${errors.name ? 'border-red-500' : 'border-gray-200 focus:border-orange-500'}`}
+                  placeholder="Digite seu nome completo"
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-2">{errors.name}</p>
+                )}
+              </div>
 
-            <div>
-              <Label htmlFor="address">Endereço Completo *</Label>
-              <Textarea
-                id="address"
-                value={formData.address}
-                onChange={(e) => handleInputChange('address', e.target.value)}
-                className={errors.address ? 'border-red-500' : ''}
-                placeholder="Rua, número, bairro, cidade, CEP"
-                rows={3}
-              />
-              {errors.address && (
-                <p className="text-red-500 text-sm mt-1">{errors.address}</p>
-              )}
-            </div>
+              <div>
+                <Label htmlFor="phone" className="text-lg font-medium text-gray-700">Telefone *</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', formatPhone(e.target.value))}
+                  className={`mt-2 h-12 text-lg rounded-xl border-2 ${errors.phone ? 'border-red-500' : 'border-gray-200 focus:border-orange-500'}`}
+                  placeholder="(00) 00000-0000"
+                  maxLength={15}
+                />
+                {errors.phone && (
+                  <p className="text-red-500 text-sm mt-2">{errors.phone}</p>
+                )}
+              </div>
 
-            <Button type="submit" className="w-full">
-              Acessar Cardápio
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+              <div>
+                <Label htmlFor="email" className="text-lg font-medium text-gray-700">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className={`mt-2 h-12 text-lg rounded-xl border-2 ${errors.email ? 'border-red-500' : 'border-gray-200 focus:border-orange-500'}`}
+                  placeholder="seuemail@exemplo.com"
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-2">{errors.email}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="address" className="text-lg font-medium text-gray-700">Endereço Completo *</Label>
+                <Textarea
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  className={`mt-2 text-lg rounded-xl border-2 ${errors.address ? 'border-red-500' : 'border-gray-200 focus:border-orange-500'}`}
+                  placeholder="Rua, número, bairro, cidade, CEP"
+                  rows={3}
+                />
+                {errors.address && (
+                  <p className="text-red-500 text-sm mt-2">{errors.address}</p>
+                )}
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+              >
+                Acessar Cardápio Exclusivo
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center text-sm text-gray-500">
+              <p>✨ Seus dados são seguros e utilizados apenas para melhorar sua experiência</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
