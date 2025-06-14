@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
 import N8nConfigSection from "@/components/N8nConfigSection";
 import PrintConfigSection from "@/components/PrintConfigSection";
+import BannerConfigSection from "@/components/BannerConfigSection";
 import { 
   Settings, 
   Store, 
@@ -22,7 +23,8 @@ import {
   Shield,
   Save,
   Palette,
-  Webhook
+  Webhook,
+  Image
 } from "lucide-react";
 
 const Configuracoes = () => {
@@ -92,10 +94,14 @@ const Configuracoes = () => {
       />
 
       <Tabs defaultValue="store" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="store" className="flex items-center gap-2">
             <Store className="h-4 w-4" />
             Loja
+          </TabsTrigger>
+          <TabsTrigger value="banner" className="flex items-center gap-2">
+            <Image className="h-4 w-4" />
+            Banner
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-2">
             <Bell className="h-4 w-4" />
@@ -222,6 +228,10 @@ const Configuracoes = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="banner" className="space-y-6">
+          <BannerConfigSection />
         </TabsContent>
 
         <TabsContent value="notifications" className="space-y-6">

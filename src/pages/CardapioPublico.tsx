@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +20,16 @@ interface ClientData {
   address: string;
 }
 
+interface BannerConfig {
+  title: string;
+  subtitle: string;
+  backgroundImage: string;
+  storeName: string;
+  operatingHours: string;
+  deliveryInfo: string;
+  rating: string;
+}
+
 const CardapioPublicoContent = () => {
   const { products } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,6 +39,15 @@ const CardapioPublicoContent = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [clientData, setClientData] = useState<ClientData | null>(null);
   const [hasAccess, setHasAccess] = useState(false);
+  const [bannerConfig, setBannerConfig] = useState<BannerConfig>({
+    title: "🍕 Promoção Especial! 🍕",
+    subtitle: "Pizzas grandes a partir de R$ 29,90",
+    backgroundImage: "",
+    storeName: "Pizzaria do Kassio",
+    operatingHours: "18h às 23h",
+    deliveryInfo: "Grátis ac. R$ 50",
+    rating: "4.8 estrelas"
+  });
 
   const { 
     addToCart, 
@@ -49,6 +69,16 @@ const CardapioPublicoContent = () => {
       } catch (error) {
         console.error('Erro ao carregar dados do cliente:', error);
         localStorage.removeItem('cardapioClientData');
+      }
+    }
+
+    // Carregar configurações do banner
+    const savedBannerConfig = localStorage.getItem('bannerConfig');
+    if (savedBannerConfig) {
+      try {
+        setBannerConfig(JSON.parse(savedBannerConfig));
+      } catch (error) {
+        console.error('Erro ao carregar configurações do banner:', error);
       }
     }
   }, []);
@@ -152,7 +182,7 @@ const CardapioPublicoContent = () => {
               <div className="flex flex-col sm:flex-row gap-3 text-sm justify-center lg:justify-start">
                 <div className="flex items-center gap-2 justify-center lg:justify-start">
                   <Clock className="h-4 w-4" />
-                  <span>Aberto das 18h às 23h</span>
+                  <span>{bannerConfig.operatingHours}</span>
                 </div>
                 <div className="flex items-center gap-2 justify-center lg:justify-start">
                   <MapPin className="h-4 w-4" />
@@ -160,7 +190,7 @@ const CardapioPublicoContent = () => {
                 </div>
                 <div className="flex items-center gap-2 justify-center lg:justify-start">
                   <Star className="h-4 w-4" />
-                  <span>4.8 estrelas</span>
+                  <span>{bannerConfig.rating}</span>
                 </div>
               </div>
             </div>
@@ -191,16 +221,27 @@ const CardapioPublicoContent = () => {
       <div className="w-full px-4 sm:px-6 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto">
           <div className="relative bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl overflow-hidden shadow-lg border border-orange-200/50">
-            {/* Banner com imagem de fundo placeholder */}
-            <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400">
+            {/* Banner com imagem configurável */}
+            <div className={`relative h-32 sm:h-40 md:h-48 ${
+              bannerConfig.backgroundImage 
+                ? '' 
+                : 'bg-gradient-to-r from-orange-400 via-red-400 to-pink-400'
+            }`}>
+              {bannerConfig.backgroundImage && (
+                <img 
+                  src={bannerConfig.backgroundImage} 
+                  alt="Banner promocional"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              )}
               <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative h-full flex items-center justify-center">
                 <div className="text-center text-white">
                   <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
-                    🍕 Promoção Especial! 🍕
+                    {bannerConfig.title}
                   </h2>
                   <p className="text-sm sm:text-lg opacity-90">
-                    Pizzas grandes a partir de R$ 29,90
+                    {bannerConfig.subtitle}
                   </p>
                 </div>
               </div>
@@ -213,21 +254,21 @@ const CardapioPublicoContent = () => {
                   <Clock className="h-5 w-5 text-orange-500" />
                   <div>
                     <p className="text-sm font-medium text-gray-700">Horário</p>
-                    <p className="text-xs text-gray-500">18h às 23h</p>
+                    <p className="text-xs text-gray-500">{bannerConfig.operatingHours}</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <MapPin className="h-5 w-5 text-orange-500" />
                   <div>
                     <p className="text-sm font-medium text-gray-700">Delivery</p>
-                    <p className="text-xs text-gray-500">Grátis ac. R$ 50</p>
+                    <p className="text-xs text-gray-500">{bannerConfig.deliveryInfo}</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <Star className="h-5 w-5 text-orange-500" />
                   <div>
                     <p className="text-sm font-medium text-gray-700">Avaliação</p>
-                    <p className="text-xs text-gray-500">4.8 estrelas</p>
+                    <p className="text-xs text-gray-500">{bannerConfig.rating}</p>
                   </div>
                 </div>
               </div>
@@ -364,7 +405,7 @@ const CardapioPublicoContent = () => {
       {/* Footer */}
       <div className="bg-gray-800 text-white py-6 sm:py-8 mt-8 sm:mt-12 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-sm sm:text-base mb-2">Obrigado por escolher nosso restaurante!</p>
+          <p className="text-sm sm:text-base mb-2">Obrigado por escolher {bannerConfig.storeName}!</p>
           <p className="text-xs sm:text-sm text-gray-400">Fazemos com amor, servimos com carinho ❤️</p>
         </div>
       </div>
