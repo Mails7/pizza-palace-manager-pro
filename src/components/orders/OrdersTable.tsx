@@ -18,12 +18,14 @@ import PrioritySelect from "@/components/PrioritySelect";
 interface OrdersTableProps {
   orders: Order[];
   onDeleteOrder: (id: string) => void;
+  onEditOrder: (order: Order) => void;
   onPriorityChange: (orderId: string, priority: Priority) => void;
 }
 
 const OrdersTable: React.FC<OrdersTableProps> = ({
   orders,
   onDeleteOrder,
+  onEditOrder,
   onPriorityChange,
 }) => {
   const formatDate = (date: Date) => {
@@ -98,7 +100,11 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
               <TableCell>{formatDate(order.createdAt)}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
-                  <Button size="icon" variant="ghost">
+                  <Button 
+                    size="icon" 
+                    variant="ghost"
+                    onClick={() => onEditOrder(order)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button 

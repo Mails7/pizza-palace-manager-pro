@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
-import { Priority } from "@/types";
+import { Priority, Order } from "@/types";
 
 export const useOrdersLogic = () => {
   const { orders, deleteOrder, updateOrderPriority } = useApp();
@@ -9,7 +9,9 @@ export const useOrdersLogic = () => {
   const [statusFilter, setStatusFilter] = useState<string>("Todos");
   const [isClientSearchOpen, setIsClientSearchOpen] = useState(false);
   const [isOrderFormOpen, setIsOrderFormOpen] = useState(false);
+  const [isEditOrderOpen, setIsEditOrderOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const handleClientSelected = (client: any) => {
     setSelectedClient(client);
@@ -24,6 +26,16 @@ export const useOrdersLogic = () => {
   const handleOrderFormClose = () => {
     setIsOrderFormOpen(false);
     setSelectedClient(null);
+  };
+
+  const handleEditOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setIsEditOrderOpen(true);
+  };
+
+  const handleEditOrderClose = () => {
+    setIsEditOrderOpen(false);
+    setSelectedOrder(null);
   };
 
   const handlePriorityChange = (orderId: string, priority: Priority) => {
@@ -50,12 +62,18 @@ export const useOrdersLogic = () => {
     setIsClientSearchOpen,
     isOrderFormOpen,
     setIsOrderFormOpen,
+    isEditOrderOpen,
+    setIsEditOrderOpen,
     selectedClient,
     setSelectedClient,
+    selectedOrder,
+    setSelectedOrder,
     filteredOrders,
     handleClientSelected,
     handleNewOrderClick,
     handleOrderFormClose,
+    handleEditOrder,
+    handleEditOrderClose,
     handlePriorityChange,
     deleteOrder,
   };

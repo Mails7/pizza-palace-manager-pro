@@ -18,12 +18,18 @@ const Pedidos = () => {
     setIsClientSearchOpen,
     isOrderFormOpen,
     setIsOrderFormOpen,
+    isEditOrderOpen,
+    setIsEditOrderOpen,
     selectedClient,
     setSelectedClient,
+    selectedOrder,
+    setSelectedOrder,
     filteredOrders,
     handleClientSelected,
     handleNewOrderClick,
     handleOrderFormClose,
+    handleEditOrder,
+    handleEditOrderClose,
     handlePriorityChange,
     deleteOrder,
   } = useOrdersLogic();
@@ -53,6 +59,7 @@ const Pedidos = () => {
         <OrdersTable
           orders={filteredOrders}
           onDeleteOrder={deleteOrder}
+          onEditOrder={handleEditOrder}
           onPriorityChange={handlePriorityChange}
         />
       )}
@@ -62,10 +69,15 @@ const Pedidos = () => {
         setIsClientSearchOpen={setIsClientSearchOpen}
         isOrderFormOpen={isOrderFormOpen}
         setIsOrderFormOpen={setIsOrderFormOpen}
+        isEditOrderOpen={isEditOrderOpen}
+        setIsEditOrderOpen={setIsEditOrderOpen}
         selectedClient={selectedClient}
         setSelectedClient={setSelectedClient}
+        selectedOrder={selectedOrder}
+        setSelectedOrder={setSelectedOrder}
         onClientSelected={handleClientSelected}
         onOrderFormClose={handleOrderFormClose}
+        onEditOrderClose={handleEditOrderClose}
       />
     </div>
   );
