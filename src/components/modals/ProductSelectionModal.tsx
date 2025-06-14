@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -49,7 +48,11 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
   );
 
   const handleProductSelect = (product: any) => {
-    console.log('Produto selecionado:', product);
+    console.log('=== PRODUTO SELECIONADO ===');
+    console.log('Nome:', product.name);
+    console.log('Categoria:', product.category);
+    console.log('Produto completo:', product);
+    
     setSelectedProduct(product);
     setSelectedSize(product.prices[0]?.size || "");
     setQuantity(1);
@@ -60,10 +63,15 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
     
     // Verificar se é pizza baseado na categoria
     const isPizza = product.category?.toLowerCase().includes('pizza');
-    console.log('É pizza?', isPizza, 'Categoria:', product.category);
+    console.log('É pizza?', isPizza);
     
     // Definir se tem borda baseado no produto
-    setHasCrust(isPizza && (product.hasCrust || product.crustFlavors?.length > 0));
+    const productHasCrust = isPizza && (product.hasCrust || product.crustFlavors?.length > 0);
+    console.log('Produto tem borda?', productHasCrust);
+    console.log('product.hasCrust:', product.hasCrust);
+    console.log('product.crustFlavors:', product.crustFlavors);
+    
+    setHasCrust(productHasCrust);
     setSelectedCrustFlavor("");
   };
 
@@ -75,9 +83,11 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
     (selectedProduct.hasCrust || 
      (Array.isArray(selectedProduct.crustFlavors) && selectedProduct.crustFlavors.length > 0));
 
+  console.log('=== STATUS ATUAL ===');
+  console.log('selectedProduct:', selectedProduct?.name);
   console.log('isPizzaProduct:', isPizzaProduct);
   console.log('hasBordaCampos:', hasBordaCampos);
-  console.log('selectedProduct:', selectedProduct);
+  console.log('hasCrust state:', hasCrust);
 
   const crustFlavorsArray = (selectedProduct && selectedProduct.crustFlavors) || [];
   const crustPricesArray = (selectedProduct && selectedProduct.crustPrices) || [];
@@ -187,6 +197,15 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
               <h3 className="font-medium text-lg">{selectedProduct.name}</h3>
               <p className="text-sm text-gray-500">{selectedProduct.description}</p>
               <p className="text-xs text-blue-500">Categoria: {selectedProduct.category}</p>
+              
+              {/* Debug info - remover depois */}
+              <div className="mt-2 p-2 bg-yellow-50 rounded text-xs">
+                <p><strong>Debug:</strong></p>
+                <p>isPizzaProduct: {isPizzaProduct ? 'SIM' : 'NÃO'}</p>
+                <p>hasBordaCampos: {hasBordaCampos ? 'SIM' : 'NÃO'}</p>
+                <p>selectedProduct.hasCrust: {selectedProduct.hasCrust ? 'SIM' : 'NÃO'}</p>
+                <p>crustFlavors length: {crustFlavorsArray.length}</p>
+              </div>
             </div>
 
             <ProductSizeSelector
@@ -196,10 +215,13 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
               formatCurrency={formatCurrency}
             />
 
-            {/* Opções de Pizza - sempre mostrar se for pizza */}
+            {/* Teste: sempre mostrar as opções de pizza para debug */}
             {isPizzaProduct && (
               <div className="border rounded-lg p-4 bg-blue-50">
                 <h4 className="font-medium mb-3 text-blue-900">Opções da Pizza</h4>
+                <p className="text-xs mb-3 text-gray-600">
+                  Esta seção deve aparecer para produtos de pizza
+                </p>
                 
                 <PizzaOptionsSelector
                   isHalfPizza={isHalfPizza}
