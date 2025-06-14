@@ -26,12 +26,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { PizzaSize } from "@/types";
+import { PizzaSize, Price } from "@/types";
 
 const priceSchema = z.object({
   size: z.enum(['MINI', 'P', 'M', 'G', 'GG']),
   price: z.number().positive("O preço deve ser maior que zero."),
-});
+}) satisfies z.ZodType<Price>;
 
 const productFormSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
@@ -62,7 +62,7 @@ const NovoProduto = () => {
       category: "",
       type: "Pizza",
       image: "",
-      prices: [{ size: 'M', price: 0 }],
+      prices: [{ size: 'M' as PizzaSize, price: 0 }],
       available: true,
       isKitchenItem: true,
       taxExempt: false,
@@ -75,7 +75,7 @@ const NovoProduto = () => {
   });
 
   function onSubmit(data: ProductFormValues) {
-    // Ensure all required fields are present
+    // Ensure all required fields are present and properly typed
     const productData = {
       name: data.name,
       description: data.description,
@@ -230,7 +230,15 @@ const NovoProduto = () => {
                           <FormItem className="flex-1">
                             <FormLabel>Preço (R$)</FormLabel>
                             <FormControl>
-                              <Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value))}/>
+                              <Input 
+                                type="number" 
+                                step="0.01" 
+                                {...field} 
+                                onChange={e => {
+                                  const value = parseFloat(e.target.value);
+                                  field.onChange(isNaN(value) ? 0 : value);
+                                }}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -250,7 +258,7 @@ const NovoProduto = () => {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => append({ size: 'P', price: 0 })}
+                    onClick={() => append({ size: 'P' as PizzaSize, price: 0 })}
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Adicionar Preço
@@ -327,7 +335,15 @@ const NovoProduto = () => {
                       <FormItem>
                         <FormLabel>Tempo de Preparo (minutos)</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="15" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))}/>
+                          <Input 
+                            type="number" 
+                            placeholder="15" 
+                            {...field} 
+                            onChange={e => {
+                              const value = parseInt(e.target.value, 10);
+                              field.onChange(isNaN(value) ? undefined : value);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
