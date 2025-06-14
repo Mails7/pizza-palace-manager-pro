@@ -29,8 +29,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { PizzaSize } from "@/types";
 
 const priceSchema = z.object({
-  size: z.enum(['MINI', 'P', 'M', 'G', 'GG'], { required_error: "Tamanho é obrigatório." }),
-  price: z.number({ required_error: "Preço é obrigatório.", invalid_type_error: "Preço deve ser um número." }).positive("O preço deve ser maior que zero."),
+  size: z.enum(['MINI', 'P', 'M', 'G', 'GG']),
+  price: z.number().positive("O preço deve ser maior que zero."),
 });
 
 const productFormSchema = z.object({
