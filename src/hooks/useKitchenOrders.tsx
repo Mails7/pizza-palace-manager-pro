@@ -31,8 +31,8 @@ export const useKitchenOrders = ({
     
     switch (currentStatus) {
       case 'Pendente':
-        nextStatus = 'Em Preparo';
-        break;
+        // Pedidos pendentes não precisam mais de ação manual
+        return;
       case 'Em Preparo':
         nextStatus = 'Pronto';
         break;
@@ -53,7 +53,7 @@ export const useKitchenOrders = ({
   const getActionLabel = (status: OrderStatus) => {
     switch (status) {
       case 'Pendente':
-        return 'Iniciar Preparo';
+        return 'Iniciando...'; // Não há ação manual para pendentes
       case 'Em Preparo':
         return 'Marcar como Pronto';
       case 'Pronto':

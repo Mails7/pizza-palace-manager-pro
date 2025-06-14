@@ -42,6 +42,9 @@ const OrderSection: React.FC<OrderSectionProps> = ({
     }
   };
 
+  // Não mostrar ação para pedidos pendentes (já que iniciam automaticamente)
+  const shouldShowAction = status !== 'Pendente' && status !== 'Entregue';
+
   return (
     <div className={`flex-1 min-w-0 border-t-4 rounded-lg ${getSectionColor(status)} p-4`}>
       <div className="flex items-center justify-between mb-4">
@@ -78,7 +81,12 @@ const OrderSection: React.FC<OrderSectionProps> = ({
       <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
         {orders.length === 0 ? (
           <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-            <p className="text-gray-500">Nenhum pedido {title.toLowerCase()}</p>
+            <p className="text-gray-500">
+              {status === 'Pendente' 
+                ? 'Nenhum pedido pendente - pedidos iniciam automaticamente'
+                : `Nenhum pedido ${title.toLowerCase()}`
+              }
+            </p>
           </div>
         ) : (
           orders.slice(0, 3).map(order => (
@@ -86,8 +94,8 @@ const OrderSection: React.FC<OrderSectionProps> = ({
               key={order.id}
               order={order}
               onExpand={() => onOrderExpand(order)}
-              onNextAction={() => onOrderAction(order.id, order.status)}
-              actionLabel={actionLabel}
+              onNextAction={shouldShowAction ? () => onOrderAction(order.id, order.status) : undefined}
+              actionLabel={shouldShowAction ? actionLabel : ''}
             />
           ))
         )}

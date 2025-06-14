@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,9 @@ const KitchenStageExpanded: React.FC<KitchenStageExpandedProps> = ({
     }
   };
 
+  // Não mostrar ação para pedidos pendentes (já que iniciam automaticamente)
+  const shouldShowAction = status !== 'Pendente' && status !== 'Entregue';
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000] p-4">
       <div className={`w-full max-w-7xl h-[90vh] border-t-4 rounded-lg ${getSectionColor(status)} p-6 bg-white`}>
@@ -60,7 +64,12 @@ const KitchenStageExpanded: React.FC<KitchenStageExpandedProps> = ({
           {orders.length === 0 ? (
             <div className="col-span-full flex items-center justify-center h-full">
               <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <p className="text-gray-500 text-lg">Nenhum pedido {title.toLowerCase()}</p>
+                <p className="text-gray-500 text-lg">
+                  {status === 'Pendente' 
+                    ? 'Nenhum pedido pendente - pedidos iniciam automaticamente'
+                    : `Nenhum pedido ${title.toLowerCase()}`
+                  }
+                </p>
               </div>
             </div>
           ) : (
@@ -69,8 +78,8 @@ const KitchenStageExpanded: React.FC<KitchenStageExpandedProps> = ({
                 key={order.id}
                 order={order}
                 onExpand={() => onOrderExpand(order)}
-                onNextAction={() => onOrderAction(order.id, order.status)}
-                actionLabel={actionLabel}
+                onNextAction={shouldShowAction ? () => onOrderAction(order.id, order.status) : undefined}
+                actionLabel={shouldShowAction ? actionLabel : ''}
               />
             ))
           )}
