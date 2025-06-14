@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { 
   Client, 
@@ -11,6 +10,7 @@ import {
 } from '@/types';
 import { products, clients, tables, orders, dashboardData, kitchenOrders } from '@/services/mockData';
 import { toast } from '@/components/ui/use-toast';
+import { useN8nIntegration } from '@/hooks/useN8nIntegration';
 
 interface AppContextType {
   // Data
@@ -59,6 +59,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [dashboardDataState, setDashboardData] = useState<DashboardData>(dashboardData);
   const [kitchenOrdersState, setKitchenOrders] = useState(kitchenOrders);
   const [autoUpdateEnabled, setAutoUpdateEnabled] = useState(false);
+  
+  const { notifyNewOrder, notifyCancelOrder, notifyStatusUpdate } = useN8nIntegration();
 
   // Product actions
   const addProduct = (product: Omit<Product, 'id'>) => {
@@ -181,6 +183,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
     }
     
+    // Notify n8n about new order
+    notifyNewOrder(newOrder);
+    
     toast({
       title: "Pedido criado",
       description: `Pedido ${newOrder.id} foi criado com sucesso.`
@@ -191,6 +196,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const orderToUpdate = ordersState.find(o => o.id === id);
     
     if (!orderToUpdate) return;
+    
+    const previousStatus = orderToUpdate.status;
     
     // Update order status
     const updatedOrders = ordersState.map(o => 
@@ -229,6 +236,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
     
     setKitchenOrders(newKitchenOrders);
+    
+    // Notify n8n about status update
+    notifyStatusUpdate(id, status, previousStatus);
     
     toast({
       title: "Status atualizado",
@@ -272,6 +282,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     newKitchenOrders.delivered = newKitchenOrders.delivered.filter(o => o.id !== id);
     
     setKitchenOrders(newKitchenOrders);
+    
+    // Notify n8n about order cancellation
+    if (orderToDelete) {
+      notifyCancelOrder(id, "Pedido cancelado pelo sistema");
+    }
     
     if (orderToDelete) {
       toast({

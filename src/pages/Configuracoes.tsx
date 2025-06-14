@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
+import N8nConfigSection from "@/components/N8nConfigSection";
 import { 
   Settings, 
   Store, 
@@ -20,7 +20,8 @@ import {
   Users, 
   Shield,
   Save,
-  Palette
+  Palette,
+  Webhook
 } from "lucide-react";
 
 const Configuracoes = () => {
@@ -90,7 +91,7 @@ const Configuracoes = () => {
       />
 
       <Tabs defaultValue="store" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="store" className="flex items-center gap-2">
             <Store className="h-4 w-4" />
             Loja
@@ -106,6 +107,10 @@ const Configuracoes = () => {
           <TabsTrigger value="payment" className="flex items-center gap-2">
             <CreditCard className="h-4 w-4" />
             Pagamento
+          </TabsTrigger>
+          <TabsTrigger value="n8n" className="flex items-center gap-2">
+            <Webhook className="h-4 w-4" />
+            n8n
           </TabsTrigger>
           <TabsTrigger value="system" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
@@ -437,6 +442,10 @@ const Configuracoes = () => {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="n8n" className="space-y-6">
+          <N8nConfigSection />
         </TabsContent>
 
         <TabsContent value="system" className="space-y-6">
