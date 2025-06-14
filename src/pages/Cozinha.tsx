@@ -60,7 +60,7 @@ const Cozinha = () => {
               </div>
             </header>
             
-            <main className="flex-1 p-4 overflow-x-auto">
+            <main className="flex-1 p-4 overflow-hidden">
               <div className="flex gap-4 h-full">
                 <OrderSection
                   title="Pendentes"
