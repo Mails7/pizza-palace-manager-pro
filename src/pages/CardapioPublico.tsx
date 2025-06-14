@@ -167,7 +167,7 @@ const CardapioPublicoContent = () => {
   };
 
   const handleCheckout = () => {
-    console.log('🚀 === INICIANDO CHECKOUT NO CARDÁPIO PÚBLICO ===');
+    console.log('🚀 === CHECKOUT CARDÁPIO PÚBLICO INICIADO ===');
     console.log('🛒 Itens no carrinho:', cartItems);
     console.log('📊 Total de itens:', cartItems.length);
     console.log('💰 Preço total:', getTotalPrice());
@@ -221,13 +221,27 @@ const CardapioPublicoContent = () => {
       deliveryAddress: clientData.address.trim(),
     };
 
-    console.log('📄 Dados completos do pedido a ser criado:', orderData);
-    console.log('🔍 Verificando função addOrder:', typeof addOrder);
+    console.log('📄 === DADOS COMPLETOS DO PEDIDO ===');
+    console.log('🆔 ID do cliente:', orderData.clientId);
+    console.log('👤 Nome do cliente:', orderData.clientName);
+    console.log('📞 Telefone:', orderData.phone);
+    console.log('📍 Status que será criado:', orderData.status);
+    console.log('🎯 Prioridade:', orderData.priority);
+    console.log('🚚 Tipo de pedido:', orderData.orderType);
+    console.log('💳 Método de pagamento:', orderData.paymentMethod);
+    console.log('💰 Total:', orderData.total);
+    console.log('⏱️ Tempo estimado:', orderData.estimatedTime);
+    console.log('🏠 Endereço de entrega:', orderData.deliveryAddress);
+    console.log('📦 Itens do pedido:', orderData.items);
+    console.log('📝 Observações:', orderData.notes);
+    console.log('📄 Objeto completo:', orderData);
     
     try {
-      console.log('📞 Chamando addOrder...');
+      console.log('📞 === CHAMANDO FUNÇÃO addOrder ===');
+      console.log('🔍 Tipo da função addOrder:', typeof addOrder);
+      
       addOrder(orderData);
-      console.log('✅ addOrder executado - aguardando resultado...');
+      console.log('✅ addOrder executado - aguardando sincronização...');
       
       console.log('🧹 Limpando carrinho...');
       clearCart();
@@ -238,7 +252,7 @@ const CardapioPublicoContent = () => {
       // Aguardar um pouco antes de mostrar a mensagem final
       setTimeout(() => {
         toast.success("Pedido enviado para a cozinha! 👨‍🍳");
-        console.log('🎉 Processo de checkout finalizado com sucesso!');
+        console.log('🎉 === CHECKOUT FINALIZADO COM SUCESSO ===');
       }, 1500);
       
     } catch (error) {
@@ -246,8 +260,6 @@ const CardapioPublicoContent = () => {
       console.error('❌ Stack trace:', error.stack);
       toast.error("Erro ao criar pedido. Tente novamente.");
     }
-    
-    console.log('🏁 === FIM CHECKOUT CARDÁPIO PÚBLICO ===');
   };
 
   const formatCurrency = (value: number) => {

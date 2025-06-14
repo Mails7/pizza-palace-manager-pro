@@ -53,23 +53,61 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // Função helper para organizar pedidos por status
 const organizeOrdersByStatus = (orders: Order[]) => {
-  console.log('🔧 Organizando pedidos por status. Total de pedidos:', orders.length);
+  console.log('🔧 === ORGANIZANDO PEDIDOS POR STATUS ===');
+  console.log('📊 Total de pedidos recebidos:', orders.length);
+  console.log('📋 Pedidos completos:', orders);
+  
+  // Log de todos os status únicos encontrados
+  const uniqueStatuses = [...new Set(orders.map(order => order.status))];
+  console.log('📍 Status únicos encontrados:', uniqueStatuses);
   
   const organized = {
-    pending: orders.filter(order => order.status === 'Pendente'),
-    preparing: orders.filter(order => order.status === 'Em Preparo'),
-    ready: orders.filter(order => order.status === 'Pronto'),
-    delivering: orders.filter(order => order.status === 'Em Entrega'),
-    delivered: orders.filter(order => order.status === 'Entregue')
+    pending: orders.filter(order => {
+      const isPending = order.status === 'Pendente';
+      if (isPending) {
+        console.log('⏳ Pedido PENDENTE encontrado:', order.id, order.status);
+      }
+      return isPending;
+    }),
+    preparing: orders.filter(order => {
+      const isPreparing = order.status === 'Em Preparo';
+      if (isPreparing) {
+        console.log('🔥 Pedido EM PREPARO encontrado:', order.id, order.status);
+      }
+      return isPreparing;
+    }),
+    ready: orders.filter(order => {
+      const isReady = order.status === 'Pronto';
+      if (isReady) {
+        console.log('✅ Pedido PRONTO encontrado:', order.id, order.status);
+      }
+      return isReady;
+    }),
+    delivering: orders.filter(order => {
+      const isDelivering = order.status === 'Em Entrega';
+      if (isDelivering) {
+        console.log('🚚 Pedido EM ENTREGA encontrado:', order.id, order.status);
+      }
+      return isDelivering;
+    }),
+    delivered: orders.filter(order => {
+      const isDelivered = order.status === 'Entregue';
+      if (isDelivered) {
+        console.log('📦 Pedido ENTREGUE encontrado:', order.id, order.status);
+      }
+      return isDelivered;
+    })
   };
   
-  console.log('🍳 Pedidos organizados:', {
+  console.log('🍳 Resultado da organização:', {
     pending: organized.pending.length,
     preparing: organized.preparing.length,
     ready: organized.ready.length,
     delivering: organized.delivering.length,
     delivered: organized.delivered.length
   });
+  
+  console.log('✅ === FIM ORGANIZAÇÃO PEDIDOS ===');
   
   return organized;
 };
@@ -87,13 +125,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Sincronizar kitchenOrders sempre que ordersState mudar
   useEffect(() => {
-    console.log('🔄 === SINCRONIZANDO KITCHEN ORDERS ===');
-    console.log('📊 Pedidos atuais no estado:', ordersState.length);
+    console.log('🔄 === USEEFFECT SINCRONIZAÇÃO DISPARADO ===');
+    console.log('📊 ordersState atual:', ordersState.length);
+    console.log('📋 Detalhes dos pedidos:', ordersState.map(order => ({
+      id: order.id,
+      status: order.status,
+      clientName: order.clientName
+    })));
     
     const newKitchenOrders = organizeOrdersByStatus(ordersState);
+    console.log('🔄 Novo kitchenOrders gerado:', newKitchenOrders);
+    
     setKitchenOrders(newKitchenOrders);
     
-    console.log('✅ Kitchen orders sincronizado com sucesso');
+    console.log('✅ === FIM USEEFFECT SINCRONIZAÇÃO ===');
   }, [ordersState]);
 
   // Product actions
@@ -229,9 +274,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Order actions
   const addOrder = (order: Omit<Order, 'id' | 'createdAt'>) => {
-    console.log('🚀 === FUNÇÃO addOrder CHAMADA ===');
+    console.log('🚀 === ADDORDER FUNÇÃO INICIADA ===');
     console.log('📋 Dados do pedido recebido:', order);
-    console.log('📊 Estado atual dos pedidos antes da adição:', ordersState.length);
+    console.log('📍 Status do pedido recebido:', order.status);
+    console.log('📊 ordersState ANTES da adição:', ordersState.length);
+    console.log('📋 Lista atual de pedidos ANTES:', ordersState.map(o => ({ id: o.id, status: o.status })));
     
     try {
       const newOrder = {
@@ -240,14 +287,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         createdAt: new Date()
       };
       
-      console.log('✅ Novo pedido criado com sucesso:', newOrder);
+      console.log('✅ Novo pedido criado:', newOrder);
       console.log('🆔 ID do novo pedido:', newOrder.id);
       console.log('📍 Status do novo pedido:', newOrder.status);
+      console.log('👤 Cliente do novo pedido:', newOrder.clientName);
       
-      // Atualizar lista de pedidos - isso automaticamente vai sincronizar kitchenOrders via useEffect
       const updatedOrders = [newOrder, ...ordersState];
-      console.log('📝 Atualizando ordersState. Novo total:', updatedOrders.length);
+      console.log('📊 updatedOrders DEPOIS da adição:', updatedOrders.length);
+      console.log('📋 Lista de pedidos DEPOIS:', updatedOrders.map(o => ({ id: o.id, status: o.status })));
+      
+      console.log('🔄 Chamando setOrders...');
       setOrders(updatedOrders);
+      console.log('✅ setOrders chamado com sucesso');
       
       // Notify n8n about new order
       console.log('📡 Enviando notificação n8n...');
@@ -259,10 +310,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         description: `Pedido ${newOrder.id} foi criado com sucesso.`
       });
       
-      console.log('✅ === addOrder FINALIZADA COM SUCESSO ===');
+      console.log('✅ === ADDORDER FINALIZADA COM SUCESSO ===');
       
     } catch (error) {
-      console.error('❌ ERRO na função addOrder:', error);
+      console.error('❌ ERRO CRÍTICO na função addOrder:', error);
+      console.error('❌ Stack trace:', error.stack);
       toast({
         title: "Erro ao criar pedido",
         description: "Ocorreu um erro ao processar o pedido. Tente novamente.",
