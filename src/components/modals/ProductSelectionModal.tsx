@@ -57,6 +57,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
 
   const handleAddToOrder = () => {
     if (selectedProduct && selectedSize && quantity > 0) {
+      const isPizzaProduct = selectedProduct.category.toLowerCase().includes('pizza');
       const halfPizzaFlavors = isHalfPizza ? { flavor1, flavor2 } : undefined;
       
       if (isHalfPizza && (!flavor1 || !flavor2)) {
@@ -71,7 +72,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
         observations, 
         isHalfPizza, 
         halfPizzaFlavors, 
-        hasCrust
+        isPizzaProduct ? hasCrust : undefined
       );
       resetForm();
     }

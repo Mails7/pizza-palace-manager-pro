@@ -11,7 +11,7 @@ interface UseOrderFormProps {
 }
 
 export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
-  const { tables, addOrder } = useApp();
+  const { tables, addOrder, products } = useApp();
   const { calculateEstimatedTime, formatTime } = useFormatters();
   const [orderType, setOrderType] = useState<"delivery" | "takeaway" | "table">("delivery");
   const [selectedTable, setSelectedTable] = useState<string>("");
@@ -40,9 +40,18 @@ export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
     hasCrust?: boolean
   ) => {
     let productName = product.name;
+    let unitPrice = product.prices.find((p: any) => p.size === size)?.price || 0;
     
     if (isHalfPizza && halfPizzaFlavors) {
       productName = `${halfPizzaFlavors.flavor1} / ${halfPizzaFlavors.flavor2}`;
+      
+      const flavor1Product = products.find(p => p.name === halfPizzaFlavors.flavor1);
+      const flavor2Product = products.find(p => p.name === halfPizzaFlavors.flavor2);
+
+      const price1 = flavor1Product?.prices.find(p => p.size === size)?.price || 0;
+      const price2 = flavor2Product?.prices.find(p => p.size === size)?.price || 0;
+
+      unitPrice = Math.max(price1, price2);
     }
     
     if (hasCrust !== undefined) {
@@ -54,7 +63,7 @@ export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
       productName,
       quantity,
       size,
-      unitPrice: product.prices.find((p: any) => p.size === size).price,
+      unitPrice,
       observations,
       isHalfPizza,
       halfPizzaFlavors,
