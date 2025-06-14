@@ -11,24 +11,24 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
       case "Pendente":
-        return "bg-amber-100 text-amber-800 hover:bg-amber-100";
+        return "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 hover:from-amber-200 hover:to-yellow-200 border border-amber-300 shadow-sm";
       case "Em Preparo":
-        return "bg-blue-100 text-blue-800 hover:bg-blue-100";
+        return "bg-gradient-to-r from-blue-100 to-sky-100 text-blue-800 hover:from-blue-200 hover:to-sky-200 border border-blue-300 shadow-sm";
       case "Pronto":
-        return "bg-green-100 text-green-800 hover:bg-green-100";
+        return "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 hover:from-green-200 hover:to-emerald-200 border border-green-300 shadow-sm";
       case "Em Entrega":
-        return "bg-purple-100 text-purple-800 hover:bg-purple-100";
+        return "bg-gradient-to-r from-purple-100 to-violet-100 text-purple-800 hover:from-purple-200 hover:to-violet-200 border border-purple-300 shadow-sm";
       case "Entregue":
-        return "bg-slate-100 text-slate-800 hover:bg-slate-100";
+        return "bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800 hover:from-slate-200 hover:to-gray-200 border border-slate-300 shadow-sm";
       case "Cancelado":
-        return "bg-red-100 text-red-800 hover:bg-red-100";
+        return "bg-gradient-to-r from-red-100 to-rose-100 text-red-800 hover:from-red-200 hover:to-rose-200 border border-red-300 shadow-sm";
       default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-100";
+        return "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 hover:from-gray-200 hover:to-slate-200 border border-gray-300 shadow-sm";
     }
   };
 
   return (
-    <Badge className={`font-medium ${getStatusColor(status)}`} variant="outline">
+    <Badge className={`font-semibold transition-all duration-200 ${getStatusColor(status)}`} variant="outline">
       {status}
     </Badge>
   );

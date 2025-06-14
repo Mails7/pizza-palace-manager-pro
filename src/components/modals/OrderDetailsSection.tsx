@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, CreditCard } from "lucide-react";
+import { Clock, MapPin, CreditCard, Sparkles } from "lucide-react";
 import { useFormatters } from "@/hooks/useFormatters";
 import { OrderType } from "@/types";
 
@@ -32,23 +32,32 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
   const { formatTime } = useFormatters();
 
   return (
-    <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
-      <h3 className="font-medium flex items-center gap-2">
-        <Clock className="h-4 w-4" />
-        Detalhes do Pedido
+    <div className="space-y-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200 shadow-lg">
+      <h3 className="font-semibold text-lg flex items-center gap-2">
+        <div className="p-2 bg-gradient-to-r from-pizza to-pizza-dark rounded-lg shadow-sm">
+          <Clock className="h-4 w-4 text-white" />
+        </div>
+        <span className="bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
+          Detalhes do Pedido
+        </span>
       </h3>
 
       {estimatedTime > 0 && (
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Tempo estimado:</span>
-          <Badge variant="outline">{formatTime(estimatedTime)}</Badge>
+        <div className="flex items-center gap-3 p-3 bg-white/70 rounded-lg border border-blue-200">
+          <Sparkles className="h-4 w-4 text-yellow-500" />
+          <span className="text-sm text-gray-700 font-medium">Tempo estimado:</span>
+          <Badge variant="outline" className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-300">
+            {formatTime(estimatedTime)}
+          </Badge>
         </div>
       )}
 
       {orderType === "Entrega" && (
-        <div>
-          <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-            <MapPin className="h-4 w-4" />
+        <div className="space-y-2">
+          <label className="block text-sm font-medium flex items-center gap-2">
+            <div className="p-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded">
+              <MapPin className="h-3 w-3 text-white" />
+            </div>
             Endereço de Entrega
           </label>
           <Textarea
@@ -56,36 +65,46 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
             value={deliveryAddress}
             onChange={(e) => setDeliveryAddress(e.target.value)}
             rows={2}
+            className="bg-white/80 border-purple-200 focus:border-purple-400 transition-colors"
           />
         </div>
       )}
 
-      <div>
-        <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-          <CreditCard className="h-4 w-4" />
+      <div className="space-y-2">
+        <label className="block text-sm font-medium flex items-center gap-2">
+          <div className="p-1 bg-gradient-to-r from-green-500 to-blue-500 rounded">
+            <CreditCard className="h-3 w-3 text-white" />
+          </div>
           Método de Pagamento
         </label>
         <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-          <SelectTrigger>
+          <SelectTrigger className="bg-white/80 border-purple-200 focus:border-purple-400 transition-colors">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Dinheiro">Dinheiro</SelectItem>
-            <SelectItem value="Cartão">Cartão</SelectItem>
-            <SelectItem value="PIX">PIX</SelectItem>
+          <SelectContent className="bg-white border border-purple-200 shadow-xl">
+            <SelectItem value="Dinheiro" className="hover:bg-green-50">
+              💵 Dinheiro
+            </SelectItem>
+            <SelectItem value="Cartão" className="hover:bg-blue-50">
+              💳 Cartão
+            </SelectItem>
+            <SelectItem value="PIX" className="hover:bg-purple-50">
+              📱 PIX
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">
-          Observações do Pedido
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          📝 Observações do Pedido
         </label>
         <Textarea
           placeholder="Observações especiais para o pedido..."
           value={orderNotes}
           onChange={(e) => setOrderNotes(e.target.value)}
           rows={2}
+          className="bg-white/80 border-purple-200 focus:border-purple-400 transition-colors"
         />
       </div>
     </div>
