@@ -62,14 +62,14 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!open) onClose();
     }}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="w-[95vw] max-w-md max-h-[90vh] overflow-y-auto mx-auto">
         <DialogHeader>
-          <DialogTitle>{product.name}</DialogTitle>
+          <DialogTitle className="text-lg">{product.name}</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
           {product.image && (
-            <div className="h-48 w-full">
+            <div className="h-32 sm:h-40 w-full">
               <img 
                 src={product.image} 
                 alt={product.name} 
@@ -79,8 +79,8 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           )}
           
           <div>
-            <p className="text-gray-700 mb-2">{product.description}</p>
-            <Badge variant="outline">{product.category}</Badge>
+            <p className="text-gray-700 mb-2 text-sm">{product.description}</p>
+            <Badge variant="outline" className="text-xs">{product.category}</Badge>
           </div>
 
           <div>
@@ -108,20 +108,22 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <Button
                 variant="outline"
                 size="icon"
+                className="h-8 w-8"
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 disabled={quantity <= 1}
               >
-                <Minus className="h-4 w-4" />
+                <Minus className="h-3 w-3" />
               </Button>
-              <span className="px-4 py-2 border rounded text-center min-w-16">
+              <span className="px-3 py-1 border rounded text-center min-w-12 text-sm">
                 {quantity}
               </span>
               <Button
                 variant="outline"
                 size="icon"
+                className="h-8 w-8"
                 onClick={() => setQuantity(quantity + 1)}
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-3 w-3" />
               </Button>
             </div>
           </div>
@@ -132,18 +134,19 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               placeholder="Observações especiais..."
               value={observations}
               onChange={(e) => setObservations(e.target.value)}
-              rows={3}
+              rows={2}
+              className="text-sm"
             />
           </div>
 
           <div className="flex justify-between items-center border-t pt-4">
             <div>
-              <p className="text-sm text-gray-500">Total</p>
+              <p className="text-xs text-gray-500">Total</p>
               <p className="font-bold text-lg">
                 {formatCurrency(getSelectedPrice() * quantity)}
               </p>
             </div>
-            <Button onClick={handleAddToCart} disabled={!selectedSize}>
+            <Button onClick={handleAddToCart} disabled={!selectedSize} className="text-sm">
               <ShoppingBag className="h-4 w-4 mr-2" />
               Adicionar ao Carrinho
             </Button>
