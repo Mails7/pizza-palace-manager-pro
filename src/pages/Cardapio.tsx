@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Search, Edit, Share } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { toast } from "@/components/ui/sonner";
@@ -96,52 +98,65 @@ const Cardapio = () => {
           ))}
         </TabsList>
         
-        {categories.map(category => (
-          <TabsContent key={category} value={category} className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map(product => (
-                <Card key={product.id} className={!product.available ? "opacity-70" : ""}>
-                  <CardHeader className="flex flex-row items-start justify-between pb-2">
-                    <div>
-                      <CardTitle className="flex items-center">
-                        {product.name}
-                        {!product.available && (
-                          <Badge variant="outline" className="ml-2 bg-red-100 text-red-800 hover:bg-red-100">
-                            Indisponível
-                          </Badge>
-                        )}
-                      </CardTitle>
-                      <p className="text-sm text-gray-500">{product.category}</p>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={() => handleEditProduct(product)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-700 mb-2">{product.description}</p>
-                    <div className="space-y-1">
-                      {product.prices.map((price: any, index: number) => (
-                        <div key={index} className="flex justify-between text-sm">
-                          <span>Tamanho {price.size}</span>
-                          <span className="font-medium">{formatCurrency(price.price)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="flex justify-between pt-2 border-t">
-                    <span className="text-sm text-gray-500">
-                      Disponível
-                    </span>
-                    <Switch 
-                      checked={product.available} 
-                      onCheckedChange={(checked) => handleAvailabilityChange(product.id, checked)}
-                    />
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        ))}
+        <TabsContent value={selectedCategory} className="mt-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProducts.map(product => (
+              <Card key={product.id} className={!product.available ? "opacity-70" : ""}>
+                <CardHeader className="flex flex-row items-start justify-between pb-2">
+                  <div className="flex-1">
+                    <CardTitle className="flex items-center mb-1">
+                      {product.name}
+                      {!product.available && (
+                        <Badge variant="outline" className="ml-2 bg-red-100 text-red-800 hover:bg-red-100">
+                          Indisponível
+                        </Badge>
+                      )}
+                    </CardTitle>
+                    <Badge variant="secondary" className="text-xs">
+                      {product.category}
+                    </Badge>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => handleEditProduct(product)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent className="pb-4">
+                  <div className="mb-4">
+                    <AspectRatio ratio={16 / 9} className="bg-muted rounded-md overflow-hidden">
+                      <img
+                        src={product.image || "/placeholder.svg"}
+                        alt={product.name}
+                        className="object-cover w-full h-full"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/placeholder.svg";
+                        }}
+                      />
+                    </AspectRatio>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-3">{product.description}</p>
+                  <div className="space-y-1">
+                    {product.prices.map((price: any, index: number) => (
+                      <div key={index} className="flex justify-between text-sm">
+                        <span>Tamanho {price.size}</span>
+                        <span className="font-medium">{formatCurrency(price.price)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-between pt-2 border-t">
+                  <span className="text-sm text-gray-500">
+                    Disponível
+                  </span>
+                  <Switch 
+                    checked={product.available} 
+                    onCheckedChange={(checked) => handleAvailabilityChange(product.id, checked)}
+                  />
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
       </Tabs>
 
       <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
