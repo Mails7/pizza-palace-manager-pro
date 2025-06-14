@@ -1,9 +1,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
-import { OrderItem } from "@/types";
-import { toast } from "@/components/ui/use-toast";
-import { useFormatters } from "./useFormatters";
+import { OrderType, OrderItem, PaymentMethod } from "@/types";
 
 interface UseOrderFormProps {
   client: any;
@@ -11,29 +9,29 @@ interface UseOrderFormProps {
 }
 
 export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
-  const { tables, addOrder, products } = useApp();
-  const { calculateEstimatedTime, formatTime } = useFormatters();
-  const [orderType, setOrderType] = useState<"delivery" | "takeaway" | "table">("delivery");
-  const [selectedTable, setSelectedTable] = useState<string>("");
+  const { addOrder, tables } = useApp();
+  
+  const [orderType, setOrderType] = useState<OrderType>("Balcão");
+  const [selectedTable, setSelectedTable] = useState("");
   const [isProductSelectionOpen, setIsProductSelectionOpen] = useState(false);
   const [items, setItems] = useState<OrderItem[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<'Dinheiro' | 'Cartão' | 'PIX'>('Dinheiro');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("Dinheiro");
   const [orderNotes, setOrderNotes] = useState("");
-  const [deliveryAddress, setDeliveryAddress] = useState(client?.address || "");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
 
   const calculateTotal = () => {
-    return items.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
+    return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   };
 
   const getEstimatedPreparationTime = () => {
-    if (items.length === 0) return 0;
-    return calculateEstimatedTime(items);
+    const maxTime = Math.max(...items.map(item => item.preparationTime || 15));
+    return maxTime + Math.floor(items.length / 3) * 5; // 5 min extra por cada 3 itens
   };
 
   const handleAddItem = (
     product: any,
     quantity: number,
-    size: any,
+    size: string,
     observations?: string,
     isHalfPizza?: boolean,
     halfPizzaFlavors?: any,
@@ -41,124 +39,78 @@ export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
     crustFlavorName?: string,
     crustPrice?: number
   ) => {
-    let productName = product.name;
-    let unitPrice = product.prices.find((p: any) => p.size === size)?.price || 0;
-
-    if (isHalfPizza && halfPizzaFlavors) {
-      productName = `${halfPizzaFlavors.flavor1} / ${halfPizzaFlavors.flavor2}`;
-
-      const flavor1Product = products.find(p => p.name === halfPizzaFlavors.flavor1);
-      const flavor2Product = products.find(p => p.name === halfPizzaFlavors.flavor2);
-
-      const price1 = flavor1Product?.prices.find(p => p.size === size)?.price || 0;
-      const price2 = flavor2Product?.prices.find(p => p.size === size)?.price || 0;
-
-      unitPrice = Math.max(price1, price2);
+    const priceObj = product.prices.find((p: any) => p.size === size);
+    let itemPrice = priceObj ? priceObj.price : product.prices[0]?.price || 0;
+    
+    // Adicionar preço da borda se aplicável
+    if (hasCrust && crustPrice) {
+      itemPrice += crustPrice;
     }
 
-    if (hasCrust !== undefined) {
-      productName += hasCrust ? " (Com Borda)" : " (Sem Borda)";
-      if (hasCrust && crustFlavorName) {
-        productName += ` - Borda: ${crustFlavorName}`;
+    let itemName = product.name;
+    if (size && size !== 'M') {
+      itemName += ` (${size})`;
+    }
+    
+    if (isHalfPizza && halfPizzaFlavors) {
+      itemName = `${halfPizzaFlavors.flavor1} + ${halfPizzaFlavors.flavor2}`;
+      if (size && size !== 'M') {
+        itemName += ` (${size})`;
       }
-      // Se for pizza com preço de borda, soma no valor unitário
-      if (hasCrust && crustPrice) {
-        unitPrice = unitPrice + crustPrice;
-      }
+    }
+    
+    if (hasCrust && crustFlavorName) {
+      itemName += ` - Borda ${crustFlavorName}`;
     }
 
     const newItem: OrderItem = {
+      id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       productId: product.id,
-      productName,
+      productName: itemName,
       quantity,
+      price: itemPrice,
       size,
-      unitPrice,
-      observations,
+      observations: observations || "",
+      preparationTime: product.preparationTime || 15,
       isHalfPizza,
       halfPizzaFlavors,
       hasCrust,
+      crustFlavorName,
+      crustPrice
     };
 
-    setItems((prevItems) => [...prevItems, newItem]);
-    setIsProductSelectionOpen(false);
-
-    toast({
-      title: "Produto adicionado",
-      description: `${quantity}x ${productName} adicionado ao pedido`
-    });
+    setItems([...items, newItem]);
   };
 
-  const handleRemoveItem = (index: number) => {
-    const removedItem = items[index];
-    setItems((prevItems) => prevItems.filter((_, i) => i !== index));
-    
-    toast({
-      title: "Produto removido",
-      description: `${removedItem.productName} removido do pedido`
-    });
-  };
-
-  const validateOrder = () => {
-    if (items.length === 0) {
-      toast({
-        title: "Erro",
-        description: "Adicione pelo menos um produto ao pedido",
-        variant: "destructive"
-      });
-      return false;
-    }
-
-    if (orderType === "table" && !selectedTable) {
-      toast({
-        title: "Erro",
-        description: "Selecione uma mesa",
-        variant: "destructive"
-      });
-      return false;
-    }
-
-    if (orderType === "delivery" && !deliveryAddress.trim()) {
-      toast({
-        title: "Erro",
-        description: "Endereço de entrega é obrigatório",
-        variant: "destructive"
-      });
-      return false;
-    }
-
-    return true;
+  const handleRemoveItem = (itemId: string) => {
+    setItems(items.filter(item => item.id !== itemId));
   };
 
   const handleSubmit = () => {
-    if (!validateOrder()) return;
+    if (items.length === 0) {
+      alert("Adicione pelo menos um item ao pedido");
+      return;
+    }
 
-    const estimatedTime = getEstimatedPreparationTime();
-    const estimatedDeliveryTime = new Date();
-    estimatedDeliveryTime.setMinutes(estimatedDeliveryTime.getMinutes() + estimatedTime);
-
-    const newOrder = {
-      clientId: client.id,
+    const orderData = {
       clientName: client.name,
-      phone: client.phone,
+      clientId: client.id,
+      clientPhone: client.phone,
       items,
       total: calculateTotal(),
       status: "Pendente" as const,
-      priority: "Média" as const,
-      table: orderType === "table" ? selectedTable : undefined,
-      preparationTime: estimatedTime,
-      estimatedDeliveryTime: orderType === "delivery" ? estimatedDeliveryTime : undefined,
-      deliveryAddress: orderType === "delivery" ? deliveryAddress : undefined,
+      priority: "Normal" as const,
+      orderType,
       paymentMethod,
-      orderNotes: orderNotes.trim() || undefined,
+      notes: orderNotes,
+      estimatedTime: getEstimatedPreparationTime(),
+      // Incluir mesa se selecionada ou se cliente tem tableId
+      ...(selectedTable && { tableId: selectedTable }),
+      ...(client.tableId && { tableId: client.tableId }),
+      ...(orderType === "Entrega" && { deliveryAddress }),
     };
 
-    addOrder(newOrder);
-    
-    toast({
-      title: "Sucesso",
-      description: `Pedido criado! Tempo estimado: ${formatTime(estimatedTime)}`
-    });
-    
+    addOrder(orderData);
     onClose();
   };
 
@@ -170,7 +122,7 @@ export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
     isProductSelectionOpen,
     setIsProductSelectionOpen,
     items,
-    tables,
+    tables: tables.filter(table => table.isAvailable),
     paymentMethod,
     setPaymentMethod,
     orderNotes,

@@ -141,7 +141,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTables([...tablesState, newTable]);
     toast({
       title: "Mesa adicionada",
-      description: `${newTable.name} foi adicionada com sucesso.`
+      description: `Mesa ${newTable.name} foi adicionada com sucesso.`
     });
   };
 
@@ -157,11 +157,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteTable = (id: string) => {
     const tableToDelete = tablesState.find(t => t.id === id);
+    
+    // Verificar se há pedidos ativos na mesa
+    const activeOrders = ordersState.filter(order => 
+      order.tableId === id && 
+      order.status !== "Entregue" && 
+      order.status !== "Cancelado"
+    );
+    
+    if (activeOrders.length > 0) {
+      toast({
+        title: "Não é possível excluir",
+        description: "A mesa possui pedidos ativos. Finalize os pedidos antes de excluir.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setTables(tablesState.filter(t => t.id !== id));
     if (tableToDelete) {
       toast({
         title: "Mesa excluída",
-        description: `${tableToDelete.name} foi excluída com sucesso.`
+        description: `Mesa ${tableToDelete.name} foi excluída com sucesso.`
       });
     }
   };
