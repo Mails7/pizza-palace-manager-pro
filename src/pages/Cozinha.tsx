@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useApp } from "@/contexts/AppContext";
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import KitchenSidebar from "@/components/KitchenSidebar";
 import OrderSection from "@/components/kitchen/OrderSection";
 import ExpandedOrderCard from "@/components/ExpandedOrderCard";
@@ -43,7 +43,7 @@ const Cozinha = () => {
   console.log("Sidebar state:", { expandedOrder: !!expandedOrder, expandedStage: !!expandedStage });
 
   return (
-    <SidebarProvider>
+    <SidebarProvider open={false} onOpenChange={() => {}}>
       <div className="min-h-screen flex w-full bg-gray-50">
         <KitchenSidebar 
           kitchenOrders={kitchenOrders}
@@ -55,7 +55,7 @@ const Cozinha = () => {
           <div className="h-full flex flex-col">
             <header className="border-b bg-white p-4 flex-shrink-0">
               <div className="flex items-center gap-4">
-                <SidebarTrigger />
+                
                 <h1 className="text-2xl font-bold">Cozinha - Sistema de Pedidos</h1>
               </div>
             </header>

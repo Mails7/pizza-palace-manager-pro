@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Sidebar,
@@ -69,7 +68,7 @@ const KitchenSidebar: React.FC<KitchenSidebarProps> = ({
   ];
 
   return (
-    <Sidebar className="border-r" collapsible="icon" variant="overlay">
+    <Sidebar className="border-r" collapsible="icon">
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center gap-2">
           <ChefHat className="h-8 w-8 text-orange-500" />
