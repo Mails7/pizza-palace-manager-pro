@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppProvider } from "@/contexts/AppContext";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 import MainLayout from "./layouts/MainLayout";
 import Dashboard from "./pages/Dashboard";
@@ -36,8 +37,15 @@ const App = () => (
             {/* Rota pública para o cardápio */}
             <Route path="/cardapio-publico" element={<CardapioPublico />} />
             
-            {/* Rota da Cozinha */}
-            <Route path="/cozinha" element={<Cozinha />} />
+            {/* Rota da Cozinha - agora envolta por SidebarProvider */}
+            <Route
+              path="/cozinha"
+              element={
+                <SidebarProvider>
+                  <Cozinha />
+                </SidebarProvider>
+              }
+            />
 
             {/* Rotas administrativas no layout principal */}
             <Route path="/" element={<MainLayout />}>
