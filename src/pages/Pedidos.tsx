@@ -7,8 +7,15 @@ import { useOrdersLogic } from "@/hooks/useOrdersLogic";
 import OrdersFilter from "@/components/orders/OrdersFilter";
 import OrdersTable from "@/components/orders/OrdersTable";
 import OrderModals from "@/components/orders/OrderModals";
+import { useApp } from "@/contexts/AppContext";
 
 const Pedidos = () => {
+  const { orders } = useApp();
+  
+  console.log('📋 === PÁGINA PEDIDOS CARREGADA ===');
+  console.log('📊 Total de pedidos no contexto:', orders.length);
+  console.log('📄 Pedidos completos:', orders);
+  
   const {
     searchTerm,
     setSearchTerm,
@@ -34,6 +41,8 @@ const Pedidos = () => {
     deleteOrder,
   } = useOrdersLogic();
 
+  console.log('🔍 Pedidos filtrados na página:', filteredOrders.length);
+  
   return (
     <div className="p-6">
       <PageHeader 

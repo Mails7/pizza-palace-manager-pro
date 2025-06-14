@@ -14,19 +14,24 @@ import { useKitchenOrders } from "@/hooks/useKitchenOrders";
 import { useKitchenAutomation } from "@/hooks/useKitchenAutomation";
 
 const Cozinha = () => {
-  console.log("=== COZINHA COMPONENT RENDERING ===");
+  console.log("🍳 === PÁGINA COZINHA CARREGADA ===");
   
   const { 
     kitchenOrders, 
     updateOrderStatus, 
     deleteOrder,
     autoUpdateEnabled, 
-    toggleAutoUpdate 
+    toggleAutoUpdate,
+    orders
   } = useApp();
   
-  console.log("Kitchen orders recebidos do contexto:", kitchenOrders);
-  console.log("Pedidos pendentes:", kitchenOrders.pending);
-  console.log("Total pedidos pendentes:", kitchenOrders.pending.length);
+  console.log('📊 Total de pedidos no contexto geral:', orders.length);
+  console.log('🍳 Kitchen orders recebidos do contexto:', kitchenOrders);
+  console.log('⏳ Pedidos pendentes:', kitchenOrders.pending.length);
+  console.log('🔥 Em preparo:', kitchenOrders.preparing.length);
+  console.log('✅ Prontos:', kitchenOrders.ready.length);
+  console.log('🚚 Em entrega:', kitchenOrders.delivering.length);
+  console.log('📦 Entregues:', kitchenOrders.delivered.length);
   
   const [showDelivered, setShowDelivered] = useState(false);
   
@@ -52,16 +57,16 @@ const Cozinha = () => {
 
   // Log sempre que o estado do kitchen orders mudar
   useEffect(() => {
-    console.log("=== KITCHEN ORDERS MUDOU ===");
-    console.log("Pendentes:", kitchenOrders.pending.length);
-    console.log("Em Preparo:", kitchenOrders.preparing.length);
-    console.log("Prontos:", kitchenOrders.ready.length);
-    console.log("Em Entrega:", kitchenOrders.delivering.length);
-    console.log("Entregues:", kitchenOrders.delivered.length);
-    console.log("Detalhes completos:", kitchenOrders);
+    console.log("🔄 === KITCHEN ORDERS MUDOU ===");
+    console.log("⏳ Pendentes:", kitchenOrders.pending.length);
+    console.log("🔥 Em Preparo:", kitchenOrders.preparing.length);
+    console.log("✅ Prontos:", kitchenOrders.ready.length);
+    console.log("🚚 Em Entrega:", kitchenOrders.delivering.length);
+    console.log("📦 Entregues:", kitchenOrders.delivered.length);
+    console.log("📋 Detalhes completos:", kitchenOrders);
   }, [kitchenOrders]);
 
-  console.log("Sidebar state:", { expandedOrder: !!expandedOrder, expandedStage: !!expandedStage });
+  console.log("📱 Sidebar state:", { expandedOrder: !!expandedOrder, expandedStage: !!expandedStage });
 
   return (
     <SidebarProvider open={false} onOpenChange={() => {}}>

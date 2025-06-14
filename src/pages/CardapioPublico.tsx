@@ -35,8 +35,9 @@ const CardapioPublicoContent = () => {
   const navigate = useNavigate();
   const { products, addOrder } = useApp();
   
-  console.log('=== CARDÁPIO PÚBLICO CARREGADO ===');
-  console.log('Função addOrder disponível:', typeof addOrder);
+  console.log('🎯 === CARDÁPIO PÚBLICO CARREGADO ===');
+  console.log('📋 Função addOrder disponível:', typeof addOrder);
+  console.log('📋 Produtos disponíveis:', products.length);
   
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -63,7 +64,11 @@ const CardapioPublicoContent = () => {
     clearCart 
   } = useShoppingCart();
 
-  console.log('CardapioPublico - cartItems:', cartItems, 'totalItems:', getTotalItems(), 'totalPrice:', getTotalPrice());
+  console.log('🛒 CardapioPublico - Estado do carrinho:', {
+    items: cartItems.length, 
+    totalItems: getTotalItems(), 
+    totalPrice: getTotalPrice()
+  });
 
   // Verificar se já existe dados do cliente salvos no localStorage
   useEffect(() => {
@@ -162,42 +167,48 @@ const CardapioPublicoContent = () => {
   };
 
   const handleCheckout = () => {
-    console.log('=== INICIANDO CHECKOUT ===');
-    console.log('Itens no carrinho:', cartItems);
-    console.log('Total de itens:', cartItems.length);
+    console.log('🚀 === INICIANDO CHECKOUT NO CARDÁPIO PÚBLICO ===');
+    console.log('🛒 Itens no carrinho:', cartItems);
+    console.log('📊 Total de itens:', cartItems.length);
+    console.log('💰 Preço total:', getTotalPrice());
     
     if (cartItems.length === 0) {
-      console.log('Carrinho vazio - abortando checkout');
+      console.log('❌ Carrinho vazio - abortando checkout');
       toast.error("Carrinho vazio!");
       return;
     }
 
     if (!clientData) {
-      console.log('Dados do cliente não encontrados - abortando checkout');
+      console.log('❌ Dados do cliente não encontrados - abortando checkout');
       toast.error("Dados do cliente não encontrados!");
       return;
     }
     
-    console.log('Dados do cliente:', clientData);
+    console.log('👤 Dados do cliente:', clientData);
     
     // Converter itens do carrinho para OrderItem
-    const orderItems: OrderItem[] = cartItems.map(cartItem => ({
-      id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      productId: cartItem.productId,
-      productName: cartItem.productName,
-      quantity: cartItem.quantity,
-      price: cartItem.unitPrice,
-      unitPrice: cartItem.unitPrice,
-      size: cartItem.size,
-      observations: cartItem.observations || "",
-      preparationTime: cartItem.preparationTime || 15
-    }));
+    console.log('🔄 Convertendo itens do carrinho para OrderItem...');
+    const orderItems: OrderItem[] = cartItems.map((cartItem, index) => {
+      const orderItem = {
+        id: `item-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+        productId: cartItem.productId,
+        productName: cartItem.productName,
+        quantity: cartItem.quantity,
+        price: cartItem.price, // preço total (unitPrice * quantity)
+        unitPrice: cartItem.unitPrice,
+        size: cartItem.size,
+        observations: cartItem.observations || "",
+        preparationTime: cartItem.preparationTime || 15
+      };
+      console.log(`📦 Item ${index + 1} convertido:`, orderItem);
+      return orderItem;
+    });
 
-    console.log('OrderItems convertidos:', orderItems);
+    console.log('✅ OrderItems convertidos com sucesso:', orderItems);
 
     const orderData = {
       clientName: clientData.name.trim(),
-      clientId: `client-${Date.now()}`,
+      clientId: `client-public-${Date.now()}`,
       phone: clientData.phone.trim(),
       items: orderItems,
       total: getTotalPrice(),
@@ -210,29 +221,33 @@ const CardapioPublicoContent = () => {
       deliveryAddress: clientData.address.trim(),
     };
 
-    console.log('Dados do pedido a ser criado:', orderData);
-    console.log('Chamando addOrder...');
+    console.log('📄 Dados completos do pedido a ser criado:', orderData);
+    console.log('🔍 Verificando função addOrder:', typeof addOrder);
     
     try {
+      console.log('📞 Chamando addOrder...');
       addOrder(orderData);
-      console.log('addOrder executado com sucesso');
+      console.log('✅ addOrder executado - aguardando resultado...');
       
+      console.log('🧹 Limpando carrinho...');
       clearCart();
-      console.log('Carrinho limpo');
+      console.log('✅ Carrinho limpo');
       
-      toast.success("Pedido criado com sucesso! Redirecionando...");
+      toast.success("Pedido criado com sucesso! 🎉");
       
-      // Redirecionar para página de confirmação ou sucesso
+      // Aguardar um pouco antes de mostrar a mensagem final
       setTimeout(() => {
-        toast.success("Pedido enviado para a cozinha!");
+        toast.success("Pedido enviado para a cozinha! 👨‍🍳");
+        console.log('🎉 Processo de checkout finalizado com sucesso!');
       }, 1500);
       
     } catch (error) {
-      console.error('Erro ao criar pedido:', error);
+      console.error('❌ ERRO CRÍTICO no checkout:', error);
+      console.error('❌ Stack trace:', error.stack);
       toast.error("Erro ao criar pedido. Tente novamente.");
     }
     
-    console.log('=== FIM CHECKOUT ===');
+    console.log('🏁 === FIM CHECKOUT CARDÁPIO PÚBLICO ===');
   };
 
   const formatCurrency = (value: number) => {

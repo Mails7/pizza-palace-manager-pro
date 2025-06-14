@@ -195,59 +195,88 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Order actions
   const addOrder = (order: Omit<Order, 'id' | 'createdAt'>) => {
-    console.log('=== ADICIONANDO NOVO PEDIDO ===');
-    console.log('Dados do pedido recebido:', order);
-    
-    const newOrder = {
-      ...order,
-      id: `#${Math.random().toString(36).substr(2, 8)}`,
-      createdAt: new Date()
-    };
-    
-    console.log('Novo pedido criado:', newOrder);
-    
-    // Atualizar lista de pedidos
-    const updatedOrders = [newOrder, ...ordersState];
-    setOrders(updatedOrders);
-    console.log('Orders state atualizado. Total de pedidos:', updatedOrders.length);
-    
-    // Atualizar kitchen orders
-    console.log('Estado atual do kitchen orders:', kitchenOrdersState);
-    
-    if (newOrder.status === 'Pendente') {
-      const newKitchenOrders = {
-        ...kitchenOrdersState,
-        pending: [...kitchenOrdersState.pending, newOrder]
-      };
-      setKitchenOrders(newKitchenOrders);
-      console.log('Kitchen orders atualizado - Pendentes:', newKitchenOrders.pending.length);
-      console.log('Todos os kitchen orders:', newKitchenOrders);
-    }
-    
-    // Notify n8n about new order
-    notifyNewOrder(newOrder);
-    
-    toast({
-      title: "Pedido criado",
-      description: `Pedido ${newOrder.id} foi criado com sucesso.`
+    console.log('🚀 === FUNÇÃO addOrder CHAMADA ===');
+    console.log('📋 Dados do pedido recebido:', order);
+    console.log('📊 Estado atual dos pedidos antes da adição:', ordersState.length);
+    console.log('🍳 Estado atual da cozinha antes da adição:', {
+      pending: kitchenOrdersState.pending.length,
+      preparing: kitchenOrdersState.preparing.length,
+      ready: kitchenOrdersState.ready.length,
+      delivering: kitchenOrdersState.delivering.length,
+      delivered: kitchenOrdersState.delivered.length
     });
     
-    console.log('=== FIM ADIÇÃO PEDIDO ===');
+    try {
+      const newOrder = {
+        ...order,
+        id: `order-${Date.now()}-${Math.random().toString(36).substr(2, 8)}`,
+        createdAt: new Date()
+      };
+      
+      console.log('✅ Novo pedido criado com sucesso:', newOrder);
+      console.log('🆔 ID do novo pedido:', newOrder.id);
+      console.log('📍 Status do novo pedido:', newOrder.status);
+      
+      // Atualizar lista de pedidos
+      const updatedOrders = [newOrder, ...ordersState];
+      console.log('📝 Atualizando ordersState. Novo total:', updatedOrders.length);
+      setOrders(updatedOrders);
+      
+      // Atualizar kitchen orders APENAS se for status Pendente
+      if (newOrder.status === 'Pendente') {
+        console.log('🍳 Adicionando pedido à cozinha (status Pendente)');
+        const newKitchenOrders = {
+          ...kitchenOrdersState,
+          pending: [newOrder, ...kitchenOrdersState.pending]
+        };
+        console.log('🍳 Novo estado da cozinha:', {
+          pending: newKitchenOrders.pending.length,
+          preparing: newKitchenOrders.preparing.length,
+          ready: newKitchenOrders.ready.length,
+          delivering: newKitchenOrders.delivering.length,
+          delivered: newKitchenOrders.delivered.length
+        });
+        setKitchenOrders(newKitchenOrders);
+        console.log('✅ Kitchen orders atualizado com sucesso');
+      } else {
+        console.log('⚠️ Pedido não foi adicionado à cozinha - status:', newOrder.status);
+      }
+      
+      // Notify n8n about new order
+      console.log('📡 Enviando notificação n8n...');
+      notifyNewOrder(newOrder);
+      
+      console.log('🎉 Mostrando toast de sucesso...');
+      toast({
+        title: "Pedido criado",
+        description: `Pedido ${newOrder.id} foi criado com sucesso.`
+      });
+      
+      console.log('✅ === addOrder FINALIZADA COM SUCESSO ===');
+      
+    } catch (error) {
+      console.error('❌ ERRO na função addOrder:', error);
+      toast({
+        title: "Erro ao criar pedido",
+        description: "Ocorreu um erro ao processar o pedido. Tente novamente.",
+        variant: "destructive"
+      });
+    }
   };
 
   const updateOrderStatus = (id: string, status: OrderStatus) => {
-    console.log('=== ATUALIZANDO STATUS DO PEDIDO ===');
-    console.log('ID:', id, 'Novo status:', status);
+    console.log('🔄 === ATUALIZANDO STATUS DO PEDIDO ===');
+    console.log('🆔 ID:', id, '📍 Novo status:', status);
     
     const orderToUpdate = ordersState.find(o => o.id === id);
     
     if (!orderToUpdate) {
-      console.log('Pedido não encontrado!');
+      console.log('❌ Pedido não encontrado!');
       return;
     }
     
     const previousStatus = orderToUpdate.status;
-    console.log('Status anterior:', previousStatus);
+    console.log('📍 Status anterior:', previousStatus);
     
     // Update order status
     const updatedOrders = ordersState.map(o => 
@@ -286,7 +315,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
     
     setKitchenOrders(newKitchenOrders);
-    console.log('Kitchen orders após atualização:', newKitchenOrders);
+    console.log('🍳 Kitchen orders após atualização:', newKitchenOrders);
     
     // Notify n8n about status update
     notifyStatusUpdate(id, status, previousStatus);
@@ -296,7 +325,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       description: `Pedido ${id} alterado para ${status}.`
     });
     
-    console.log('=== FIM ATUALIZAÇÃO STATUS ===');
+    console.log('✅ === FIM ATUALIZAÇÃO STATUS ===');
   };
 
   const updateOrderPriority = (id: string, priority: Priority) => {
