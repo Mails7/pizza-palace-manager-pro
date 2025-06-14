@@ -10,15 +10,14 @@ import { Search, Edit, Share } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { toast } from "@/components/ui/sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import EditProductModal from "@/components/modals/EditProductModal";
+import { useNavigate } from "react-router-dom";
 
 const Cardapio = () => {
   const { products, updateProduct } = useApp();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const publicCardapioUrl = `${window.location.origin}/cardapio-publico`;
 
   // Obter categorias únicas dos produtos
@@ -60,8 +59,7 @@ const Cardapio = () => {
   };
 
   const handleEditProduct = (product: any) => {
-    setSelectedProduct(product);
-    setEditModalOpen(true);
+    navigate(`/produtos/editar/${product.id}`);
   };
 
   return (
@@ -178,13 +176,6 @@ const Cardapio = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <EditProductModal
-        isOpen={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        product={selectedProduct}
-      />
-
     </div>
   );
 };

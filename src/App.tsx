@@ -19,6 +19,7 @@ import Cozinha from "./pages/Cozinha";
 import NotFound from "./pages/NotFound";
 import NovoPedido from "./pages/NovoPedido";
 import NovoProduto from "./pages/NovoProduto";
+import EditarProduto from "./pages/EditarProduto";
 import NovoCliente from "./pages/NovoCliente";
 import NovaMesa from "./pages/NovaMesa";
 
@@ -47,6 +48,7 @@ const App = () => (
                 <Route path="cardapio" element={<Cardapio />} />
                 <Route path="produtos" element={<Produtos />} />
                 <Route path="produtos/novo" element={<NovoProduto />} />
+                <Route path="produtos/editar/:id" element={<EditarProduto />} />
                 <Route path="mesas" element={<Mesas />} />
                 <Route path="mesas/nova" element={<NovaMesa />} />
                 <Route path="clientes" element={<Clientes />} />
