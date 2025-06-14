@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -76,10 +75,21 @@ const NovoProduto = () => {
   });
 
   function onSubmit(data: ProductFormValues) {
-    addProduct({
-      ...data,
-      image: data.image || '/placeholder.svg'
-    });
+    // Ensure all required fields are present
+    const productData = {
+      name: data.name,
+      description: data.description,
+      category: data.category,
+      type: data.type,
+      image: data.image || '/placeholder.svg',
+      prices: data.prices,
+      available: data.available,
+      isKitchenItem: data.isKitchenItem,
+      taxExempt: data.taxExempt,
+      preparationTime: data.preparationTime,
+    };
+    
+    addProduct(productData);
     navigate('/produtos');
   }
 
