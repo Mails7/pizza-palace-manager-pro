@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -44,13 +45,17 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
 
   // Encontra todos os produtos pizza disponíveis
   const pizzaProducts = products.filter(
-    (product) => product.available && product.category?.toLowerCase().includes('pizza')
+    (product) => product.available && (
+      product.category?.toLowerCase().includes('pizza') ||
+      product.type?.toLowerCase().includes('pizza')
+    )
   );
 
   const handleProductSelect = (product: any) => {
     console.log('=== PRODUTO SELECIONADO ===');
     console.log('Nome:', product.name);
     console.log('Categoria:', product.category);
+    console.log('Type:', product.type);
     console.log('Produto completo:', product);
     
     setSelectedProduct(product);
@@ -61,9 +66,12 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
     setFlavor1("");
     setFlavor2("");
     
-    // Verificar se é pizza baseado na categoria
-    const isPizza = product.category?.toLowerCase().includes('pizza');
+    // Verificar se é pizza baseado na categoria OU no type
+    const isPizza = product.category?.toLowerCase().includes('pizza') || 
+                   product.type?.toLowerCase().includes('pizza');
     console.log('É pizza?', isPizza);
+    console.log('Categoria inclui pizza?', product.category?.toLowerCase().includes('pizza'));
+    console.log('Type inclui pizza?', product.type?.toLowerCase().includes('pizza'));
     
     // Definir se tem borda baseado no produto
     const productHasCrust = isPizza && (product.hasCrust || product.crustFlavors?.length > 0);
@@ -76,7 +84,10 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
   };
 
   // Verifica se o produto selecionado é uma pizza
-  const isPizzaProduct = selectedProduct && selectedProduct.category?.toLowerCase().includes('pizza');
+  const isPizzaProduct = selectedProduct && (
+    selectedProduct.category?.toLowerCase().includes('pizza') ||
+    selectedProduct.type?.toLowerCase().includes('pizza')
+  );
   
   // Verifica se o produto tem opções de borda configuradas
   const hasBordaCampos = selectedProduct && 
@@ -197,6 +208,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
               <h3 className="font-medium text-lg">{selectedProduct.name}</h3>
               <p className="text-sm text-gray-500">{selectedProduct.description}</p>
               <p className="text-xs text-blue-500">Categoria: {selectedProduct.category}</p>
+              <p className="text-xs text-purple-500">Type: {selectedProduct.type}</p>
               
               {/* Debug info - remover depois */}
               <div className="mt-2 p-2 bg-yellow-50 rounded text-xs">
@@ -205,6 +217,8 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
                 <p>hasBordaCampos: {hasBordaCampos ? 'SIM' : 'NÃO'}</p>
                 <p>selectedProduct.hasCrust: {selectedProduct.hasCrust ? 'SIM' : 'NÃO'}</p>
                 <p>crustFlavors length: {crustFlavorsArray.length}</p>
+                <p>Categoria inclui pizza: {selectedProduct.category?.toLowerCase().includes('pizza') ? 'SIM' : 'NÃO'}</p>
+                <p>Type inclui pizza: {selectedProduct.type?.toLowerCase().includes('pizza') ? 'SIM' : 'NÃO'}</p>
               </div>
             </div>
 
@@ -215,12 +229,12 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
               formatCurrency={formatCurrency}
             />
 
-            {/* Teste: sempre mostrar as opções de pizza para debug */}
+            {/* Opções de Pizza - agora deve aparecer corretamente */}
             {isPizzaProduct && (
               <div className="border rounded-lg p-4 bg-blue-50">
                 <h4 className="font-medium mb-3 text-blue-900">Opções da Pizza</h4>
                 <p className="text-xs mb-3 text-gray-600">
-                  Esta seção deve aparecer para produtos de pizza
+                  Esta seção aparece para produtos de pizza
                 </p>
                 
                 <PizzaOptionsSelector
