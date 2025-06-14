@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import PageHeader from "@/components/PageHeader";
+import EditProductModal from "@/components/modals/EditProductModal";
 import { Input } from "@/components/ui/input";
 import { 
   Table, 
@@ -21,11 +22,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Package, Eye, Edit, Trash2 } from "lucide-react";
+import { Product } from "@/types";
 
 const Produtos = () => {
   const { products, deleteProduct } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("Todas as Categorias");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -43,6 +47,27 @@ const Produtos = () => {
     
     return matchesSearch && matchesCategory;
   });
+
+  const handleViewProduct = (product: Product) => {
+    console.log("Visualizando produto:", product);
+    // Aqui você pode implementar um modal de visualização ou navegar para uma página de detalhes
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteProduct = (product: Product) => {
+    if (window.confirm(`Tem certeza que deseja excluir ${product.name}?`)) {
+      deleteProduct(product.id);
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedProduct(null);
+  };
 
   return (
     <div className="p-6">
@@ -127,16 +152,27 @@ const Produtos = () => {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button size="icon" variant="ghost">
+                    <Button 
+                      size="icon" 
+                      variant="ghost"
+                      onClick={() => handleViewProduct(product)}
+                      title="Visualizar produto"
+                    >
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button size="icon" variant="ghost">
+                    <Button 
+                      size="icon" 
+                      variant="ghost"
+                      onClick={() => handleEditProduct(product)}
+                      title="Editar produto"
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button 
                       size="icon" 
                       variant="ghost"
-                      onClick={() => deleteProduct(product.id)}
+                      onClick={() => handleDeleteProduct(product)}
+                      title="Excluir produto"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -147,6 +183,12 @@ const Produtos = () => {
           </TableBody>
         </Table>
       </div>
+
+      <EditProductModal 
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        product={selectedProduct}
+      />
     </div>
   );
 };
