@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Image, Save } from "lucide-react";
+import { Save, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface BannerConfig {
@@ -31,20 +31,6 @@ const BannerConfigSection = () => {
     deliveryInfo: "Grátis ac. R$ 50",
     rating: "4.8 estrelas"
   });
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setBannerConfig({
-          ...bannerConfig,
-          backgroundImage: e.target?.result as string
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -84,36 +70,38 @@ const BannerConfigSection = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="bannerImage">Imagem de Fundo do Banner</Label>
-            <div className="mt-2 space-y-2">
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" asChild>
-                  <label htmlFor="bannerImage" className="cursor-pointer">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Escolher Imagem
-                  </label>
-                </Button>
-                <Input
-                  id="bannerImage"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
+            <Label htmlFor="bannerImageUrl">Link da Imagem do Banner</Label>
+            <Input
+              id="bannerImageUrl"
+              type="url"
+              value={bannerConfig.backgroundImage}
+              onChange={(e) => setBannerConfig({...bannerConfig, backgroundImage: e.target.value})}
+              placeholder="https://exemplo.com/imagem.jpg"
+              className="mt-2"
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Cole aqui o link direto da imagem que deseja usar no banner
+            </p>
+            
+            {bannerConfig.backgroundImage && (
+              <div className="mt-4 border rounded-lg p-2">
+                <p className="text-sm font-medium text-gray-700 mb-2">Preview da imagem:</p>
+                <img 
+                  src={bannerConfig.backgroundImage} 
+                  alt="Preview do banner" 
+                  className="h-24 w-full object-cover rounded"
+                  onLoad={() => console.log('Imagem carregada com sucesso!')}
+                  onError={(e) => {
+                    console.error('Erro ao carregar imagem:', e);
+                    toast({
+                      title: "Erro na imagem",
+                      description: "Não foi possível carregar a imagem. Verifique se o link está correto.",
+                      variant: "destructive"
+                    });
+                  }}
                 />
-                {bannerConfig.backgroundImage && (
-                  <span className="text-sm text-green-600">Imagem carregada</span>
-                )}
               </div>
-              {bannerConfig.backgroundImage && (
-                <div className="border rounded-lg p-2">
-                  <img 
-                    src={bannerConfig.backgroundImage} 
-                    alt="Preview do banner" 
-                    className="h-24 w-full object-cover rounded"
-                  />
-                </div>
-              )}
-            </div>
+            )}
           </div>
 
           <div>
