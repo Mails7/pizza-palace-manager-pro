@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import PageHeader from "@/components/PageHeader";
-import EditProductModal from "@/components/modals/EditProductModal";
 import { Input } from "@/components/ui/input";
 import { 
   Table, 
@@ -23,13 +22,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Package, Eye, Edit, Trash2 } from "lucide-react";
 import { Product } from "@/types";
+import { useNavigate } from "react-router-dom";
 
 const Produtos = () => {
   const { products, deleteProduct } = useApp();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("Todas as Categorias");
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -54,19 +53,13 @@ const Produtos = () => {
   };
 
   const handleEditProduct = (product: Product) => {
-    setSelectedProduct(product);
-    setIsEditModalOpen(true);
+    navigate(`/produtos/editar/${product.id}`);
   };
 
   const handleDeleteProduct = (product: Product) => {
     if (window.confirm(`Tem certeza que deseja excluir ${product.name}?`)) {
       deleteProduct(product.id);
     }
-  };
-
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false);
-    setSelectedProduct(null);
   };
 
   return (
@@ -183,12 +176,6 @@ const Produtos = () => {
           </TableBody>
         </Table>
       </div>
-
-      <EditProductModal 
-        isOpen={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        product={selectedProduct}
-      />
     </div>
   );
 };
