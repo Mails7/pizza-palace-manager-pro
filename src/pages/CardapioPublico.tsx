@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
@@ -230,12 +231,11 @@ const CardapioPublicoContent = () => {
       addOrder(orderData);
 
       clearCart();
+      setIsCartOpen(false);
       toast.success("Pedido enviado com sucesso! 🎉");
       setTimeout(() => {
         toast.success("Seu pedido foi enviado para a cozinha! 👨‍🍳");
         console.log('🎉 === CHECKOUT FINALIZADO COM SUCESSO ===');
-        // Só navegar agora que a ordem foi enviada
-        navigate("/pedidos");
       }, 1500);
     } catch (error) {
       console.error('❌ ERRO CRÍTICO no checkout:', error);
