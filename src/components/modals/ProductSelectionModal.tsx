@@ -1,12 +1,9 @@
+
 import React, { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import ProductSearch from "./ProductSearch";
-import ProductSizeSelector from "./ProductSizeSelector";
-import PizzaOptionsSelector from "./PizzaOptionsSelector";
-import QuantitySelector from "./QuantitySelector";
+import ProductSelectionForm from "./ProductSelectionForm";
 import { PizzaSize } from "@/types";
 
 interface ProductSelectionModalProps {
@@ -87,19 +84,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
     selectedProduct.category?.toLowerCase().includes('pizza') ||
     selectedProduct.type?.toLowerCase().includes('pizza')
   );
-  
-  // Verifica se o produto tem opções de borda configuradas
-  const hasBordaCampos = selectedProduct && 
-    (selectedProduct.hasCrust || 
-     (Array.isArray(selectedProduct.crustFlavors) && selectedProduct.crustFlavors.length > 0));
 
-  console.log('=== STATUS ATUAL ===');
-  console.log('selectedProduct:', selectedProduct?.name);
-  console.log('isPizzaProduct:', isPizzaProduct);
-  console.log('hasBordaCampos:', hasBordaCampos);
-  console.log('hasCrust state:', hasCrust);
-
-  const crustFlavorsArray = (selectedProduct && selectedProduct.crustFlavors) || [];
   const crustPricesArray = (selectedProduct && selectedProduct.crustPrices) || [];
   const selectedCrustPrice = crustPricesArray.find((p: { size: PizzaSize; price: number }) => p.size === selectedSize)?.price ?? 0;
 
@@ -183,19 +168,6 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
     }).format(value);
   };
 
-  const getSelectedPrice = () => {
-    if (!selectedProduct || !selectedSize) return 0;
-    let priceObj = selectedProduct.prices.find((p: any) => p.size === selectedSize);
-    let basePrice = priceObj ? priceObj.price : 0;
-
-    // Se for pizza com borda, some o preço da borda
-    if (isPizzaProduct && hasCrust && selectedCrustPrice > 0) {
-      basePrice += selectedCrustPrice;
-    }
-
-    return basePrice;
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!open) handleClose();
@@ -214,89 +186,28 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
             formatCurrency={formatCurrency}
           />
         ) : (
-          <div className="space-y-4">
-            <div className="border-b pb-4">
-              <h3 className="font-medium text-lg">{selectedProduct.name}</h3>
-              <p className="text-sm text-gray-500">{selectedProduct.description}</p>
-              <p className="text-xs text-blue-500">Categoria: {selectedProduct.category}</p>
-              <p className="text-xs text-purple-500">Type: {selectedProduct.type}</p>
-              
-              {/* Debug info - remover depois */}
-              <div className="mt-2 p-2 bg-yellow-50 rounded text-xs">
-                <p><strong>Debug:</strong></p>
-                <p>isPizzaProduct: {isPizzaProduct ? 'SIM' : 'NÃO'}</p>
-                <p>hasBordaCampos: {hasBordaCampos ? 'SIM' : 'NÃO'}</p>
-                <p>selectedProduct.hasCrust: {selectedProduct.hasCrust ? 'SIM' : 'NÃO'}</p>
-                <p>crustFlavors length: {crustFlavorsArray.length}</p>
-                <p>Categoria inclui pizza: {selectedProduct.category?.toLowerCase().includes('pizza') ? 'SIM' : 'NÃO'}</p>
-                <p>Type inclui pizza: {selectedProduct.type?.toLowerCase().includes('pizza') ? 'SIM' : 'NÃO'}</p>
-              </div>
-            </div>
-
-            <ProductSizeSelector
-              prices={selectedProduct.prices}
-              selectedSize={selectedSize}
-              onSizeChange={setSelectedSize}
-              formatCurrency={formatCurrency}
-            />
-
-            {/* Opções de Pizza - agora deve aparecer corretamente */}
-            {isPizzaProduct && (
-              <div className="border rounded-lg p-4 bg-blue-50">
-                <h4 className="font-medium mb-3 text-blue-900">Opções da Pizza</h4>
-                <p className="text-xs mb-3 text-gray-600">
-                  Esta seção aparece para produtos de pizza
-                </p>
-                
-                <PizzaOptionsSelector
-                  isHalfPizza={isHalfPizza}
-                  setIsHalfPizza={setIsHalfPizza}
-                  flavor1={flavor1}
-                  setFlavor1={setFlavor1}
-                  flavor2={flavor2}
-                  setFlavor2={setFlavor2}
-                  hasCrust={hasCrust}
-                  setHasCrust={setHasCrust}
-                  pizzaProducts={pizzaProducts}
-                  selectedProduct={selectedProduct}
-                  selectedCrustFlavor={selectedCrustFlavor}
-                  setSelectedCrustFlavor={setSelectedCrustFlavor}
-                />
-              </div>
-            )}
-
-            <QuantitySelector
-              quantity={quantity}
-              setQuantity={setQuantity}
-            />
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Observações (opcional)</label>
-              <Textarea
-                placeholder="Observações especiais..."
-                value={observations}
-                onChange={(e) => setObservations(e.target.value)}
-                rows={3}
-              />
-            </div>
-
-            <div className="flex justify-between items-center border-t pt-4">
-              <div>
-                <p className="text-sm text-gray-500">Total</p>
-                <p className="font-bold text-lg">
-                  {formatCurrency(getSelectedPrice() * quantity)}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setSelectedProduct(null)}>
-                  Voltar
-                </Button>
-                <Button onClick={handleAddToOrder} disabled={!selectedSize}>
-                  Adicionar ao Pedido
-                </Button>
-              </div>
-            </div>
-          </div>
+          <ProductSelectionForm
+            selectedProduct={selectedProduct}
+            selectedSize={selectedSize}
+            setSelectedSize={setSelectedSize}
+            quantity={quantity}
+            setQuantity={setQuantity}
+            observations={observations}
+            setObservations={setObservations}
+            isHalfPizza={isHalfPizza}
+            setIsHalfPizza={setIsHalfPizza}
+            flavor1={flavor1}
+            setFlavor1={setFlavor1}
+            flavor2={flavor2}
+            setFlavor2={setFlavor2}
+            hasCrust={hasCrust}
+            setHasCrust={setHasCrust}
+            selectedCrustFlavor={selectedCrustFlavor}
+            setSelectedCrustFlavor={setSelectedCrustFlavor}
+            pizzaProducts={pizzaProducts}
+            onBack={() => setSelectedProduct(null)}
+            onAddToOrder={handleAddToOrder}
+          />
         )}
       </DialogContent>
     </Dialog>
