@@ -195,19 +195,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Order actions
   const addOrder = (order: Omit<Order, 'id' | 'createdAt'>) => {
+    console.log('=== ADICIONANDO NOVO PEDIDO ===');
+    console.log('Dados do pedido recebido:', order);
+    
     const newOrder = {
       ...order,
       id: `#${Math.random().toString(36).substr(2, 8)}`,
       createdAt: new Date()
     };
-    setOrders([newOrder, ...ordersState]);
     
-    // Update kitchen orders
+    console.log('Novo pedido criado:', newOrder);
+    
+    // Atualizar lista de pedidos
+    const updatedOrders = [newOrder, ...ordersState];
+    setOrders(updatedOrders);
+    console.log('Orders state atualizado. Total de pedidos:', updatedOrders.length);
+    
+    // Atualizar kitchen orders
+    console.log('Estado atual do kitchen orders:', kitchenOrdersState);
+    
     if (newOrder.status === 'Pendente') {
-      setKitchenOrders({
+      const newKitchenOrders = {
         ...kitchenOrdersState,
         pending: [...kitchenOrdersState.pending, newOrder]
-      });
+      };
+      setKitchenOrders(newKitchenOrders);
+      console.log('Kitchen orders atualizado - Pendentes:', newKitchenOrders.pending.length);
+      console.log('Todos os kitchen orders:', newKitchenOrders);
     }
     
     // Notify n8n about new order
@@ -217,14 +231,23 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       title: "Pedido criado",
       description: `Pedido ${newOrder.id} foi criado com sucesso.`
     });
+    
+    console.log('=== FIM ADIÇÃO PEDIDO ===');
   };
 
   const updateOrderStatus = (id: string, status: OrderStatus) => {
+    console.log('=== ATUALIZANDO STATUS DO PEDIDO ===');
+    console.log('ID:', id, 'Novo status:', status);
+    
     const orderToUpdate = ordersState.find(o => o.id === id);
     
-    if (!orderToUpdate) return;
+    if (!orderToUpdate) {
+      console.log('Pedido não encontrado!');
+      return;
+    }
     
     const previousStatus = orderToUpdate.status;
+    console.log('Status anterior:', previousStatus);
     
     // Update order status
     const updatedOrders = ordersState.map(o => 
@@ -263,6 +286,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
     
     setKitchenOrders(newKitchenOrders);
+    console.log('Kitchen orders após atualização:', newKitchenOrders);
     
     // Notify n8n about status update
     notifyStatusUpdate(id, status, previousStatus);
@@ -271,6 +295,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       title: "Status atualizado",
       description: `Pedido ${id} alterado para ${status}.`
     });
+    
+    console.log('=== FIM ATUALIZAÇÃO STATUS ===');
   };
 
   const updateOrderPriority = (id: string, priority: Priority) => {

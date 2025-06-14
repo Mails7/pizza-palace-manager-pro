@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import { useKitchenOrders } from "@/hooks/useKitchenOrders";
 import { useKitchenAutomation } from "@/hooks/useKitchenAutomation";
 
 const Cozinha = () => {
-  console.log("Cozinha component rendering");
+  console.log("=== COZINHA COMPONENT RENDERING ===");
   
   const { 
     kitchenOrders, 
@@ -23,6 +23,10 @@ const Cozinha = () => {
     autoUpdateEnabled, 
     toggleAutoUpdate 
   } = useApp();
+  
+  console.log("Kitchen orders recebidos do contexto:", kitchenOrders);
+  console.log("Pedidos pendentes:", kitchenOrders.pending);
+  console.log("Total pedidos pendentes:", kitchenOrders.pending.length);
   
   const [showDelivered, setShowDelivered] = useState(false);
   
@@ -45,6 +49,17 @@ const Cozinha = () => {
     autoUpdateEnabled,
     updateOrderStatus
   });
+
+  // Log sempre que o estado do kitchen orders mudar
+  useEffect(() => {
+    console.log("=== KITCHEN ORDERS MUDOU ===");
+    console.log("Pendentes:", kitchenOrders.pending.length);
+    console.log("Em Preparo:", kitchenOrders.preparing.length);
+    console.log("Prontos:", kitchenOrders.ready.length);
+    console.log("Em Entrega:", kitchenOrders.delivering.length);
+    console.log("Entregues:", kitchenOrders.delivered.length);
+    console.log("Detalhes completos:", kitchenOrders);
+  }, [kitchenOrders]);
 
   console.log("Sidebar state:", { expandedOrder: !!expandedOrder, expandedStage: !!expandedStage });
 

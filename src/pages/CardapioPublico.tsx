@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
@@ -35,6 +34,10 @@ interface BannerConfig {
 const CardapioPublicoContent = () => {
   const navigate = useNavigate();
   const { products, addOrder } = useApp();
+  
+  console.log('=== CARDÁPIO PÚBLICO CARREGADO ===');
+  console.log('Função addOrder disponível:', typeof addOrder);
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
@@ -159,15 +162,23 @@ const CardapioPublicoContent = () => {
   };
 
   const handleCheckout = () => {
+    console.log('=== INICIANDO CHECKOUT ===');
+    console.log('Itens no carrinho:', cartItems);
+    console.log('Total de itens:', cartItems.length);
+    
     if (cartItems.length === 0) {
+      console.log('Carrinho vazio - abortando checkout');
       toast.error("Carrinho vazio!");
       return;
     }
 
     if (!clientData) {
+      console.log('Dados do cliente não encontrados - abortando checkout');
       toast.error("Dados do cliente não encontrados!");
       return;
     }
+    
+    console.log('Dados do cliente:', clientData);
     
     // Converter itens do carrinho para OrderItem
     const orderItems: OrderItem[] = cartItems.map(cartItem => ({
@@ -181,6 +192,8 @@ const CardapioPublicoContent = () => {
       observations: cartItem.observations || "",
       preparationTime: cartItem.preparationTime || 15
     }));
+
+    console.log('OrderItems convertidos:', orderItems);
 
     const orderData = {
       clientName: clientData.name.trim(),
@@ -197,11 +210,16 @@ const CardapioPublicoContent = () => {
       deliveryAddress: clientData.address.trim(),
     };
 
-    console.log('Criando pedido do cardápio público:', orderData);
+    console.log('Dados do pedido a ser criado:', orderData);
+    console.log('Chamando addOrder...');
     
     try {
       addOrder(orderData);
+      console.log('addOrder executado com sucesso');
+      
       clearCart();
+      console.log('Carrinho limpo');
+      
       toast.success("Pedido criado com sucesso! Redirecionando...");
       
       // Redirecionar para página de confirmação ou sucesso
@@ -213,6 +231,8 @@ const CardapioPublicoContent = () => {
       console.error('Erro ao criar pedido:', error);
       toast.error("Erro ao criar pedido. Tente novamente.");
     }
+    
+    console.log('=== FIM CHECKOUT ===');
   };
 
   const formatCurrency = (value: number) => {
