@@ -18,6 +18,11 @@ const Mesas = () => {
     setIsManagementModalOpen(true);
   };
 
+  const handleEditTable = (table: any) => {
+    setSelectedTable(table);
+    setIsManagementModalOpen(true);
+  };
+
   const getTableOrders = (tableId: string) => {
     return orders.filter(order => 
       order.tableId === tableId && 
@@ -133,13 +138,19 @@ const Mesas = () => {
                     >
                       <Settings className="h-4 w-4" />
                     </Button>
-                    <Button size="icon" variant="ghost">
+                    <Button 
+                      size="icon" 
+                      variant="ghost"
+                      onClick={() => handleEditTable(table)}
+                      title="Editar Mesa"
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button 
                       size="icon" 
                       variant="ghost"
                       onClick={() => deleteTable(table.id)}
+                      title="Excluir Mesa"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
