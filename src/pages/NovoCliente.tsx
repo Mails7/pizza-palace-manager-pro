@@ -1,10 +1,26 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowDown } from "lucide-react";
+import NewClientForm from "@/components/forms/NewClientForm";
+import { toast } from "@/hooks/use-toast";
 
 const NovoCliente = () => {
+  const navigate = useNavigate();
+
+  const handleClientSuccess = (client: any) => {
+    toast({
+      title: "Cliente criado com sucesso!",
+      description: `${client.name} foi adicionado ao sistema.`,
+    });
+    navigate("/clientes");
+  };
+
+  const handleCancel = () => {
+    navigate("/clientes");
+  };
+
   return (
     <div className="p-6">
       <div className="flex items-center mb-6">
@@ -17,13 +33,11 @@ const NovoCliente = () => {
       
       <h1 className="text-3xl font-bold mb-6">Novo Cliente</h1>
       
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <p className="text-center py-8">Funcionalidade em desenvolvimento</p>
-        <div className="flex justify-center">
-          <Button asChild>
-            <Link to="/clientes">Voltar para Clientes</Link>
-          </Button>
-        </div>
+      <div className="bg-white p-6 rounded-lg shadow-sm max-w-2xl">
+        <NewClientForm 
+          onSubmitSuccess={handleClientSuccess}
+          onCancel={handleCancel}
+        />
       </div>
     </div>
   );
