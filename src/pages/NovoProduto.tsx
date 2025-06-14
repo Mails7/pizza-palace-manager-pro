@@ -13,6 +13,9 @@ import { ProductFormValues } from "@/types/form-types";
 import BasicInfoForm from "@/components/forms/BasicInfoForm";
 import PricingForm from "@/components/forms/PricingForm";
 import ConfigurationForm from "@/components/forms/ConfigurationForm";
+import PizzaCrustOptions from "@/components/forms/PizzaCrustOptions";
+
+// ... schemas the same ...
 
 const priceSchema = z.object({
   size: z.enum(['MINI', 'P', 'M', 'G', 'GG']),
@@ -30,7 +33,11 @@ const productFormSchema = z.object({
   isKitchenItem: z.boolean().default(true),
   taxExempt: z.boolean().default(false),
   preparationTime: z.coerce.number().int().positive("Deve ser um número positivo.").optional(),
+
+  // Os campos de borda não são validados pelo zod aqui, pois são opcionais/dinâmicos 
 });
+
+const pizzaSizes: PizzaSize[] = ['MINI', 'P', 'M', 'G', 'GG'];
 
 const NovoProduto = () => {
   const { addProduct } = useApp();
@@ -48,24 +55,53 @@ const NovoProduto = () => {
       available: true,
       isKitchenItem: true,
       taxExempt: false,
+      hasCrust: false,
+      crustFlavors: [{ id: "0", name: "" }],
+      crustPrices: pizzaSizes.map(size => ({ size, price: 0 })),
     },
   });
 
+  // Estados separados para campos especiais de pizza
+  const watchType = form.watch("type");
+  const [hasCrust, setHasCrust] = React.useState(false);
+  const [crustFlavors, setCrustFlavors] = React.useState([{ id: "0", name: "" }]);
+  const [crustPrices, setCrustPrices] = React.useState(
+    pizzaSizes.map(size => ({ size, price: 0 }))
+  );
+  const watchPrices = form.watch("prices");
+
+  React.useEffect(() => {
+    // Mantém crustPrices sincronizado com os tamanhos selecionados na pricing (caso usuário adicione/remova tamanhos)
+    setCrustPrices(prev =>
+      (watchPrices || []).map(
+        p => prev.find(crust => crust.size === p.size) || { size: p.size, price: 0 }
+      )
+    );
+    // eslint-disable-next-line
+  }, [JSON.stringify(watchPrices)]);
+
   function onSubmit(data: ProductFormValues) {
-    // Transform data to ensure it matches the Product interface
+    // Se for pizza e tiver borda, adicionar campos extras
+    const isPizza = data.type?.toLowerCase().includes('pizza');
+    const hasCrustSelected = isPizza && hasCrust;
+
     const productData = {
       name: data.name,
       description: data.description,
       category: data.category,
       type: data.type,
       image: data.image || '/placeholder.svg',
-      prices: data.prices as Price[], // Type assertion since we know the schema validates correctly
+      prices: data.prices as Price[],
       available: data.available,
       isKitchenItem: data.isKitchenItem,
       taxExempt: data.taxExempt,
       preparationTime: data.preparationTime,
+      ...(hasCrustSelected && {
+        hasCrust: true,
+        crustFlavors: crustFlavors.filter(f => f.name.trim().length > 0),
+        crustPrices,
+      }),
     };
-    
     addProduct(productData);
     navigate('/produtos');
   }
@@ -88,8 +124,19 @@ const NovoProduto = () => {
             <div className="lg:col-span-2 space-y-6">
               <BasicInfoForm control={form.control} errors={form.formState.errors} />
               <PricingForm control={form.control} errors={form.formState.errors} />
+              {/* Só exibe opções de borda para pizza */}
+              {watchType && watchType.toLowerCase().includes('pizza') && (
+                <PizzaCrustOptions
+                  hasCrust={hasCrust}
+                  setHasCrust={setHasCrust}
+                  crustFlavors={crustFlavors}
+                  setCrustFlavors={setCrustFlavors}
+                  crustPrices={crustPrices}
+                  setCrustPrices={setCrustPrices}
+                  pizzaSizes={watchPrices?.map(p => p.size) || pizzaSizes}
+                />
+              )}
             </div>
-
             <div className="lg:col-span-1 space-y-6">
               <ConfigurationForm control={form.control} errors={form.formState.errors} />
             </div>
