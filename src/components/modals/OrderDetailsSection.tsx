@@ -6,9 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Clock, MapPin, CreditCard } from "lucide-react";
 import { useFormatters } from "@/hooks/useFormatters";
+import { OrderType } from "@/types";
 
 interface OrderDetailsSectionProps {
-  orderType: "delivery" | "takeaway" | "table";
+  orderType: OrderType;
   paymentMethod: 'Dinheiro' | 'Cartão' | 'PIX';
   setPaymentMethod: (method: 'Dinheiro' | 'Cartão' | 'PIX') => void;
   orderNotes: string;
@@ -44,7 +45,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
         </div>
       )}
 
-      {orderType === "delivery" && (
+      {orderType === "Entrega" && (
         <div>
           <label className="block text-sm font-medium mb-2 flex items-center gap-2">
             <MapPin className="h-4 w-4" />
