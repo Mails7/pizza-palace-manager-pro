@@ -58,6 +58,19 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
     }
   }, [product]);
 
+  // Move this useEffect before the early return to ensure hooks are always called in the same order
+  useEffect(() => {
+    if (!isOpen) {
+      setForm({
+        name: "",
+        description: "",
+        category: "",
+        available: true,
+        prices: [],
+      });
+    }
+  }, [isOpen]);
+
   if (!product) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -85,19 +98,6 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
     });
     onClose();
   };
-
-  // reset form if closed
-  useEffect(() => {
-    if (!isOpen) {
-      setForm({
-        name: "",
-        description: "",
-        category: "",
-        available: true,
-        prices: [],
-      });
-    }
-  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={open => { if (!open) onClose(); }}>
