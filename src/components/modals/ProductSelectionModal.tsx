@@ -8,11 +8,22 @@ import ProductSearch from "./ProductSearch";
 import ProductSizeSelector from "./ProductSizeSelector";
 import PizzaOptionsSelector from "./PizzaOptionsSelector";
 import QuantitySelector from "./QuantitySelector";
+import { PizzaSize } from "@/types";
 
 interface ProductSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddItem: (product: any, quantity: number, size: string, observations?: string, isHalfPizza?: boolean, halfPizzaFlavors?: any, hasCrust?: boolean) => void;
+  onAddItem: (
+    product: any,
+    quantity: number,
+    size: string,
+    observations?: string,
+    isHalfPizza?: boolean,
+    halfPizzaFlavors?: any,
+    hasCrust?: boolean,
+    crustFlavorName?: string,
+    crustPrice?: number
+  ) => void;
 }
 
 const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
@@ -30,9 +41,11 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
   const [flavor1, setFlavor1] = useState("");
   const [flavor2, setFlavor2] = useState("");
   const [hasCrust, setHasCrust] = useState(true);
+  const [selectedCrustFlavor, setSelectedCrustFlavor] = useState<string>("");
 
+  // Encontra todos os produtos pizza disponíveis
   const pizzaProducts = products.filter(
-    (product) => product.available && product.category.toLowerCase().includes('pizza')
+    (product) => product.available && product.category?.toLowerCase().includes('pizza')
   );
 
   const handleProductSelect = (product: any) => {
@@ -43,27 +56,45 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
     setIsHalfPizza(false);
     setFlavor1("");
     setFlavor2("");
-    setHasCrust(true);
+    setHasCrust(product.hasCrust ?? true);
+    setSelectedCrustFlavor("");
   };
+
+  const isPizzaProduct = selectedProduct && selectedProduct.category?.toLowerCase().includes('pizza');
+  const hasBordaCampos = selectedProduct && selectedProduct.hasCrust && Array.isArray(selectedProduct.crustFlavors) && selectedProduct.crustFlavors.length > 0;
+
+  const crustFlavorsArray = (selectedProduct && selectedProduct.crustFlavors) || [];
+  const crustPricesArray = (selectedProduct && selectedProduct.crustPrices) || [];
+  const selectedCrustPrice = crustPricesArray.find((p: { size: PizzaSize; price: number }) => p.size === selectedSize)?.price ?? 0;
 
   const handleAddToOrder = () => {
     if (selectedProduct && selectedSize && quantity > 0) {
-      const isPizzaProduct = selectedProduct.category.toLowerCase().includes('pizza');
+      const isPizza = isPizzaProduct;
       const halfPizzaFlavors = isHalfPizza ? { flavor1, flavor2 } : undefined;
       
       if (isHalfPizza && (!flavor1 || !flavor2)) {
         alert("Para meia pizza, selecione dois sabores");
         return;
       }
-      
+
+      let crustFlavorName: string | undefined = undefined;
+      let crustPrice: number | undefined = undefined;
+
+      if (isPizza && hasBordaCampos && hasCrust) {
+        crustFlavorName = selectedCrustFlavor;
+        crustPrice = selectedCrustPrice;
+      }
+
       onAddItem(
-        selectedProduct, 
-        quantity, 
-        selectedSize, 
-        observations, 
-        isHalfPizza, 
-        halfPizzaFlavors, 
-        isPizzaProduct ? hasCrust : undefined
+        selectedProduct,
+        quantity,
+        selectedSize,
+        observations,
+        isHalfPizza,
+        halfPizzaFlavors,
+        isPizza ? hasCrust : undefined,
+        crustFlavorName,
+        crustPrice
       );
       resetForm();
     }
@@ -78,6 +109,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
     setFlavor1("");
     setFlavor2("");
     setHasCrust(true);
+    setSelectedCrustFlavor("");
     setSearchTerm("");
   };
 
@@ -95,11 +127,16 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
 
   const getSelectedPrice = () => {
     if (!selectedProduct || !selectedSize) return 0;
-    const priceObj = selectedProduct.prices.find((p: any) => p.size === selectedSize);
-    return priceObj ? priceObj.price : 0;
-  };
+    let priceObj = selectedProduct.prices.find((p: any) => p.size === selectedSize);
+    let basePrice = priceObj ? priceObj.price : 0;
 
-  const isPizzaProduct = selectedProduct && selectedProduct.category.toLowerCase().includes('pizza');
+    // Se for pizza com borda, some o preço da borda
+    if (isPizzaProduct && hasCrust && hasBordaCampos && selectedCrustPrice > 0) {
+      basePrice += selectedCrustPrice;
+    }
+
+    return basePrice;
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
@@ -132,18 +169,45 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
               formatCurrency={formatCurrency}
             />
 
+            {/* Pizza: opções padrão */}
             {isPizzaProduct && (
-              <PizzaOptionsSelector
-                isHalfPizza={isHalfPizza}
-                setIsHalfPizza={setIsHalfPizza}
-                flavor1={flavor1}
-                setFlavor1={setFlavor1}
-                flavor2={flavor2}
-                setFlavor2={setFlavor2}
-                hasCrust={hasCrust}
-                setHasCrust={setHasCrust}
-                pizzaProducts={pizzaProducts}
-              />
+              <>
+                <PizzaOptionsSelector
+                  isHalfPizza={isHalfPizza}
+                  setIsHalfPizza={setIsHalfPizza}
+                  flavor1={flavor1}
+                  setFlavor1={setFlavor1}
+                  flavor2={flavor2}
+                  setFlavor2={setFlavor2}
+                  hasCrust={hasCrust}
+                  setHasCrust={setHasCrust}
+                  pizzaProducts={pizzaProducts}
+                />
+
+                {/* Se a pizza tem sabores de borda e borda marcada, mostra campos para sabor e preço da borda */}
+                {hasCrust && hasBordaCampos && (
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Sabor da borda
+                    </label>
+                    <select
+                      className="border rounded px-2 py-1 w-full"
+                      value={selectedCrustFlavor}
+                      onChange={e => setSelectedCrustFlavor(e.target.value)}
+                    >
+                      <option value="">Selecione o sabor da borda</option>
+                      {crustFlavorsArray.map((flavor: { id: string; name: string }) => (
+                        <option key={flavor.id} value={flavor.name}>
+                          {flavor.name}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs mt-1">
+                      Preço da borda: <strong>{formatCurrency(selectedCrustPrice)}</strong>
+                    </p>
+                  </div>
+                )}
+              </>
             )}
 
             <QuantitySelector

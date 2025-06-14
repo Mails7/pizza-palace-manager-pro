@@ -49,21 +49,22 @@ const PizzaCrustOptions: React.FC<PizzaCrustOptionsProps> = ({
   };
 
   const handleCrustPriceChange = (size: PizzaSize, value: number) => {
-    setCrustPrices(prices =>
-      prices.map(p => (p.size === size ? { ...p, price: value } : p))
+    setCrustPrices(
+      crustPrices.map(p => (p.size === size ? { ...p, price: value } : p))
     );
   };
 
+  // Sincroniza os preços da borda com os tamanhos disponíveis da pizza
   React.useEffect(() => {
     // Garante sempre um preço por tamanho selecionado (sincronismo com pizzaSizes)
-    setCrustPrices(prev =>
+    setCrustPrices(
       pizzaSizes.map(
-        size =>
-          prev.find(p => p.size === size) || { size, price: 0 }
+        (size) =>
+          crustPrices.find((p) => p.size === size) || { size, price: 0 }
       )
     );
     // eslint-disable-next-line
-  }, [pizzaSizes]);
+  }, [JSON.stringify(pizzaSizes)]);
 
   return (
     <div className="border rounded-lg p-4 mt-2">

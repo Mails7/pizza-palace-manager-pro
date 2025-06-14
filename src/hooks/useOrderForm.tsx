@@ -31,20 +31,22 @@ export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
   };
 
   const handleAddItem = (
-    product: any, 
-    quantity: number, 
-    size: any, 
+    product: any,
+    quantity: number,
+    size: any,
     observations?: string,
     isHalfPizza?: boolean,
     halfPizzaFlavors?: any,
-    hasCrust?: boolean
+    hasCrust?: boolean,
+    crustFlavorName?: string,
+    crustPrice?: number
   ) => {
     let productName = product.name;
     let unitPrice = product.prices.find((p: any) => p.size === size)?.price || 0;
-    
+
     if (isHalfPizza && halfPizzaFlavors) {
       productName = `${halfPizzaFlavors.flavor1} / ${halfPizzaFlavors.flavor2}`;
-      
+
       const flavor1Product = products.find(p => p.name === halfPizzaFlavors.flavor1);
       const flavor2Product = products.find(p => p.name === halfPizzaFlavors.flavor2);
 
@@ -53,9 +55,16 @@ export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
 
       unitPrice = Math.max(price1, price2);
     }
-    
+
     if (hasCrust !== undefined) {
       productName += hasCrust ? " (Com Borda)" : " (Sem Borda)";
+      if (hasCrust && crustFlavorName) {
+        productName += ` - Borda: ${crustFlavorName}`;
+      }
+      // Se for pizza com preço de borda, soma no valor unitário
+      if (hasCrust && crustPrice) {
+        unitPrice = unitPrice + crustPrice;
+      }
     }
 
     const newItem: OrderItem = {
