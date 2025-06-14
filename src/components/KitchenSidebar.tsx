@@ -107,18 +107,16 @@ const KitchenSidebar: React.FC<KitchenSidebarProps> = ({
             <h3 className="font-semibold mb-3">Configurações</h3>
             
             <SidebarMenuItem className="mb-3">
-              <SidebarMenuButton>
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-2">
-                    <Settings className="h-4 w-4" />
-                    <span className="text-sm">Atualização Automática</span>
-                  </div>
-                  <Switch 
-                    checked={autoUpdateEnabled}
-                    onCheckedChange={toggleAutoUpdate}
-                  />
+              <div className="flex items-center justify-between w-full p-2 text-sm rounded-md">
+                <div className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  <span className="text-sm">Atualização Automática</span>
                 </div>
-              </SidebarMenuButton>
+                <Switch 
+                  checked={autoUpdateEnabled}
+                  onCheckedChange={toggleAutoUpdate}
+                />
+              </div>
             </SidebarMenuItem>
 
             <SidebarMenuItem>
