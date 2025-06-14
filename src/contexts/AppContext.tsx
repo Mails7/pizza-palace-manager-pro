@@ -55,48 +55,14 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const organizeOrdersByStatus = (orders: Order[]) => {
   console.log('🔧 === ORGANIZANDO PEDIDOS POR STATUS ===');
   console.log('📊 Total de pedidos recebidos:', orders.length);
-  console.log('📋 Pedidos completos:', orders);
-  
-  // Log de todos os status únicos encontrados
-  const uniqueStatuses = [...new Set(orders.map(order => order.status))];
-  console.log('📍 Status únicos encontrados:', uniqueStatuses);
+  console.log('📋 Pedidos completos:', orders.map(o => ({ id: o.id, status: o.status, clientName: o.clientName })));
   
   const organized = {
-    pending: orders.filter(order => {
-      const isPending = order.status === 'Pendente';
-      if (isPending) {
-        console.log('⏳ Pedido PENDENTE encontrado:', order.id, order.status);
-      }
-      return isPending;
-    }),
-    preparing: orders.filter(order => {
-      const isPreparing = order.status === 'Em Preparo';
-      if (isPreparing) {
-        console.log('🔥 Pedido EM PREPARO encontrado:', order.id, order.status);
-      }
-      return isPreparing;
-    }),
-    ready: orders.filter(order => {
-      const isReady = order.status === 'Pronto';
-      if (isReady) {
-        console.log('✅ Pedido PRONTO encontrado:', order.id, order.status);
-      }
-      return isReady;
-    }),
-    delivering: orders.filter(order => {
-      const isDelivering = order.status === 'Em Entrega';
-      if (isDelivering) {
-        console.log('🚚 Pedido EM ENTREGA encontrado:', order.id, order.status);
-      }
-      return isDelivering;
-    }),
-    delivered: orders.filter(order => {
-      const isDelivered = order.status === 'Entregue';
-      if (isDelivered) {
-        console.log('📦 Pedido ENTREGUE encontrado:', order.id, order.status);
-      }
-      return isDelivered;
-    })
+    pending: orders.filter(order => order.status === 'Pendente'),
+    preparing: orders.filter(order => order.status === 'Em Preparo'),
+    ready: orders.filter(order => order.status === 'Pronto'),
+    delivering: orders.filter(order => order.status === 'Em Entrega'),
+    delivered: orders.filter(order => order.status === 'Entregue')
   };
   
   console.log('🍳 Resultado da organização:', {
@@ -106,8 +72,6 @@ const organizeOrdersByStatus = (orders: Order[]) => {
     delivering: organized.delivering.length,
     delivered: organized.delivered.length
   });
-  
-  console.log('✅ === FIM ORGANIZAÇÃO PEDIDOS ===');
   
   return organized;
 };
@@ -134,8 +98,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     })));
     
     const newKitchenOrders = organizeOrdersByStatus(ordersState);
-    console.log('🔄 Novo kitchenOrders gerado:', newKitchenOrders);
-    
     setKitchenOrders(newKitchenOrders);
     
     console.log('✅ === FIM USEEFFECT SINCRONIZAÇÃO ===');
@@ -277,44 +239,51 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     console.log('🚀 === ADDORDER FUNÇÃO INICIADA ===');
     console.log('📋 Dados do pedido recebido:', order);
     console.log('📍 Status do pedido recebido:', order.status);
-    console.log('📊 ordersState ANTES da adição:', ordersState.length);
-    console.log('📋 Lista atual de pedidos ANTES:', ordersState.map(o => ({ id: o.id, status: o.status })));
     
     try {
-      const newOrder = {
+      // Criar o novo pedido com dados padronizados
+      const newOrder: Order = {
         ...order,
         id: `order-${Date.now()}-${Math.random().toString(36).substr(2, 8)}`,
-        createdAt: new Date()
+        createdAt: new Date(),
+        // Garantir que todos os campos obrigatórios estejam presentes
+        clientName: order.clientName.trim(),
+        phone: order.phone.trim(),
+        status: order.status || 'Pendente',
+        priority: order.priority || 'Média',
+        orderType: order.orderType || 'Entrega',
+        paymentMethod: order.paymentMethod || 'Dinheiro',
+        total: order.total || 0,
+        items: order.items || [],
+        estimatedTime: order.estimatedTime || 30,
+        notes: order.notes || ''
       };
       
-      console.log('✅ Novo pedido criado:', newOrder);
+      console.log('✅ Novo pedido formatado:', newOrder);
       console.log('🆔 ID do novo pedido:', newOrder.id);
       console.log('📍 Status do novo pedido:', newOrder.status);
       console.log('👤 Cliente do novo pedido:', newOrder.clientName);
       
-      const updatedOrders = [newOrder, ...ordersState];
-      console.log('📊 updatedOrders DEPOIS da adição:', updatedOrders.length);
-      console.log('📋 Lista de pedidos DEPOIS:', updatedOrders.map(o => ({ id: o.id, status: o.status })));
-      
-      console.log('🔄 Chamando setOrders...');
-      setOrders(updatedOrders);
-      console.log('✅ setOrders chamado com sucesso');
+      // Atualizar o estado dos pedidos - IMPORTANTE: usar callback para garantir estado atual
+      setOrders(currentOrders => {
+        const updatedOrders = [newOrder, ...currentOrders];
+        console.log('📊 Estado atualizado com', updatedOrders.length, 'pedidos');
+        console.log('🔍 Novo pedido no início da lista:', updatedOrders[0]?.id);
+        return updatedOrders;
+      });
       
       // Notify n8n about new order
-      console.log('📡 Enviando notificação n8n...');
       notifyNewOrder(newOrder);
       
-      console.log('🎉 Mostrando toast de sucesso...');
       toast({
         title: "Pedido criado",
-        description: `Pedido ${newOrder.id} foi criado com sucesso.`
+        description: `Pedido criado com sucesso para ${newOrder.clientName}!`
       });
       
       console.log('✅ === ADDORDER FINALIZADA COM SUCESSO ===');
       
     } catch (error) {
       console.error('❌ ERRO CRÍTICO na função addOrder:', error);
-      console.error('❌ Stack trace:', error.stack);
       toast({
         title: "Erro ao criar pedido",
         description: "Ocorreu um erro ao processar o pedido. Tente novamente.",
@@ -392,6 +361,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       description: `Os pedidos ${!autoUpdateEnabled ? 'serão atualizados' : 'não serão atualizados'} automaticamente.`
     });
   };
+
+  console.log('🏪 === ESTADO ATUAL DO CONTEXTO ===');
+  console.log('📊 Total de pedidos no estado:', ordersState.length);
+  console.log('🍳 Kitchen orders:', {
+    pending: kitchenOrdersState.pending.length,
+    preparing: kitchenOrdersState.preparing.length,
+    ready: kitchenOrdersState.ready.length,
+    delivering: kitchenOrdersState.delivering.length,
+    delivered: kitchenOrdersState.delivered.length
+  });
 
   return (
     <AppContext.Provider value={{
