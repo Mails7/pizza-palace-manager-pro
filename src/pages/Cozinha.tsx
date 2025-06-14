@@ -10,6 +10,8 @@ import { useKitchenOrders } from "@/hooks/useKitchenOrders";
 import { useKitchenAutomation } from "@/hooks/useKitchenAutomation";
 
 const Cozinha = () => {
+  console.log("Cozinha component rendering");
+  
   const { 
     kitchenOrders, 
     updateOrderStatus, 
@@ -38,25 +40,27 @@ const Cozinha = () => {
     updateOrderStatus
   });
 
+  console.log("Sidebar state:", { expandedOrder: !!expandedOrder, expandedStage: !!expandedStage });
+
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full">
+      <div className="min-h-screen flex w-full bg-gray-50">
         <KitchenSidebar 
           kitchenOrders={kitchenOrders}
           autoUpdateEnabled={autoUpdateEnabled}
           toggleAutoUpdate={toggleAutoUpdate}
         />
         
-        <SidebarInset className="flex-1">
+        <SidebarInset className="flex-1 min-w-0">
           <div className="h-full flex flex-col">
-            <div className="border-b bg-white p-4">
+            <header className="border-b bg-white p-4 flex-shrink-0">
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
                 <h1 className="text-2xl font-bold">Cozinha - Sistema de Pedidos</h1>
               </div>
-            </div>
+            </header>
             
-            <div className="flex-1 p-4 bg-gray-100">
+            <main className="flex-1 p-4 overflow-hidden">
               <div className="flex gap-4 h-full">
                 <OrderSection
                   title="Pendentes"
@@ -108,7 +112,7 @@ const Cozinha = () => {
                   onExpandStage={setExpandedStage}
                 />
               </div>
-            </div>
+            </main>
           </div>
         </SidebarInset>
       </div>

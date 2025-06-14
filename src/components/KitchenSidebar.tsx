@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Sidebar,
@@ -32,6 +33,8 @@ const KitchenSidebar: React.FC<KitchenSidebarProps> = ({
   autoUpdateEnabled,
   toggleAutoUpdate
 }) => {
+  console.log("KitchenSidebar rendering with orders:", kitchenOrders);
+  
   const menuItems = [
     {
       title: "Pendentes",
@@ -66,7 +69,7 @@ const KitchenSidebar: React.FC<KitchenSidebarProps> = ({
   ];
 
   return (
-    <Sidebar>
+    <Sidebar className="border-r">
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center gap-2">
           <ChefHat className="h-8 w-8 text-orange-500" />
