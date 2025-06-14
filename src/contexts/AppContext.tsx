@@ -6,6 +6,7 @@ import {
   Product, 
   Table, 
   OrderStatus,
+  Priority,
   DashboardData
 } from '@/types';
 import { products, clients, tables, orders, dashboardData, kitchenOrders } from '@/services/mockData';
@@ -41,6 +42,7 @@ interface AppContextType {
   
   addOrder: (order: Omit<Order, 'id' | 'createdAt'>) => void;
   updateOrderStatus: (id: string, status: OrderStatus) => void;
+  updateOrderPriority: (id: string, priority: Priority) => void;
   deleteOrder: (id: string) => void;
   
   autoUpdateEnabled: boolean;
@@ -234,6 +236,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
   };
 
+  const updateOrderPriority = (id: string, priority: Priority) => {
+    const updatedOrders = ordersState.map(o => 
+      o.id === id ? { ...o, priority } : o
+    );
+    setOrders(updatedOrders);
+    
+    // Update kitchen orders as well
+    const newKitchenOrders = { ...kitchenOrdersState };
+    Object.keys(newKitchenOrders).forEach(key => {
+      const orderList = newKitchenOrders[key as keyof typeof newKitchenOrders];
+      newKitchenOrders[key as keyof typeof newKitchenOrders] = orderList.map(o => 
+        o.id === id ? { ...o, priority } : o
+      );
+    });
+    
+    setKitchenOrders(newKitchenOrders);
+    
+    toast({
+      title: "Prioridade atualizada",
+      description: `Prioridade do pedido ${id} alterada para ${priority}.`
+    });
+  };
+
   const deleteOrder = (id: string) => {
     const orderToDelete = ordersState.find(o => o.id === id);
     setOrders(ordersState.filter(o => o.id !== id));
@@ -287,6 +312,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       
       addOrder,
       updateOrderStatus,
+      updateOrderPriority,
       deleteOrder,
       
       autoUpdateEnabled,

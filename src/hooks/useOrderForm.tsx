@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { OrderItem } from "@/types";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "@/components/ui/use-toast";
 
 interface UseOrderFormProps {
   client: any;
@@ -62,12 +62,20 @@ export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
 
   const handleSubmit = () => {
     if (items.length === 0) {
-      toast.error("Adicione pelo menos um produto ao pedido");
+      toast({
+        title: "Erro",
+        description: "Adicione pelo menos um produto ao pedido",
+        variant: "destructive"
+      });
       return;
     }
 
     if (orderType === "table" && !selectedTable) {
-      toast.error("Selecione uma mesa");
+      toast({
+        title: "Erro",
+        description: "Selecione uma mesa",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -83,7 +91,10 @@ export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
     };
 
     addOrder(newOrder);
-    toast.success("Pedido criado com sucesso!");
+    toast({
+      title: "Sucesso",
+      description: "Pedido criado com sucesso!"
+    });
     onClose();
   };
 

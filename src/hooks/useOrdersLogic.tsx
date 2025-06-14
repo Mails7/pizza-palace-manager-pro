@@ -4,7 +4,7 @@ import { useApp } from "@/contexts/AppContext";
 import { Priority } from "@/types";
 
 export const useOrdersLogic = () => {
-  const { orders, deleteOrder } = useApp();
+  const { orders, deleteOrder, updateOrderPriority } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("Todos");
   const [isClientSearchOpen, setIsClientSearchOpen] = useState(false);
@@ -27,7 +27,7 @@ export const useOrdersLogic = () => {
   };
 
   const handlePriorityChange = (orderId: string, priority: Priority) => {
-    console.log(`Updating priority for order ${orderId} to ${priority}`);
+    updateOrderPriority(orderId, priority);
   };
 
   const filteredOrders = orders.filter(order => {
