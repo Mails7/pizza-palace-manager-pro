@@ -22,6 +22,7 @@ import NovoProduto from "./pages/NovoProduto";
 import EditarProduto from "./pages/EditarProduto";
 import NovoCliente from "./pages/NovoCliente";
 import NovaMesa from "./pages/NovaMesa";
+import Configuracoes from "./pages/Configuracoes";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
                 <Route path="mesas/nova" element={<NovaMesa />} />
                 <Route path="clientes" element={<Clientes />} />
                 <Route path="clientes/novo" element={<NovoCliente />} />
+                <Route path="configuracoes" element={<Configuracoes />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>

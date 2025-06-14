@@ -18,7 +18,8 @@ import {
   Package, 
   CoffeeIcon, 
   Users, 
-  ChefHat 
+  ChefHat,
+  Settings
 } from "lucide-react";
 
 const MainLayout = () => {
@@ -129,6 +130,20 @@ const MainLayout = () => {
                     </SidebarMenuButton>
                   </TooltipTrigger>
                   <TooltipContent side="right">Cozinha</TooltipContent>
+                </Tooltip>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <SidebarMenuButton asChild>
+                      <Link to="/configuracoes" className="flex items-center gap-3">
+                        <Settings className="h-5 w-5" />
+                        <span>Configurações</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Configurações</TooltipContent>
                 </Tooltip>
               </SidebarMenuItem>
             </TooltipProvider>
