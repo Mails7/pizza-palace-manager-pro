@@ -9,6 +9,7 @@ import { ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { PizzaSize, Price } from "@/types";
+import { ProductFormValues } from "@/types/form-types";
 import BasicInfoForm from "@/components/forms/BasicInfoForm";
 import PricingForm from "@/components/forms/PricingForm";
 import ConfigurationForm from "@/components/forms/ConfigurationForm";
@@ -30,8 +31,6 @@ const productFormSchema = z.object({
   taxExempt: z.boolean().default(false),
   preparationTime: z.coerce.number().int().positive("Deve ser um número positivo.").optional(),
 });
-
-type ProductFormValues = z.infer<typeof productFormSchema>;
 
 const NovoProduto = () => {
   const { addProduct } = useApp();

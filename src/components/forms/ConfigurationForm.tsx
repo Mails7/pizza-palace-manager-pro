@@ -12,20 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PizzaSize } from "@/types";
-
-interface ProductFormValues {
-  name: string;
-  description: string;
-  category: string;
-  type: string;
-  image?: string;
-  prices: Array<{ size: PizzaSize; price: number }>;
-  available: boolean;
-  isKitchenItem: boolean;
-  taxExempt: boolean;
-  preparationTime?: number;
-}
+import { ProductFormValues } from "@/types/form-types";
 
 interface ConfigurationFormProps {
   control: Control<ProductFormValues>;
