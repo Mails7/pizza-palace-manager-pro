@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { 
   Client, 
   Order, 
@@ -8,7 +8,7 @@ import {
   Priority,
   DashboardData
 } from '@/types';
-import { products, clients, tables, orders, dashboardData, kitchenOrders } from '@/services/mockData';
+import { products, clients, tables, orders, dashboardData } from '@/services/mockData';
 import { toast } from '@/components/ui/use-toast';
 import { useN8nIntegration } from '@/hooks/useN8nIntegration';
 
@@ -51,16 +51,50 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// Função helper para organizar pedidos por status
+const organizeOrdersByStatus = (orders: Order[]) => {
+  console.log('🔧 Organizando pedidos por status. Total de pedidos:', orders.length);
+  
+  const organized = {
+    pending: orders.filter(order => order.status === 'Pendente'),
+    preparing: orders.filter(order => order.status === 'Em Preparo'),
+    ready: orders.filter(order => order.status === 'Pronto'),
+    delivering: orders.filter(order => order.status === 'Em Entrega'),
+    delivered: orders.filter(order => order.status === 'Entregue')
+  };
+  
+  console.log('🍳 Pedidos organizados:', {
+    pending: organized.pending.length,
+    preparing: organized.preparing.length,
+    ready: organized.ready.length,
+    delivering: organized.delivering.length,
+    delivered: organized.delivered.length
+  });
+  
+  return organized;
+};
+
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [productsState, setProducts] = useState<Product[]>(products);
   const [clientsState, setClients] = useState<Client[]>(clients);
   const [tablesState, setTables] = useState<Table[]>(tables);
   const [ordersState, setOrders] = useState<Order[]>(orders);
   const [dashboardDataState, setDashboardData] = useState<DashboardData>(dashboardData);
-  const [kitchenOrdersState, setKitchenOrders] = useState(kitchenOrders);
+  const [kitchenOrdersState, setKitchenOrders] = useState(organizeOrdersByStatus(orders));
   const [autoUpdateEnabled, setAutoUpdateEnabled] = useState(false);
   
   const { notifyNewOrder, notifyCancelOrder, notifyStatusUpdate } = useN8nIntegration();
+
+  // Sincronizar kitchenOrders sempre que ordersState mudar
+  useEffect(() => {
+    console.log('🔄 === SINCRONIZANDO KITCHEN ORDERS ===');
+    console.log('📊 Pedidos atuais no estado:', ordersState.length);
+    
+    const newKitchenOrders = organizeOrdersByStatus(ordersState);
+    setKitchenOrders(newKitchenOrders);
+    
+    console.log('✅ Kitchen orders sincronizado com sucesso');
+  }, [ordersState]);
 
   // Product actions
   const addProduct = (product: Omit<Product, 'id'>) => {
@@ -198,13 +232,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     console.log('🚀 === FUNÇÃO addOrder CHAMADA ===');
     console.log('📋 Dados do pedido recebido:', order);
     console.log('📊 Estado atual dos pedidos antes da adição:', ordersState.length);
-    console.log('🍳 Estado atual da cozinha antes da adição:', {
-      pending: kitchenOrdersState.pending.length,
-      preparing: kitchenOrdersState.preparing.length,
-      ready: kitchenOrdersState.ready.length,
-      delivering: kitchenOrdersState.delivering.length,
-      delivered: kitchenOrdersState.delivered.length
-    });
     
     try {
       const newOrder = {
@@ -217,30 +244,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       console.log('🆔 ID do novo pedido:', newOrder.id);
       console.log('📍 Status do novo pedido:', newOrder.status);
       
-      // Atualizar lista de pedidos
+      // Atualizar lista de pedidos - isso automaticamente vai sincronizar kitchenOrders via useEffect
       const updatedOrders = [newOrder, ...ordersState];
       console.log('📝 Atualizando ordersState. Novo total:', updatedOrders.length);
       setOrders(updatedOrders);
-      
-      // Atualizar kitchen orders APENAS se for status Pendente
-      if (newOrder.status === 'Pendente') {
-        console.log('🍳 Adicionando pedido à cozinha (status Pendente)');
-        const newKitchenOrders = {
-          ...kitchenOrdersState,
-          pending: [newOrder, ...kitchenOrdersState.pending]
-        };
-        console.log('🍳 Novo estado da cozinha:', {
-          pending: newKitchenOrders.pending.length,
-          preparing: newKitchenOrders.preparing.length,
-          ready: newKitchenOrders.ready.length,
-          delivering: newKitchenOrders.delivering.length,
-          delivered: newKitchenOrders.delivered.length
-        });
-        setKitchenOrders(newKitchenOrders);
-        console.log('✅ Kitchen orders atualizado com sucesso');
-      } else {
-        console.log('⚠️ Pedido não foi adicionado à cozinha - status:', newOrder.status);
-      }
       
       // Notify n8n about new order
       console.log('📡 Enviando notificação n8n...');
@@ -278,44 +285,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const previousStatus = orderToUpdate.status;
     console.log('📍 Status anterior:', previousStatus);
     
-    // Update order status
+    // Update order status - isso automaticamente vai sincronizar kitchenOrders via useEffect
     const updatedOrders = ordersState.map(o => 
       o.id === id ? { ...o, status } : o
     );
     setOrders(updatedOrders);
-    
-    // Update kitchen orders
-    const updatedOrder = { ...orderToUpdate, status };
-    const newKitchenOrders = { ...kitchenOrdersState };
-    
-    // Remove from all categories
-    newKitchenOrders.pending = newKitchenOrders.pending.filter(o => o.id !== id);
-    newKitchenOrders.preparing = newKitchenOrders.preparing.filter(o => o.id !== id);
-    newKitchenOrders.ready = newKitchenOrders.ready.filter(o => o.id !== id);
-    newKitchenOrders.delivering = newKitchenOrders.delivering.filter(o => o.id !== id);
-    newKitchenOrders.delivered = newKitchenOrders.delivered.filter(o => o.id !== id);
-    
-    // Add to correct category
-    switch (status) {
-      case 'Pendente':
-        newKitchenOrders.pending.push(updatedOrder);
-        break;
-      case 'Em Preparo':
-        newKitchenOrders.preparing.push(updatedOrder);
-        break;
-      case 'Pronto':
-        newKitchenOrders.ready.push(updatedOrder);
-        break;
-      case 'Em Entrega':
-        newKitchenOrders.delivering.push(updatedOrder);
-        break;
-      case 'Entregue':
-        newKitchenOrders.delivered.push(updatedOrder);
-        break;
-    }
-    
-    setKitchenOrders(newKitchenOrders);
-    console.log('🍳 Kitchen orders após atualização:', newKitchenOrders);
     
     // Notify n8n about status update
     notifyStatusUpdate(id, status, previousStatus);
@@ -334,17 +308,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
     setOrders(updatedOrders);
     
-    // Update kitchen orders as well
-    const newKitchenOrders = { ...kitchenOrdersState };
-    Object.keys(newKitchenOrders).forEach(key => {
-      const orderList = newKitchenOrders[key as keyof typeof newKitchenOrders];
-      newKitchenOrders[key as keyof typeof newKitchenOrders] = orderList.map(o => 
-        o.id === id ? { ...o, priority } : o
-      );
-    });
-    
-    setKitchenOrders(newKitchenOrders);
-    
     toast({
       title: "Prioridade atualizada",
       description: `Prioridade do pedido ${id} alterada para ${priority}.`
@@ -353,17 +316,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteOrder = (id: string) => {
     const orderToDelete = ordersState.find(o => o.id === id);
+    
+    // Atualizar orders - isso automaticamente vai sincronizar kitchenOrders via useEffect
     setOrders(ordersState.filter(o => o.id !== id));
-    
-    // Update kitchen orders
-    const newKitchenOrders = { ...kitchenOrdersState };
-    newKitchenOrders.pending = newKitchenOrders.pending.filter(o => o.id !== id);
-    newKitchenOrders.preparing = newKitchenOrders.preparing.filter(o => o.id !== id);
-    newKitchenOrders.ready = newKitchenOrders.ready.filter(o => o.id !== id);
-    newKitchenOrders.delivering = newKitchenOrders.delivering.filter(o => o.id !== id);
-    newKitchenOrders.delivered = newKitchenOrders.delivered.filter(o => o.id !== id);
-    
-    setKitchenOrders(newKitchenOrders);
     
     // Notify n8n about order cancellation
     if (orderToDelete) {
