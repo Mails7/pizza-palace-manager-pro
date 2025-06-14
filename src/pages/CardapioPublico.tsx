@@ -75,12 +75,24 @@ const CardapioPublicoContent = () => {
     const savedBannerConfig = localStorage.getItem('bannerConfig');
     if (savedBannerConfig) {
       try {
-        setBannerConfig(JSON.parse(savedBannerConfig));
+        const parsedConfig = JSON.parse(savedBannerConfig);
+        console.log('Banner config carregado:', parsedConfig);
+        console.log('Imagem do banner:', parsedConfig.backgroundImage);
+        setBannerConfig(parsedConfig);
       } catch (error) {
         console.error('Erro ao carregar configurações do banner:', error);
       }
+    } else {
+      console.log('Nenhuma configuração de banner encontrada no localStorage');
     }
   }, []);
+
+  // Log quando bannerConfig muda
+  useEffect(() => {
+    console.log('bannerConfig atualizado:', bannerConfig);
+    console.log('backgroundImage:', bannerConfig.backgroundImage);
+    console.log('backgroundImage existe?', !!bannerConfig.backgroundImage);
+  }, [bannerConfig]);
 
   // Obter categorias únicas dos produtos
   const categories = ["all", ...Array.from(new Set(products.map(product => product.category)))];
@@ -221,10 +233,10 @@ const CardapioPublicoContent = () => {
         <div className="max-w-7xl mx-auto">
           <div className="relative bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl overflow-hidden shadow-lg border border-orange-200/50">
             {/* Banner sem imagem de fundo */}
-            <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400">
+            <div className="relative h-auto min-h-32 sm:min-h-40 md:min-h-48 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 p-6">
               <div className="absolute inset-0 bg-black/20"></div>
-              <div className="relative h-full flex items-center justify-center">
-                <div className="text-center text-white">
+              <div className="relative h-full flex flex-col items-center justify-center text-center">
+                <div className="text-white">
                   <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
                     {bannerConfig.title}
                   </h2>
@@ -233,11 +245,20 @@ const CardapioPublicoContent = () => {
                   </p>
                   {/* Mostrar imagem abaixo do texto promocional */}
                   {bannerConfig.backgroundImage && (
-                    <img 
-                      src={bannerConfig.backgroundImage} 
-                      alt="Imagem promocional"
-                      className="mx-auto max-w-xs sm:max-w-sm md:max-w-md rounded-lg shadow-lg border-2 border-white/30"
-                    />
+                    <div className="mt-4">
+                      <img 
+                        src={bannerConfig.backgroundImage} 
+                        alt="Imagem promocional"
+                        className="mx-auto max-w-xs sm:max-w-sm md:max-w-md rounded-lg shadow-lg border-2 border-white/30"
+                        onLoad={() => console.log('Imagem carregada com sucesso!')}
+                        onError={(e) => console.error('Erro ao carregar imagem:', e)}
+                      />
+                    </div>
+                  )}
+                  {!bannerConfig.backgroundImage && (
+                    <p className="text-xs opacity-60 mt-2">
+                      Configure uma imagem promocional nas configurações
+                    </p>
                   )}
                 </div>
               </div>
