@@ -270,29 +270,36 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     try {
       // Verificar se o cliente existe, se não, criar um temporário
       let finalClientId = order.clientId;
-      if (order.clientId.startsWith('public-')) {
-        console.log('🆔 Cliente público detectado, criando cliente temporário...');
+      const clientAlreadyExists = clientsState.some(client => client.id === order.clientId);
+      if (!clientAlreadyExists && order.clientId.startsWith('public-client-')) {
+        // Cliente temporário vindo da pública! Criar!
+        console.log('🆔 Criando cliente temporário para pedido público...');
         const tempClient = {
           id: order.clientId,
           name: order.clientName,
           phone: order.phone,
           address: order.deliveryAddress || '',
           orderCount: 1,
-          totalSpent: order.total || 0
+          totalSpent: order.total || 0,
+          lastOrderDate: new Date()
         };
-        
-        // Adicionar cliente temporário à lista
-        setClients(currentClients => [...currentClients, tempClient]);
-        console.log('✅ Cliente temporário criado:', tempClient);
+        setClients(currentClients => {
+          // Não adicionar duplicado!
+          if (currentClients.some(c => c.id === tempClient.id)) {
+            console.log('⚠️ Cliente temporário já existe, não adicionando duplicado:', tempClient);
+            return currentClients;
+          }
+          console.log('✅ Cliente temporário criado e adicionado:', tempClient);
+          return [...currentClients, tempClient];
+        });
       }
-      
+
       // Criar o novo pedido com dados padronizados
       const newOrder: Order = {
         ...order,
         id: `order-${Date.now()}-${Math.random().toString(36).substr(2, 8)}`,
-        clientId: finalClientId,
+        clientId: order.clientId,
         createdAt: new Date(),
-        // Garantir que todos os campos obrigatórios estejam presentes
         clientName: order.clientName.trim(),
         phone: order.phone.trim(),
         status: order.status || 'Pendente',
@@ -304,39 +311,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         estimatedTime: order.estimatedTime || 30,
         notes: order.notes || ''
       };
-      
-      console.log('✅ Novo pedido formatado:', newOrder);
-      console.log('🆔 ID do novo pedido:', newOrder.id);
-      console.log('📍 Status do novo pedido:', newOrder.status);
-      console.log('👤 Cliente do novo pedido:', newOrder.clientName);
-      console.log('📱 Cliente ID final:', newOrder.clientId);
-      
-      // Atualizar o estado dos pedidos - IMPORTANTE: usar callback para garantir estado atual
+
+      console.log('✅ Novo pedido formatado (inserindo):', newOrder);
+
       setOrders(currentOrders => {
-        console.log('📊 === ANTES DA ATUALIZAÇÃO ===');
-        console.log('📊 Pedidos atuais:', currentOrders.length);
-        console.log('📋 IDs dos pedidos atuais:', currentOrders.map(o => o.id));
-        
         const updatedOrders = [newOrder, ...currentOrders];
-        
-        console.log('📊 === DEPOIS DA ATUALIZAÇÃO ===');
-        console.log('📊 Total de pedidos após adição:', updatedOrders.length);
-        console.log('🔍 Novo pedido no início da lista:', updatedOrders[0]?.id);
-        console.log('📋 Todos os IDs após adição:', updatedOrders.map(o => o.id));
-        
+        console.log('📊 [addOrder] Pedidos após inserir novo pedido:', updatedOrders.map(o => o.id));
         return updatedOrders;
       });
-      
+
       // Notify n8n about new order
       notifyNewOrder(newOrder);
-      
+
       toast({
         title: "Pedido criado",
         description: `Pedido criado com sucesso para ${newOrder.clientName}!`
       });
-      
+
       console.log('✅ === ADDORDER FINALIZADA COM SUCESSO ===');
-      
+
     } catch (error) {
       console.error('❌ ERRO CRÍTICO na função addOrder:', error);
       toast({

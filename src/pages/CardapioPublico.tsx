@@ -171,7 +171,7 @@ const CardapioPublicoContent = () => {
     console.log('🛒 Itens no carrinho:', cartItems);
     console.log('📊 Total de itens:', cartItems.length);
     console.log('💰 Preço total:', getTotalPrice());
-    
+
     if (cartItems.length === 0) {
       console.log('❌ Carrinho vazio - abortando checkout');
       toast.error("Carrinho vazio!");
@@ -183,33 +183,27 @@ const CardapioPublicoContent = () => {
       toast.error("Dados do cliente não encontrados!");
       return;
     }
-    
+
     console.log('👤 Dados do cliente:', clientData);
-    
-    // Gerar um ID único para o cliente público
-    const publicClientId = `public-client-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
+
+    // Gerar um ID único para o cliente público no padrão public-client-...
+    const publicClientId = clientData && clientData.name && clientData.phone
+      ? `public-client-${Date.now()}-${clientData.phone.replace(/\D/g, '').slice(-6)}`
+      : `public-client-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+
     // Converter itens do carrinho para OrderItem com estrutura correta
-    console.log('🔄 Convertendo itens do carrinho para OrderItem...');
-    const orderItems: OrderItem[] = cartItems.map((cartItem, index) => {
-      const orderItem: OrderItem = {
-        id: `item-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
-        productId: cartItem.productId,
-        productName: cartItem.productName,
-        quantity: cartItem.quantity,
-        price: cartItem.unitPrice, // Usar unitPrice como price base
-        unitPrice: cartItem.unitPrice,
-        size: cartItem.size,
-        observations: cartItem.observations || "",
-        preparationTime: cartItem.preparationTime || 15
-      };
-      console.log(`📦 Item ${index + 1} convertido:`, orderItem);
-      return orderItem;
-    });
+    const orderItems: OrderItem[] = cartItems.map((cartItem, index) => ({
+      id: `item-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+      productId: cartItem.productId,
+      productName: cartItem.productName,
+      quantity: cartItem.quantity,
+      price: cartItem.unitPrice,
+      unitPrice: cartItem.unitPrice,
+      size: cartItem.size,
+      observations: cartItem.observations || "",
+      preparationTime: cartItem.preparationTime || 15
+    }));
 
-    console.log('✅ OrderItems convertidos com sucesso:', orderItems);
-
-    // Criar objeto do pedido com estrutura padronizada
     const orderData = {
       clientName: clientData.name.trim(),
       clientId: publicClientId,
@@ -225,37 +219,26 @@ const CardapioPublicoContent = () => {
       deliveryAddress: clientData.address.trim(),
     };
 
-    // LOG ADICIONAL: Objeto do pedido antes do envio
-    console.log('✅ [CARDAPIO_PUBLICO] Pedido a ser enviado para addOrder:', JSON.stringify(orderData, null, 2));
-    console.log('📋 [CARDAPIO_PUBLICO] Tipos - clientId:', typeof orderData.clientId, '| items.length:', orderData.items.length, '| status:', orderData.status, '| Estimado:', orderData.estimatedTime);
+    // LOG reforçado do pedido antes de enviar
+    console.log('✅ [CARDAPIO_PUBLICO] Pedido FINAL para addOrder:', JSON.stringify(orderData, null, 2));
+    console.log('🆔 [CARDAPIO_PUBLICO] clientId será:', publicClientId);
 
     try {
-      console.log('📞 === EXECUTANDO addOrder ===');
-      console.log('🔍 Verificando tipo da função addOrder:', typeof addOrder);
-      
       if (typeof addOrder !== 'function') {
         throw new Error('addOrder não é uma função válida');
       }
-      
-      console.log('🎯 === CHAMANDO addOrder COM OS DADOS ===');
       addOrder(orderData);
-      console.log('✅ addOrder executado com sucesso - pedido deve estar no contexto agora');
-      
-      console.log('🧹 Limpando carrinho...');
+
       clearCart();
-      console.log('✅ Carrinho limpo');
-      
       toast.success("Pedido enviado com sucesso! 🎉");
-      
-      // Mensagem adicional após delay
       setTimeout(() => {
         toast.success("Seu pedido foi enviado para a cozinha! 👨‍🍳");
         console.log('🎉 === CHECKOUT FINALIZADO COM SUCESSO ===');
+        // Só navegar agora que a ordem foi enviada
+        navigate("/pedidos");
       }, 1500);
-      
     } catch (error) {
       console.error('❌ ERRO CRÍTICO no checkout:', error);
-      console.error('❌ Stack trace:', error?.stack);
       toast.error("Erro ao criar pedido. Tente novamente.");
     }
   };
