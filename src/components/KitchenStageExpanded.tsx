@@ -43,7 +43,7 @@ const KitchenStageExpanded: React.FC<KitchenStageExpandedProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
       <div className={`w-full max-w-7xl h-[90vh] border-t-4 rounded-lg ${getSectionColor(status)} p-6 bg-white`}>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
