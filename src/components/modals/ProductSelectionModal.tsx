@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -125,7 +124,11 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
       let crustFlavorName: string | undefined = undefined;
       let crustPrice: number | undefined = undefined;
 
-      if (isPizza && hasCrust && selectedCrustFlavor) {
+      if (isPizza && hasCrust) {
+        if (!selectedCrustFlavor) {
+          alert("Para pizza com borda, selecione o sabor da borda");
+          return;
+        }
         crustFlavorName = selectedCrustFlavor;
         crustPrice = selectedCrustPrice;
       }
@@ -256,33 +259,9 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
                   setHasCrust={setHasCrust}
                   pizzaProducts={pizzaProducts}
                   selectedProduct={selectedProduct}
+                  selectedCrustFlavor={selectedCrustFlavor}
+                  setSelectedCrustFlavor={setSelectedCrustFlavor}
                 />
-
-                {/* Opções de borda se estiver marcado para ter borda */}
-                {hasCrust && crustFlavorsArray.length > 0 && (
-                  <div className="mt-4 p-3 bg-white rounded border">
-                    <label className="block text-sm font-medium mb-2">
-                      Sabor da borda
-                    </label>
-                    <select
-                      className="border rounded px-3 py-2 w-full"
-                      value={selectedCrustFlavor}
-                      onChange={e => setSelectedCrustFlavor(e.target.value)}
-                    >
-                      <option value="">Selecione o sabor da borda</option>
-                      {crustFlavorsArray.map((flavor: { id: string; name: string }) => (
-                        <option key={flavor.id} value={flavor.name}>
-                          {flavor.name}
-                        </option>
-                      ))}
-                    </select>
-                    {selectedCrustPrice > 0 && (
-                      <p className="text-xs mt-1 text-green-600">
-                        Adicional da borda: <strong>{formatCurrency(selectedCrustPrice)}</strong>
-                      </p>
-                    )}
-                  </div>
-                )}
               </div>
             )}
 

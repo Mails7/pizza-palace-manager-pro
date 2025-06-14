@@ -13,7 +13,9 @@ interface PizzaOptionsSelectorProps {
   hasCrust: boolean;
   setHasCrust: (value: boolean) => void;
   pizzaProducts: any[];
-  selectedProduct?: any; // Pizza principal selecionada
+  selectedProduct?: any;
+  selectedCrustFlavor: string;
+  setSelectedCrustFlavor: (flavor: string) => void;
 }
 
 const PizzaOptionsSelector: React.FC<PizzaOptionsSelectorProps> = ({
@@ -27,7 +29,12 @@ const PizzaOptionsSelector: React.FC<PizzaOptionsSelectorProps> = ({
   setHasCrust,
   pizzaProducts,
   selectedProduct,
+  selectedCrustFlavor,
+  setSelectedCrustFlavor,
 }) => {
+  // Obtém os sabores de borda disponíveis do produto selecionado
+  const crustFlavors = selectedProduct?.crustFlavors || [];
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -52,9 +59,9 @@ const PizzaOptionsSelector: React.FC<PizzaOptionsSelectorProps> = ({
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o sabor adicional" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white z-50">
                 {pizzaProducts
-                  .filter(pizza => pizza.id !== selectedProduct?.id) // Exclui a pizza principal
+                  .filter(pizza => pizza.id !== selectedProduct?.id)
                   .map((pizza) => (
                     <SelectItem key={pizza.id} value={pizza.name}>
                       {pizza.name}
@@ -76,6 +83,27 @@ const PizzaOptionsSelector: React.FC<PizzaOptionsSelectorProps> = ({
           onCheckedChange={setHasCrust}
         />
       </div>
+
+      {hasCrust && crustFlavors.length > 0 && (
+        <div className="mt-3 bg-orange-50 p-4 rounded-lg">
+          <label className="block text-sm font-medium mb-2">Sabor da Borda</label>
+          <Select value={selectedCrustFlavor} onValueChange={setSelectedCrustFlavor}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione o sabor da borda" />
+            </SelectTrigger>
+            <SelectContent className="bg-white z-50">
+              {crustFlavors.map((flavor: any) => (
+                <SelectItem key={flavor.id} value={flavor.name}>
+                  {flavor.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-gray-500 mt-1">
+            Escolha o sabor para a borda recheada
+          </p>
+        </div>
+      )}
     </>
   );
 };
