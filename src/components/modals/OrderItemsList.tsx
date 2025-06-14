@@ -7,7 +7,7 @@ import { OrderItem } from "@/types";
 
 interface OrderItemsListProps {
   items: OrderItem[];
-  onRemoveItem: (index: number) => void;
+  onRemoveItem: (itemId: string) => void;
   onAddProduct: () => void;
 }
 
@@ -42,9 +42,9 @@ const OrderItemsList: React.FC<OrderItemsListProps> = ({
         </div>
       ) : (
         <div className="space-y-2">
-          {items.map((item, index) => (
+          {items.map((item) => (
             <div
-              key={index}
+              key={item.id}
               className="flex justify-between items-center p-2 border rounded-md"
             >
               <div>
@@ -78,7 +78,7 @@ const OrderItemsList: React.FC<OrderItemsListProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onRemoveItem(index)}
+                  onClick={() => onRemoveItem(item.id)}
                 >
                   <X className="h-4 w-4" />
                 </Button>

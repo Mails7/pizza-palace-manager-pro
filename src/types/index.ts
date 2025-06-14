@@ -5,6 +5,10 @@ export type OrderStatus = 'Pendente' | 'Em Preparo' | 'Pronto' | 'Em Entrega' | 
 
 export type Priority = 'Alta' | 'Média' | 'Baixa';
 
+export type OrderType = 'Balcão' | 'Mesa' | 'Entrega';
+
+export type PaymentMethod = 'Dinheiro' | 'Cartão' | 'PIX';
+
 export interface Price {
   size: PizzaSize;
   price: number;
@@ -26,18 +30,23 @@ export interface Product {
 }
 
 export interface OrderItem {
+  id: string;
   productId: string;
   productName: string;
   quantity: number;
+  price: number;
   size: PizzaSize;
   unitPrice: number;
   observations?: string;
+  preparationTime?: number;
   isHalfPizza?: boolean;
   halfPizzaFlavors?: {
     flavor1: string;
     flavor2: string;
   };
   hasCrust?: boolean;
+  crustFlavorName?: string;
+  crustPrice?: number;
 }
 
 export interface Client {
@@ -49,6 +58,7 @@ export interface Client {
   totalSpent: number;
   lastOrderDate?: Date;
   notes?: string; // observações sobre o cliente
+  tableId?: string;
 }
 
 export interface Order {
@@ -61,11 +71,14 @@ export interface Order {
   status: OrderStatus;
   priority: Priority;
   createdAt: Date;
-  table?: string;
+  tableId?: string;
+  orderType: OrderType;
   preparationTime?: number;
+  estimatedTime?: number;
   estimatedDeliveryTime?: Date;
   deliveryAddress?: string;
-  paymentMethod?: 'Dinheiro' | 'Cartão' | 'PIX';
+  paymentMethod?: PaymentMethod;
+  notes?: string;
   orderNotes?: string;
 }
 
@@ -74,6 +87,13 @@ export interface Table {
   name: string;
   capacity: number;
   isAvailable: boolean;
+  location?: string;
+  notes?: string;
+  attendant?: string;
+  isReserved?: boolean;
+  reservationName?: string;
+  reservationTime?: string;
+  reservationNotes?: string;
   currentOrderId?: string;
 }
 

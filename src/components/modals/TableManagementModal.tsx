@@ -132,7 +132,7 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
                           {order.items.map((item, itemIndex) => (
                             <div key={itemIndex} className="flex justify-between text-sm">
                               <span>{item.quantity}x {item.productName}</span>
-                              <span>{formatCurrency(item.price * item.quantity)}</span>
+                              <span>{formatCurrency(item.unitPrice * item.quantity)}</span>
                             </div>
                           ))}
                           <Separator />
@@ -281,7 +281,7 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
                     {allTableItems.map((item, index) => (
                       <div key={index} className="flex justify-between text-sm border-b pb-1">
                         <span>{item.quantity}x {item.productName} ({item.clientName})</span>
-                        <span>{formatCurrency(item.price * item.quantity)}</span>
+                        <span>{formatCurrency(item.unitPrice * item.quantity)}</span>
                       </div>
                     ))}
                   </div>
@@ -301,7 +301,7 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
       <ClientSearchModal
         isOpen={isClientModalOpen}
         onClose={() => setIsClientModalOpen(false)}
-        onClientSelect={handleClientSelect}
+        onClientSelected={handleClientSelect}
       />
 
       {selectedClient && (

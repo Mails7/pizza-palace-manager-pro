@@ -20,7 +20,7 @@ export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
   const [deliveryAddress, setDeliveryAddress] = useState("");
 
   const calculateTotal = () => {
-    return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
   };
 
   const getEstimatedPreparationTime = () => {
@@ -69,7 +69,8 @@ export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
       productName: itemName,
       quantity,
       price: itemPrice,
-      size,
+      unitPrice: itemPrice,
+      size: size as any,
       observations: observations || "",
       preparationTime: product.preparationTime || 15,
       isHalfPizza,
@@ -95,7 +96,7 @@ export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
     const orderData = {
       clientName: client.name,
       clientId: client.id,
-      clientPhone: client.phone,
+      phone: client.phone,
       items,
       total: calculateTotal(),
       status: "Pendente" as const,
