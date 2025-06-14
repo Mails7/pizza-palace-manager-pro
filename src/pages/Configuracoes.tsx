@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
 import N8nConfigSection from "@/components/N8nConfigSection";
+import PrintConfigSection from "@/components/PrintConfigSection";
 import { 
   Settings, 
   Store, 
@@ -302,77 +303,7 @@ const Configuracoes = () => {
         </TabsContent>
 
         <TabsContent value="print" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Configurações de Impressão</CardTitle>
-              <CardDescription>
-                Configure como os pedidos são impressos
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Impressão Automática</Label>
-                  <p className="text-sm text-gray-500">Imprimir automaticamente quando um pedido chegar</p>
-                </div>
-                <Switch
-                  checked={printSettings.autoprint}
-                  onCheckedChange={(checked) => setPrintSettings({...printSettings, autoprint: checked})}
-                />
-              </div>
-              <Separator />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="printerName">Nome da Impressora</Label>
-                  <Select value={printSettings.printerName} onValueChange={(value) => setPrintSettings({...printSettings, printerName: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Impressora Principal">Impressora Principal</SelectItem>
-                      <SelectItem value="Impressora Cozinha">Impressora Cozinha</SelectItem>
-                      <SelectItem value="Impressora Balcão">Impressora Balcão</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="copies">Número de Cópias</Label>
-                  <Select value={printSettings.copies.toString()} onValueChange={(value) => setPrintSettings({...printSettings, copies: parseInt(value)})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">1 Cópia</SelectItem>
-                      <SelectItem value="2">2 Cópias</SelectItem>
-                      <SelectItem value="3">3 Cópias</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Imprimir Cópia do Cliente</Label>
-                  <p className="text-sm text-gray-500">Imprimir comprovante para o cliente</p>
-                </div>
-                <Switch
-                  checked={printSettings.printCustomerCopy}
-                  onCheckedChange={(checked) => setPrintSettings({...printSettings, printCustomerCopy: checked})}
-                />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Imprimir Cópia da Cozinha</Label>
-                  <p className="text-sm text-gray-500">Imprimir pedido para a cozinha</p>
-                </div>
-                <Switch
-                  checked={printSettings.printKitchenCopy}
-                  onCheckedChange={(checked) => setPrintSettings({...printSettings, printKitchenCopy: checked})}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <PrintConfigSection />
         </TabsContent>
 
         <TabsContent value="payment" className="space-y-6">
