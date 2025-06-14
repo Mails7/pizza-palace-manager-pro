@@ -3,13 +3,11 @@ import React, { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Plus, Minus } from "lucide-react";
+import ProductSearch from "./ProductSearch";
+import ProductSizeSelector from "./ProductSizeSelector";
+import PizzaOptionsSelector from "./PizzaOptionsSelector";
+import QuantitySelector from "./QuantitySelector";
 
 interface ProductSelectionModalProps {
   isOpen: boolean;
@@ -32,13 +30,6 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
   const [flavor1, setFlavor1] = useState("");
   const [flavor2, setFlavor2] = useState("");
   const [hasCrust, setHasCrust] = useState(true);
-
-  const filteredProducts = products.filter(
-    (product) =>
-      product.available &&
-      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
 
   const pizzaProducts = products.filter(
     (product) => product.available && product.category.toLowerCase().includes('pizza')
@@ -120,46 +111,13 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
         </DialogHeader>
 
         {!selectedProduct ? (
-          <div className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                className="pl-10"
-                placeholder="Buscar produtos..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                autoFocus
-              />
-            </div>
-
-            <div className="max-h-96 overflow-y-auto space-y-2">
-              {filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleProductSelect(product)}
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="font-medium">{product.name}</h3>
-                      <p className="text-sm text-gray-500">{product.description}</p>
-                      <Badge variant="outline" className="mt-1">{product.category}</Badge>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">
-                        A partir de {formatCurrency(Math.min(...product.prices.map((p: any) => p.price)))}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {filteredProducts.length === 0 && (
-                <p className="text-center text-gray-500 py-8">
-                  Nenhum produto encontrado
-                </p>
-              )}
-            </div>
-          </div>
+          <ProductSearch
+            products={products}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            onProductSelect={handleProductSelect}
+            formatCurrency={formatCurrency}
+          />
         ) : (
           <div className="space-y-4">
             <div className="border-b pb-4">
@@ -167,104 +125,31 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
               <p className="text-sm text-gray-500">{selectedProduct.description}</p>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Tamanho</label>
-              <RadioGroup value={selectedSize} onValueChange={setSelectedSize}>
-                {selectedProduct.prices.map((price: any, index: number) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value={price.size} id={`size-${index}`} />
-                      <label htmlFor={`size-${index}`} className="text-sm">
-                        {price.size}
-                      </label>
-                    </div>
-                    <span className="text-sm font-medium">
-                      {formatCurrency(price.price)}
-                    </span>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
+            <ProductSizeSelector
+              prices={selectedProduct.prices}
+              selectedSize={selectedSize}
+              onSizeChange={setSelectedSize}
+              formatCurrency={formatCurrency}
+            />
 
             {isPizzaProduct && (
-              <>
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">Meia Pizza (máximo 2 sabores)</label>
-                  <Switch 
-                    checked={isHalfPizza}
-                    onCheckedChange={setIsHalfPizza}
-                  />
-                </div>
-
-                {isHalfPizza && (
-                  <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Primeiro Sabor</label>
-                      <Select value={flavor1} onValueChange={setFlavor1}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o primeiro sabor" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {pizzaProducts.map((pizza) => (
-                            <SelectItem key={pizza.id} value={pizza.name}>
-                              {pizza.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Segundo Sabor</label>
-                      <Select value={flavor2} onValueChange={setFlavor2}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o segundo sabor" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {pizzaProducts.map((pizza) => (
-                            <SelectItem key={pizza.id} value={pizza.name}>
-                              {pizza.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">Com Borda</label>
-                  <Switch 
-                    checked={hasCrust}
-                    onCheckedChange={setHasCrust}
-                  />
-                </div>
-              </>
+              <PizzaOptionsSelector
+                isHalfPizza={isHalfPizza}
+                setIsHalfPizza={setIsHalfPizza}
+                flavor1={flavor1}
+                setFlavor1={setFlavor1}
+                flavor2={flavor2}
+                setFlavor2={setFlavor2}
+                hasCrust={hasCrust}
+                setHasCrust={setHasCrust}
+                pizzaProducts={pizzaProducts}
+              />
             )}
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Quantidade</label>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={quantity <= 1}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <span className="px-4 py-2 border rounded text-center min-w-16">
-                  {quantity}
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setQuantity(quantity + 1)}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+            <QuantitySelector
+              quantity={quantity}
+              setQuantity={setQuantity}
+            />
 
             <div>
               <label className="block text-sm font-medium mb-2">Observações (opcional)</label>
