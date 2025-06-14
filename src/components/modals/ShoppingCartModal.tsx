@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
-import { useShoppingCart } from '@/hooks/useShoppingCart';
+import { useShoppingCart } from '@/contexts/ShoppingCartContext';
 
 interface ShoppingCartModalProps {
   isOpen: boolean;
@@ -25,6 +24,8 @@ const ShoppingCartModal: React.FC<ShoppingCartModalProps> = ({
     clearCart, 
     getTotalPrice 
   } = useShoppingCart();
+
+  console.log('Modal do carrinho aberto. Itens:', cartItems);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {

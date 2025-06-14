@@ -22,6 +22,8 @@ const FloatingCartButton: React.FC<FloatingCartButtonProps> = ({
     }).format(value);
   };
 
+  console.log('FloatingCartButton - itemCount:', itemCount, 'totalPrice:', totalPrice);
+
   if (itemCount === 0) return null;
 
   return (

@@ -10,7 +10,7 @@ import ProductDetailModal from "@/components/modals/ProductDetailModal";
 import ClientDataForm from "@/components/forms/ClientDataForm";
 import ShoppingCartModal from "@/components/modals/ShoppingCartModal";
 import FloatingCartButton from "@/components/FloatingCartButton";
-import { useShoppingCart } from "@/hooks/useShoppingCart";
+import { ShoppingCartProvider, useShoppingCart } from "@/contexts/ShoppingCartContext";
 
 interface ClientData {
   name: string;
@@ -19,7 +19,7 @@ interface ClientData {
   address: string;
 }
 
-const CardapioPublico = () => {
+const CardapioPublicoContent = () => {
   const { products } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -82,6 +82,7 @@ const CardapioPublico = () => {
       preparationTime: product.preparationTime || 15
     };
 
+    console.log('Tentando adicionar ao carrinho:', cartItem);
     addToCart(cartItem);
     toast.success(`${product.name} adicionado ao carrinho!`);
   };
@@ -323,6 +324,14 @@ const CardapioPublico = () => {
         onCheckout={handleCheckout}
       />
     </div>
+  );
+};
+
+const CardapioPublico = () => {
+  return (
+    <ShoppingCartProvider>
+      <CardapioPublicoContent />
+    </ShoppingCartProvider>
   );
 };
 
