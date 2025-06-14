@@ -187,6 +187,55 @@ const CardapioPublicoContent = () => {
         </div>
       </div>
 
+      {/* Store Banner Section */}
+      <div className="w-full px-4 sm:px-6 py-6 sm:py-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="relative bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl overflow-hidden shadow-lg border border-orange-200/50">
+            {/* Banner com imagem de fundo placeholder */}
+            <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400">
+              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="relative h-full flex items-center justify-center">
+                <div className="text-center text-white">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
+                    🍕 Promoção Especial! 🍕
+                  </h2>
+                  <p className="text-sm sm:text-lg opacity-90">
+                    Pizzas grandes a partir de R$ 29,90
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Informações da loja */}
+            <div className="bg-white p-4 sm:p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                <div className="flex items-center justify-center gap-2">
+                  <Clock className="h-5 w-5 text-orange-500" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Horário</p>
+                    <p className="text-xs text-gray-500">18h às 23h</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <MapPin className="h-5 w-5 text-orange-500" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Delivery</p>
+                    <p className="text-xs text-gray-500">Grátis ac. R$ 50</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <Star className="h-5 w-5 text-orange-500" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Avaliação</p>
+                    <p className="text-xs text-gray-500">4.8 estrelas</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Search Section */}
       <div className="w-full px-4 sm:px-6 py-4 sm:py-6">
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6 max-w-7xl mx-auto">
