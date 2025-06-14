@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,12 +10,15 @@ import { Search, Edit, Share } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { toast } from "@/components/ui/sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import EditProductModal from "@/components/modals/EditProductModal";
 
 const Cardapio = () => {
   const { products, updateProduct } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const publicCardapioUrl = `${window.location.origin}/cardapio-publico`;
 
   // Obter categorias únicas dos produtos
@@ -55,6 +57,11 @@ const Cardapio = () => {
         toast.error("Erro ao copiar o link");
         console.error("Erro ao copiar: ", err);
       });
+  };
+
+  const handleEditProduct = (product: any) => {
+    setSelectedProduct(product);
+    setEditModalOpen(true);
   };
 
   return (
@@ -108,7 +115,7 @@ const Cardapio = () => {
                       </CardTitle>
                       <p className="text-sm text-gray-500">{product.category}</p>
                     </div>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" onClick={() => handleEditProduct(product)}>
                       <Edit className="h-4 w-4" />
                     </Button>
                   </CardHeader>
@@ -171,6 +178,13 @@ const Cardapio = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <EditProductModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        product={selectedProduct}
+      />
+
     </div>
   );
 };
