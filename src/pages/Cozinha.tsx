@@ -1,7 +1,9 @@
 
 import React from "react";
 import { useApp } from "@/contexts/AppContext";
-import KitchenLayout from "@/components/kitchen/KitchenLayout";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import KitchenSidebar from "@/components/KitchenSidebar";
+import OrderSection from "@/components/kitchen/OrderSection";
 import ExpandedOrderCard from "@/components/ExpandedOrderCard";
 import KitchenStageExpanded from "@/components/KitchenStageExpanded";
 import { useKitchenOrders } from "@/hooks/useKitchenOrders";
@@ -37,15 +39,79 @@ const Cozinha = () => {
   });
 
   return (
-    <>
-      <KitchenLayout
-        kitchenOrders={kitchenOrders}
-        autoUpdateEnabled={autoUpdateEnabled}
-        toggleAutoUpdate={toggleAutoUpdate}
-        onOrderExpand={setExpandedOrder}
-        onOrderAction={moveToNextStatus}
-        onExpandStage={setExpandedStage}
-      />
+    <SidebarProvider>
+      <div className="flex h-screen w-full">
+        <KitchenSidebar 
+          kitchenOrders={kitchenOrders}
+          autoUpdateEnabled={autoUpdateEnabled}
+          toggleAutoUpdate={toggleAutoUpdate}
+        />
+        
+        <SidebarInset className="flex-1">
+          <div className="h-full flex flex-col">
+            <div className="border-b bg-white p-4">
+              <div className="flex items-center gap-4">
+                <SidebarTrigger />
+                <h1 className="text-2xl font-bold">Cozinha - Sistema de Pedidos</h1>
+              </div>
+            </div>
+            
+            <div className="flex-1 p-4 bg-gray-100">
+              <div className="flex gap-4 h-full">
+                <OrderSection
+                  title="Pendentes"
+                  orders={kitchenOrders.pending}
+                  status="Pendente"
+                  actionLabel="Iniciar Preparo"
+                  onOrderExpand={setExpandedOrder}
+                  onOrderAction={moveToNextStatus}
+                  onExpandStage={setExpandedStage}
+                />
+                
+                <OrderSection
+                  title="Em Preparo"
+                  orders={kitchenOrders.preparing}
+                  status="Em Preparo"
+                  actionLabel="Marcar como Pronto"
+                  onOrderExpand={setExpandedOrder}
+                  onOrderAction={moveToNextStatus}
+                  onExpandStage={setExpandedStage}
+                />
+                
+                <OrderSection
+                  title="Prontos"
+                  orders={kitchenOrders.ready}
+                  status="Pronto"
+                  actionLabel="Enviar para Entrega"
+                  onOrderExpand={setExpandedOrder}
+                  onOrderAction={moveToNextStatus}
+                  onExpandStage={setExpandedStage}
+                />
+                
+                <OrderSection
+                  title="Em Entrega"
+                  orders={kitchenOrders.delivering}
+                  status="Em Entrega"
+                  actionLabel="Confirmar Entrega"
+                  onOrderExpand={setExpandedOrder}
+                  onOrderAction={moveToNextStatus}
+                  onExpandStage={setExpandedStage}
+                />
+                
+                <OrderSection
+                  title="Entregues"
+                  orders={kitchenOrders.delivered}
+                  status="Entregue"
+                  actionLabel=""
+                  onOrderExpand={setExpandedOrder}
+                  onOrderAction={moveToNextStatus}
+                  onExpandStage={setExpandedStage}
+                />
+              </div>
+            </div>
+          </div>
+        </SidebarInset>
+      </div>
       
       {expandedOrder && (
         <ExpandedOrderCard
@@ -70,7 +136,7 @@ const Cozinha = () => {
           onOrderAction={moveToNextStatus}
         />
       )}
-    </>
+    </SidebarProvider>
   );
 };
 
