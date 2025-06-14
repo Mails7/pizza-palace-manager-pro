@@ -1,11 +1,10 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useApp } from "@/contexts/AppContext";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, Edit, Sparkles, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { PizzaSize, Price } from "@/types";
@@ -134,23 +133,61 @@ const EditarProduto = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-red-50 p-6">
       <div className="flex items-center mb-6">
-        <Link to="/produtos" className="text-gray-500 mr-2">
+        <Link to="/produtos" className="text-gray-500 mr-2 hover:text-orange-600 transition-all duration-200 hover:scale-105">
           Produtos
         </Link>
         <ArrowDown className="h-4 w-4 text-gray-400 mx-2 rotate-90" />
-        <span className="font-medium">Editar Produto</span>
+        <span className="font-medium bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+          ✏️ Editar Produto
+        </span>
       </div>
       
-      <h1 className="text-3xl font-bold mb-6">Editar Produto</h1>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-full shadow-xl">
+          <Edit className="h-6 w-6 text-white" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
+            Editar Produto
+          </h1>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Sparkles className="h-4 w-4 text-yellow-500" />
+            <span>Atualize as informações do produto</span>
+            <Zap className="h-4 w-4 text-orange-500" />
+          </div>
+        </div>
+      </div>
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
-              <BasicInfoForm control={form.control} errors={form.formState.errors} />
-              <PricingForm control={form.control} errors={form.formState.errors} />
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-orange-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-orange-600 to-red-600 p-4">
+                  <h3 className="text-white font-semibold flex items-center gap-2">
+                    <Star className="h-5 w-5" />
+                    Informações do Produto
+                  </h3>
+                </div>
+                <div className="p-6">
+                  <BasicInfoForm control={form.control} errors={form.formState.errors} />
+                </div>
+              </div>
+              
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-yellow-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-yellow-600 to-orange-600 p-4">
+                  <h3 className="text-white font-semibold flex items-center gap-2">
+                    <span>💰</span>
+                    Configuração de Preços
+                  </h3>
+                </div>
+                <div className="p-6">
+                  <PricingForm control={form.control} errors={form.formState.errors} />
+                </div>
+              </div>
+              
               {/* Só exibe opções de borda para pizza */}
               {watchType && watchType.toLowerCase().includes('pizza') && (
                 <PizzaCrustOptions
@@ -165,15 +202,35 @@ const EditarProduto = () => {
               )}
             </div>
             <div className="lg:col-span-1 space-y-6">
-              <ConfigurationForm control={form.control} errors={form.formState.errors} />
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-green-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-4">
+                  <h3 className="text-white font-semibold flex items-center gap-2">
+                    <span>⚙️</span>
+                    Configurações
+                  </h3>
+                </div>
+                <div className="p-6">
+                  <ConfigurationForm control={form.control} errors={form.formState.errors} />
+                </div>
+              </div>
             </div>
           </div>
           
-          <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => navigate('/produtos')}>
-              Cancelar
+          <div className="flex justify-end gap-4 p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => navigate('/produtos')}
+              className="hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200 transition-all duration-200"
+            >
+              ❌ Cancelar
             </Button>
-            <Button type="submit" className="bg-black text-white">Salvar Alterações</Button>
+            <Button 
+              type="submit" 
+              className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white shadow-lg transition-all duration-200 hover:scale-105"
+            >
+              💾 Salvar Alterações
+            </Button>
           </div>
         </form>
       </Form>

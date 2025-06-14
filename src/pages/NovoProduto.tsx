@@ -1,11 +1,10 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useApp } from "@/contexts/AppContext";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, Package, Sparkles, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { PizzaSize, Price } from "@/types";
@@ -118,23 +117,61 @@ const NovoProduto = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6">
       <div className="flex items-center mb-6">
-        <Link to="/produtos" className="text-gray-500 mr-2">
+        <Link to="/produtos" className="text-gray-500 mr-2 hover:text-purple-600 transition-all duration-200 hover:scale-105">
           Produtos
         </Link>
         <ArrowDown className="h-4 w-4 text-gray-400 mx-2 rotate-90" />
-        <span className="font-medium">Novo Produto</span>
+        <span className="font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          ✨ Novo Produto
+        </span>
       </div>
       
-      <h1 className="text-3xl font-bold mb-6">Novo Produto</h1>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-xl">
+          <Package className="h-6 w-6 text-white" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
+            Novo Produto
+          </h1>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Sparkles className="h-4 w-4 text-yellow-500" />
+            <span>Crie produtos incríveis para seu negócio</span>
+            <Zap className="h-4 w-4 text-blue-500" />
+          </div>
+        </div>
+      </div>
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
-              <BasicInfoForm control={form.control} errors={form.formState.errors} />
-              <PricingForm control={form.control} errors={form.formState.errors} />
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-purple-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4">
+                  <h3 className="text-white font-semibold flex items-center gap-2">
+                    <Star className="h-5 w-5" />
+                    Informações do Produto
+                  </h3>
+                </div>
+                <div className="p-6">
+                  <BasicInfoForm control={form.control} errors={form.formState.errors} />
+                </div>
+              </div>
+              
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-4">
+                  <h3 className="text-white font-semibold flex items-center gap-2">
+                    <span>💰</span>
+                    Configuração de Preços
+                  </h3>
+                </div>
+                <div className="p-6">
+                  <PricingForm control={form.control} errors={form.formState.errors} />
+                </div>
+              </div>
+              
               {/* Só exibe opções de borda para pizza */}
               {watchType && watchType.toLowerCase().includes('pizza') && (
                 <PizzaCrustOptions
@@ -149,15 +186,35 @@ const NovoProduto = () => {
               )}
             </div>
             <div className="lg:col-span-1 space-y-6">
-              <ConfigurationForm control={form.control} errors={form.formState.errors} />
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-green-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-4">
+                  <h3 className="text-white font-semibold flex items-center gap-2">
+                    <span>⚙️</span>
+                    Configurações
+                  </h3>
+                </div>
+                <div className="p-6">
+                  <ConfigurationForm control={form.control} errors={form.formState.errors} />
+                </div>
+              </div>
             </div>
           </div>
           
-          <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => navigate('/produtos')}>
-              Cancelar
+          <div className="flex justify-end gap-4 p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => navigate('/produtos')}
+              className="hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200 transition-all duration-200"
+            >
+              ❌ Cancelar
             </Button>
-            <Button type="submit" className="bg-black text-white">Salvar Produto</Button>
+            <Button 
+              type="submit" 
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg transition-all duration-200 hover:scale-105"
+            >
+              ✨ Salvar Produto
+            </Button>
           </div>
         </form>
       </Form>
