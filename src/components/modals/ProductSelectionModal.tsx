@@ -107,11 +107,19 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
   const handleAddToOrder = () => {
     if (selectedProduct && selectedSize && quantity > 0) {
       const isPizza = isPizzaProduct;
-      const halfPizzaFlavors = isHalfPizza ? { flavor1, flavor2 } : undefined;
       
-      if (isHalfPizza && (!flavor1 || !flavor2)) {
-        alert("Para meia pizza, selecione dois sabores");
-        return;
+      // Para meia pizza, agora só precisa do flavor2 (sabor adicional)
+      let halfPizzaFlavors = undefined;
+      if (isHalfPizza) {
+        if (!flavor2) {
+          alert("Para meia pizza, selecione o sabor adicional");
+          return;
+        }
+        // O flavor1 será o nome da pizza principal, flavor2 é o adicional
+        halfPizzaFlavors = { 
+          flavor1: selectedProduct.name, 
+          flavor2: flavor2 
+        };
       }
 
       let crustFlavorName: string | undefined = undefined;
@@ -247,6 +255,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
                   hasCrust={hasCrust}
                   setHasCrust={setHasCrust}
                   pizzaProducts={pizzaProducts}
+                  selectedProduct={selectedProduct}
                 />
 
                 {/* Opções de borda se estiver marcado para ter borda */}

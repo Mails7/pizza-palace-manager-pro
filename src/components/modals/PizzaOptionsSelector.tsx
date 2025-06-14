@@ -13,6 +13,7 @@ interface PizzaOptionsSelectorProps {
   hasCrust: boolean;
   setHasCrust: (value: boolean) => void;
   pizzaProducts: any[];
+  selectedProduct?: any; // Pizza principal selecionada
 }
 
 const PizzaOptionsSelector: React.FC<PizzaOptionsSelectorProps> = ({
@@ -25,11 +26,12 @@ const PizzaOptionsSelector: React.FC<PizzaOptionsSelectorProps> = ({
   hasCrust,
   setHasCrust,
   pizzaProducts,
+  selectedProduct,
 }) => {
   return (
     <>
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium">Meia Pizza (máximo 2 sabores)</label>
+        <label className="text-sm font-medium">Meia Pizza (adicionar um sabor)</label>
         <Switch 
           checked={isHalfPizza}
           onCheckedChange={setIsHalfPizza}
@@ -38,36 +40,31 @@ const PizzaOptionsSelector: React.FC<PizzaOptionsSelectorProps> = ({
 
       {isHalfPizza && (
         <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
-          <div>
-            <label className="block text-sm font-medium mb-2">Primeiro Sabor</label>
-            <Select value={flavor1} onValueChange={setFlavor1}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o primeiro sabor" />
-              </SelectTrigger>
-              <SelectContent>
-                {pizzaProducts.map((pizza) => (
-                  <SelectItem key={pizza.id} value={pizza.name}>
-                    {pizza.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="mb-3">
+            <p className="text-sm text-gray-600">
+              <strong>Pizza Principal:</strong> {selectedProduct?.name || 'Produto selecionado'}
+            </p>
           </div>
           
           <div>
-            <label className="block text-sm font-medium mb-2">Segundo Sabor</label>
+            <label className="block text-sm font-medium mb-2">Sabor Adicional (segunda metade)</label>
             <Select value={flavor2} onValueChange={setFlavor2}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecione o segundo sabor" />
+                <SelectValue placeholder="Selecione o sabor adicional" />
               </SelectTrigger>
               <SelectContent>
-                {pizzaProducts.map((pizza) => (
-                  <SelectItem key={pizza.id} value={pizza.name}>
-                    {pizza.name}
-                  </SelectItem>
-                ))}
+                {pizzaProducts
+                  .filter(pizza => pizza.id !== selectedProduct?.id) // Exclui a pizza principal
+                  .map((pizza) => (
+                    <SelectItem key={pizza.id} value={pizza.name}>
+                      {pizza.name}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
+            <p className="text-xs text-gray-500 mt-1">
+              O preço será baseado no sabor mais caro entre os dois
+            </p>
           </div>
         </div>
       )}
