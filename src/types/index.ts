@@ -95,6 +95,9 @@ export interface Table {
   reservationTime?: string;
   reservationNotes?: string;
   currentOrderId?: string;
+  mergedWith?: string[]; // IDs das mesas que foram juntadas com esta
+  isSplit?: boolean; // Se esta mesa foi dividida de outra
+  originalTableId?: string; // ID da mesa original se foi dividida
 }
 
 export interface DailySales {

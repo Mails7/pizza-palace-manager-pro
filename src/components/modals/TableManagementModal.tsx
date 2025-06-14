@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useApp } from "@/contexts/AppContext";
-import { Users, Plus, Calendar, UserCheck, Receipt, Split } from "lucide-react";
+import { Users, Plus, Calendar, UserCheck, Receipt, Split, Merge, Scissors } from "lucide-react";
 import OrderFormModal from "./OrderFormModal";
 import ClientSearchModal from "./ClientSearchModal";
 
@@ -26,7 +25,7 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
   onClose,
   table,
 }) => {
-  const { orders, clients, addOrder, updateTable } = useApp();
+  const { orders, clients, addOrder, updateTable, tables, addTable } = useApp();
   const [activeTab, setActiveTab] = useState("orders");
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
@@ -36,6 +35,7 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
   const [reservationTime, setReservationTime] = useState(table?.reservationTime || "");
   const [reservationNotes, setReservationNotes] = useState(table?.reservationNotes || "");
   const [billSplit, setBillSplit] = useState({ people: 1, method: "equal" });
+  const [selectedTableToMerge, setSelectedTableToMerge] = useState("");
 
   // Buscar pedidos da mesa
   const tableOrders = orders.filter(order => 
@@ -52,6 +52,11 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
       orderId: order.id,
       clientName: order.clientName
     }))
+  );
+
+  // Mesas disponíveis para juntar (excluindo a atual)
+  const availableTablesForMerge = tables.filter(t => 
+    t.id !== table?.id && t.isAvailable && !t.mergedWith?.length
   );
 
   const formatCurrency = (value: number) => {
@@ -82,6 +87,72 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
     setSelectedClient(null);
   };
 
+  const handleMergeTables = () => {
+    if (!selectedTableToMerge) return;
+    
+    const tableToMerge = tables.find(t => t.id === selectedTableToMerge);
+    if (!tableToMerge) return;
+
+    // Atualizar mesa principal
+    updateTable(table.id, {
+      mergedWith: [...(table.mergedWith || []), selectedTableToMerge],
+      capacity: table.capacity + tableToMerge.capacity,
+      name: `${table.name} + ${tableToMerge.name}`
+    });
+
+    // Marcar mesa secundária como não disponível
+    updateTable(selectedTableToMerge, {
+      isAvailable: false,
+      notes: `Juntada com Mesa ${table.name}`
+    });
+
+    setSelectedTableToMerge("");
+  };
+
+  const handleSplitTable = () => {
+    const splitCapacity = Math.floor(table.capacity / 2);
+    
+    // Criar nova mesa dividida
+    const newTable = {
+      name: `${table.name}B`,
+      capacity: splitCapacity,
+      isAvailable: true,
+      location: table.location,
+      isSplit: true,
+      originalTableId: table.id
+    };
+
+    addTable(newTable);
+
+    // Atualizar mesa original
+    updateTable(table.id, {
+      capacity: table.capacity - splitCapacity,
+      name: `${table.name}A`
+    });
+  };
+
+  const handleUnsplitTable = () => {
+    if (!table.mergedWith?.length) return;
+
+    // Restaurar mesas juntadas
+    table.mergedWith.forEach((mergedTableId: string) => {
+      const mergedTable = tables.find(t => t.id === mergedTableId);
+      if (mergedTable) {
+        updateTable(mergedTableId, {
+          isAvailable: true,
+          notes: ""
+        });
+      }
+    });
+
+    // Restaurar mesa principal
+    updateTable(table.id, {
+      mergedWith: [],
+      capacity: table.capacity, // Seria necessário calcular a capacidade original
+      name: table.name.split(' + ')[0] // Pegar apenas o primeiro nome
+    });
+  };
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={(open) => {
@@ -92,15 +163,19 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
             <DialogTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
               Mesa {table?.name} - Gerenciamento
+              {table?.mergedWith?.length > 0 && (
+                <Badge variant="secondary">Mesa Juntada</Badge>
+              )}
             </DialogTitle>
           </DialogHeader>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="orders">Pedidos</TabsTrigger>
               <TabsTrigger value="reservation">Reserva</TabsTrigger>
               <TabsTrigger value="attendant">Atendente</TabsTrigger>
               <TabsTrigger value="payment">Pagamento</TabsTrigger>
+              <TabsTrigger value="management">Gerenciar</TabsTrigger>
             </TabsList>
 
             <TabsContent value="orders" className="space-y-4">
@@ -288,6 +363,78 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
                 </CardContent>
               </Card>
             </TabsContent>
+
+            <TabsContent value="management" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Merge className="h-5 w-5" />
+                    Juntar Mesas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="mergeTable">Selecionar mesa para juntar</Label>
+                    <Select value={selectedTableToMerge} onValueChange={setSelectedTableToMerge}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Escolha uma mesa" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableTablesForMerge.map((t) => (
+                          <SelectItem key={t.id} value={t.id}>
+                            Mesa {t.name} ({t.capacity} lugares)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={handleMergeTables}
+                      disabled={!selectedTableToMerge}
+                      className="flex-1"
+                    >
+                      <Merge className="h-4 w-4 mr-2" />
+                      Juntar Mesas
+                    </Button>
+                    
+                    {table?.mergedWith?.length > 0 && (
+                      <Button 
+                        onClick={handleUnsplitTable}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        Desfazer Junção
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Scissors className="h-5 w-5" />
+                    Dividir Mesa
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Dividir esta mesa criará uma nova mesa com metade da capacidade.
+                  </p>
+                  <Button 
+                    onClick={handleSplitTable}
+                    variant="outline"
+                    className="w-full"
+                    disabled={table?.capacity < 2}
+                  >
+                    <Scissors className="h-4 w-4 mr-2" />
+                    Dividir Mesa (Criar Mesa {table?.name}B)
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
 
           <div className="flex justify-end gap-2 border-t pt-4">
@@ -312,6 +459,8 @@ const TableManagementModal: React.FC<TableManagementModalProps> = ({
             ...selectedClient,
             tableId: table?.id
           }}
+          forceTableOrder={true}
+          tableId={table?.id}
         />
       )}
     </>

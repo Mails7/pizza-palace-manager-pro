@@ -2,11 +2,12 @@
 import React from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { OrderType } from "@/types";
 import { Table } from "@/types";
 
 interface OrderTypeSelectorProps {
-  orderType: "delivery" | "takeaway" | "table";
-  setOrderType: (type: "delivery" | "takeaway" | "table") => void;
+  orderType: OrderType;
+  setOrderType: (type: OrderType) => void;
   selectedTable: string;
   setSelectedTable: (table: string) => void;
   tables: Table[];
@@ -25,25 +26,25 @@ const OrderTypeSelector: React.FC<OrderTypeSelectorProps> = ({
         <p className="mb-2 font-medium">Tipo de Pedido</p>
         <RadioGroup
           value={orderType}
-          onValueChange={(value: any) => setOrderType(value)}
+          onValueChange={(value: OrderType) => setOrderType(value)}
           className="flex space-x-4"
         >
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="delivery" id="delivery" />
-            <label htmlFor="delivery">Delivery</label>
+            <RadioGroupItem value="Entrega" id="delivery" />
+            <label htmlFor="delivery">Entrega</label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="takeaway" id="takeaway" />
-            <label htmlFor="takeaway">Retirada</label>
+            <RadioGroupItem value="Balcão" id="takeaway" />
+            <label htmlFor="takeaway">Balcão</label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="table" id="table" />
+            <RadioGroupItem value="Mesa" id="table" />
             <label htmlFor="table">Mesa</label>
           </div>
         </RadioGroup>
       </div>
 
-      {orderType === "table" && (
+      {orderType === "Mesa" && (
         <div>
           <p className="mb-2 font-medium">Mesa</p>
           <Select value={selectedTable} onValueChange={setSelectedTable}>

@@ -173,6 +173,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
       return;
     }
+
+    // Se a mesa foi juntada com outras, desfazer a junção primeiro
+    if (tableToDelete?.mergedWith?.length) {
+      tableToDelete.mergedWith.forEach((mergedTableId: string) => {
+        updateTable(mergedTableId, {
+          isAvailable: true,
+          notes: ""
+        });
+      });
+    }
     
     setTables(tablesState.filter(t => t.id !== id));
     if (tableToDelete) {

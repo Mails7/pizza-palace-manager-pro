@@ -6,13 +6,16 @@ import { OrderType, OrderItem, PaymentMethod } from "@/types";
 interface UseOrderFormProps {
   client: any;
   onClose: () => void;
+  forceTableOrder?: boolean; // Nova prop para forçar pedido de mesa
+  tableId?: string; // ID da mesa quando vem do gerenciamento
 }
 
-export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
+export const useOrderForm = ({ client, onClose, forceTableOrder = false, tableId }: UseOrderFormProps) => {
   const { addOrder, tables } = useApp();
   
-  const [orderType, setOrderType] = useState<OrderType>("Balcão");
-  const [selectedTable, setSelectedTable] = useState("");
+  // Se forceTableOrder for true, inicia como "Mesa"
+  const [orderType, setOrderType] = useState<OrderType>(forceTableOrder ? "Mesa" : "Balcão");
+  const [selectedTable, setSelectedTable] = useState(tableId || client.tableId || "");
   const [isProductSelectionOpen, setIsProductSelectionOpen] = useState(false);
   const [items, setItems] = useState<OrderItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("Dinheiro");
@@ -100,7 +103,7 @@ export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
       items,
       total: calculateTotal(),
       status: "Pendente" as const,
-      priority: "Normal" as const,
+      priority: "Média" as const, // Corrigido para usar um valor válido do tipo Priority
       orderType,
       paymentMethod,
       notes: orderNotes,
@@ -135,5 +138,6 @@ export const useOrderForm = ({ client, onClose }: UseOrderFormProps) => {
     handleAddItem,
     handleRemoveItem,
     handleSubmit,
+    isTableOrderForced: forceTableOrder, // Retorna se é um pedido forçado de mesa
   };
 };

@@ -12,12 +12,16 @@ interface OrderFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   client: any;
+  forceTableOrder?: boolean;
+  tableId?: string;
 }
 
 const OrderFormModal: React.FC<OrderFormModalProps> = ({
   isOpen,
   onClose,
   client,
+  forceTableOrder = false,
+  tableId,
 }) => {
   const {
     orderType,
@@ -39,7 +43,8 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
     handleAddItem,
     handleRemoveItem,
     handleSubmit,
-  } = useOrderForm({ client, onClose });
+    isTableOrderForced,
+  } = useOrderForm({ client, onClose, forceTableOrder, tableId });
 
   return (
     <>
@@ -48,16 +53,32 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({
       }}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Novo Pedido</DialogTitle>
+            <DialogTitle>Novo Pedido {isTableOrderForced && "- Mesa"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <OrderTypeSelector
-              orderType={orderType}
-              setOrderType={setOrderType}
-              selectedTable={selectedTable}
-              setSelectedTable={setSelectedTable}
-              tables={tables}
-            />
+            {!isTableOrderForced && (
+              <OrderTypeSelector
+                orderType={orderType}
+                setOrderType={setOrderType}
+                selectedTable={selectedTable}
+                setSelectedTable={setSelectedTable}
+                tables={tables}
+              />
+            )}
+
+            {isTableOrderForced && (
+              <div>
+                <p className="mb-2 font-medium">Tipo de Pedido</p>
+                <div className="p-3 bg-blue-50 rounded-md border border-blue-200">
+                  <p className="text-blue-800 font-medium">Mesa (Definido automaticamente)</p>
+                  {selectedTable && (
+                    <p className="text-sm text-blue-600">
+                      Mesa selecionada: {tables.find(t => t.id === selectedTable)?.name}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div>
               <p className="mb-2 font-medium">Cliente</p>
