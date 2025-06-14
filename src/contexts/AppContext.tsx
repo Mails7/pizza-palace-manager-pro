@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { 
   Client, 
@@ -239,12 +240,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     console.log('🚀 === ADDORDER FUNÇÃO INICIADA ===');
     console.log('📋 Dados do pedido recebido:', order);
     console.log('📍 Status do pedido recebido:', order.status);
+    console.log('📱 Cliente ID recebido:', order.clientId);
+    console.log('👤 Nome do cliente:', order.clientName);
     
     try {
+      // Verificar se o cliente existe, se não, criar um temporário
+      let finalClientId = order.clientId;
+      if (order.clientId.startsWith('public-')) {
+        console.log('🆔 Cliente público detectado, criando cliente temporário...');
+        const tempClient = {
+          id: order.clientId,
+          name: order.clientName,
+          phone: order.phone,
+          address: order.deliveryAddress || '',
+          orderCount: 1,
+          totalSpent: order.total || 0
+        };
+        
+        // Adicionar cliente temporário à lista
+        setClients(currentClients => [...currentClients, tempClient]);
+        console.log('✅ Cliente temporário criado:', tempClient);
+      }
+      
       // Criar o novo pedido com dados padronizados
       const newOrder: Order = {
         ...order,
         id: `order-${Date.now()}-${Math.random().toString(36).substr(2, 8)}`,
+        clientId: finalClientId,
         createdAt: new Date(),
         // Garantir que todos os campos obrigatórios estejam presentes
         clientName: order.clientName.trim(),
@@ -263,12 +285,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       console.log('🆔 ID do novo pedido:', newOrder.id);
       console.log('📍 Status do novo pedido:', newOrder.status);
       console.log('👤 Cliente do novo pedido:', newOrder.clientName);
+      console.log('📱 Cliente ID final:', newOrder.clientId);
       
       // Atualizar o estado dos pedidos - IMPORTANTE: usar callback para garantir estado atual
       setOrders(currentOrders => {
+        console.log('📊 === ANTES DA ATUALIZAÇÃO ===');
+        console.log('📊 Pedidos atuais:', currentOrders.length);
+        console.log('📋 IDs dos pedidos atuais:', currentOrders.map(o => o.id));
+        
         const updatedOrders = [newOrder, ...currentOrders];
-        console.log('📊 Estado atualizado com', updatedOrders.length, 'pedidos');
+        
+        console.log('📊 === DEPOIS DA ATUALIZAÇÃO ===');
+        console.log('📊 Total de pedidos após adição:', updatedOrders.length);
         console.log('🔍 Novo pedido no início da lista:', updatedOrders[0]?.id);
+        console.log('📋 Todos os IDs após adição:', updatedOrders.map(o => o.id));
+        
         return updatedOrders;
       });
       
@@ -364,6 +395,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   console.log('🏪 === ESTADO ATUAL DO CONTEXTO ===');
   console.log('📊 Total de pedidos no estado:', ordersState.length);
+  console.log('📋 IDs de todos os pedidos:', ordersState.map(o => o.id));
+  console.log('📋 Status de todos os pedidos:', ordersState.map(o => ({ id: o.id, status: o.status })));
   console.log('🍳 Kitchen orders:', {
     pending: kitchenOrdersState.pending.length,
     preparing: kitchenOrdersState.preparing.length,

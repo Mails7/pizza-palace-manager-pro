@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
@@ -186,6 +187,9 @@ const CardapioPublicoContent = () => {
     
     console.log('👤 Dados do cliente:', clientData);
     
+    // Gerar um ID único para o cliente público
+    const publicClientId = `public-client-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
     // Converter itens do carrinho para OrderItem com estrutura correta
     console.log('🔄 Convertendo itens do carrinho para OrderItem...');
     const orderItems: OrderItem[] = cartItems.map((cartItem, index) => {
@@ -209,7 +213,7 @@ const CardapioPublicoContent = () => {
     // Criar objeto do pedido com estrutura padronizada
     const orderData = {
       clientName: clientData.name.trim(),
-      clientId: `public-${Date.now()}`,
+      clientId: publicClientId,
       phone: clientData.phone.trim(),
       items: orderItems,
       total: getTotalPrice(),
@@ -244,8 +248,9 @@ const CardapioPublicoContent = () => {
         throw new Error('addOrder não é uma função válida');
       }
       
+      console.log('🎯 === CHAMANDO addOrder COM OS DADOS ===');
       addOrder(orderData);
-      console.log('✅ addOrder executado com sucesso');
+      console.log('✅ addOrder executado com sucesso - pedido deve estar no contexto agora');
       
       console.log('🧹 Limpando carrinho...');
       clearCart();
