@@ -24,14 +24,15 @@ const FloatingCartButton: React.FC<FloatingCartButtonProps> = ({
 
   console.log('FloatingCartButton - itemCount:', itemCount, 'totalPrice:', totalPrice);
 
+  // Sempre renderizar quando itemCount > 0
   if (itemCount === 0) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-6 right-6 z-50">
       <Button
         onClick={onClick}
         size="lg"
-        className="bg-orange-500 hover:bg-orange-600 text-white shadow-2xl rounded-full px-6 py-4 h-auto animate-pulse hover:animate-none transition-all"
+        className="bg-orange-500 hover:bg-orange-600 text-white shadow-2xl rounded-full px-6 py-4 h-auto animate-pulse hover:animate-none transition-all transform hover:scale-105"
       >
         <div className="flex items-center gap-3">
           <div className="relative">
