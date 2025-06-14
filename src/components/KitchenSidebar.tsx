@@ -1,5 +1,5 @@
-
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -19,7 +19,12 @@ import {
   Package,
   Settings,
   Bell,
-  BarChart3
+  BarChart3,
+  LayoutDashboard,
+  ShoppingBag,
+  Pizza,
+  CoffeeIcon,
+  Users
 } from "lucide-react";
 
 interface KitchenSidebarProps {
@@ -68,6 +73,16 @@ const KitchenSidebar: React.FC<KitchenSidebarProps> = ({
     }
   ];
 
+  const mainMenuItems = [
+    { title: "Dashboard", icon: LayoutDashboard, href: "/" },
+    { title: "Pedidos", icon: ShoppingBag, href: "/pedidos" },
+    { title: "Cardápio", icon: Pizza, href: "/cardapio" },
+    { title: "Produtos", icon: Package, href: "/produtos" },
+    { title: "Mesas", icon: CoffeeIcon, href: "/mesas" },
+    { title: "Clientes", icon: Users, href: "/clientes" },
+    { title: "Cozinha", icon: ChefHat, href: "/cozinha" },
+  ];
+
   return (
     <Sidebar className="border-r" collapsible="none">
       <SidebarHeader className="border-b p-4">
@@ -97,6 +112,22 @@ const KitchenSidebar: React.FC<KitchenSidebarProps> = ({
                       {item.count}
                     </Badge>
                   </div>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </div>
+
+          <SidebarSeparator />
+
+          <div className="p-4">
+            <h3 className="font-semibold mb-3">Navegação</h3>
+            {mainMenuItems.map((item) => (
+              <SidebarMenuItem key={item.title} className="mb-2">
+                <SidebarMenuButton asChild>
+                  <Link to={item.href} className="flex items-center gap-3">
+                    <item.icon className="h-4 w-4" />
+                    <span className="text-sm">{item.title}</span>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
