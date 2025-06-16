@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
@@ -33,11 +34,12 @@ interface BannerConfig {
 
 const CardapioPublicoContent = () => {
   const navigate = useNavigate();
-  const { products, addOrder } = useApp();
+  const { products, addOrder, clients, addClient } = useApp();
   
   console.log('🎯 === CARDÁPIO PÚBLICO CARREGADO ===');
   console.log('📋 Função addOrder disponível:', typeof addOrder);
   console.log('📋 Produtos disponíveis:', products.length);
+  console.log('👥 Clientes no sistema:', clients.length);
   
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -81,6 +83,7 @@ const CardapioPublicoContent = () => {
         const parsedData = JSON.parse(savedClientData);
         setClientData(parsedData);
         setHasAccess(true);
+        console.log('👤 Dados do cliente carregados:', parsedData);
       } catch (error) {
         console.error('Erro ao carregar dados do cliente:', error);
         localStorage.removeItem('cardapioClientData');
@@ -92,23 +95,12 @@ const CardapioPublicoContent = () => {
     if (savedBannerConfig) {
       try {
         const parsedConfig = JSON.parse(savedBannerConfig);
-        console.log('Banner config carregado:', parsedConfig);
-        console.log('Imagem do banner:', parsedConfig.backgroundImage);
         setBannerConfig(parsedConfig);
       } catch (error) {
         console.error('Erro ao carregar configurações do banner:', error);
       }
-    } else {
-      console.log('Nenhuma configuração de banner encontrada no localStorage');
     }
   }, []);
-
-  // Log quando bannerConfig muda
-  useEffect(() => {
-    console.log('bannerConfig atualizado:', bannerConfig);
-    console.log('backgroundImage:', bannerConfig.backgroundImage);
-    console.log('backgroundImage existe?', !!bannerConfig.backgroundImage);
-  }, [bannerConfig]);
 
   // Obter categorias únicas dos produtos
   const categories = ["all", ...Array.from(new Set(products.map(product => product.category)))];
@@ -138,15 +130,13 @@ const CardapioPublicoContent = () => {
       productId: product.id,
       productName: product.name,
       quantity: 1,
-      price: defaultPrice,
+      price: defaultPrice, // preço total (unitPrice * quantity)
       unitPrice: defaultPrice,
       size: defaultSize,
       preparationTime: product.preparationTime || 15
     };
 
     console.log('🛒 Item que será adicionado ao carrinho:', cartItem);
-    console.log('🛒 Estado atual do carrinho antes de adicionar:', cartItems);
-    console.log('🛒 Função addToCart disponível?', typeof addToCart);
     
     try {
       addToCart(cartItem);
@@ -159,13 +149,16 @@ const CardapioPublicoContent = () => {
   };
 
   const handleClientDataSubmit = (data: ClientData) => {
+    console.log('👤 === DADOS DO CLIENTE SUBMETIDOS ===');
+    console.log('👤 Dados recebidos:', data);
+    
     // Salvar dados no localStorage
     localStorage.setItem('cardapioClientData', JSON.stringify(data));
     setClientData(data);
     
-    // Aguardar um pouco antes de dar acesso para mostrar o toast
     setTimeout(() => {
       setHasAccess(true);
+      console.log('✅ Acesso liberado para o cliente');
     }, 1000);
   };
 
@@ -173,6 +166,7 @@ const CardapioPublicoContent = () => {
     localStorage.removeItem('cardapioClientData');
     setClientData(null);
     setHasAccess(false);
+    clearCart(); // Limpar carrinho ao fazer logout
     toast.success("Dados removidos com sucesso!");
   };
 
@@ -186,71 +180,119 @@ const CardapioPublicoContent = () => {
     console.log('🛒 Itens no carrinho:', cartItems);
     console.log('📊 Total de itens:', cartItems.length);
     console.log('💰 Preço total:', getTotalPrice());
+    console.log('👤 Dados do cliente:', clientData);
 
+    // Validações básicas
     if (cartItems.length === 0) {
       console.log('❌ Carrinho vazio - abortando checkout');
       toast.error("Carrinho vazio!");
       return;
     }
 
-    if (!clientData) {
-      console.log('❌ Dados do cliente não encontrados - abortando checkout');
-      toast.error("Dados do cliente não encontrados!");
+    if (!clientData || !clientData.name || !clientData.phone) {
+      console.log('❌ Dados do cliente incompletos - abortando checkout');
+      toast.error("Dados do cliente incompletos!");
       return;
     }
 
-    console.log('👤 Dados do cliente:', clientData);
-
-    // Gerar um ID único para o cliente público no padrão public-client-...
-    const publicClientId = clientData && clientData.name && clientData.phone
-      ? `public-client-${Date.now()}-${clientData.phone.replace(/\D/g, '').slice(-6)}`
-      : `public-client-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
-
-    // Converter itens do carrinho para OrderItem com estrutura correta
-    const orderItems: OrderItem[] = cartItems.map((cartItem, index) => ({
-      id: `item-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
-      productId: cartItem.productId,
-      productName: cartItem.productName,
-      quantity: cartItem.quantity,
-      price: cartItem.unitPrice,
-      unitPrice: cartItem.unitPrice,
-      size: cartItem.size,
-      observations: cartItem.observations || "",
-      preparationTime: cartItem.preparationTime || 15
-    }));
-
-    const orderData = {
-      clientName: clientData.name.trim(),
-      clientId: publicClientId,
-      phone: clientData.phone.trim(),
-      items: orderItems,
-      total: getTotalPrice(),
-      status: "Pendente" as const,
-      priority: "Média" as const,
-      orderType: "Entrega" as const,
-      paymentMethod: "Dinheiro" as const,
-      notes: "",
-      estimatedTime: getEstimatedPreparationTime(),
-      deliveryAddress: clientData.address.trim(),
-    };
-
-    // LOG reforçado do pedido antes de enviar
-    console.log('✅ [CARDAPIO_PUBLICO] Pedido FINAL para addOrder:', JSON.stringify(orderData, null, 2));
-    console.log('🆔 [CARDAPIO_PUBLICO] clientId será:', publicClientId);
-
     try {
+      // Gerar um ID único para o cliente público
+      const publicClientId = `public-client-${Date.now()}-${clientData.phone.replace(/\D/g, '').slice(-6)}`;
+      console.log('🆔 ID do cliente público gerado:', publicClientId);
+
+      // Verificar se o cliente já existe no sistema
+      const existingClient = clients.find(c => 
+        c.phone === clientData.phone || 
+        (c.name === clientData.name && c.phone === clientData.phone)
+      );
+
+      let finalClientId = publicClientId;
+
+      if (!existingClient) {
+        // Cliente não existe, criar um novo
+        console.log('👤 Criando novo cliente no sistema...');
+        
+        const newClient = {
+          name: clientData.name.trim(),
+          phone: clientData.phone.trim(),
+          address: clientData.address ? clientData.address.trim() : '',
+          notes: 'Cliente criado via cardápio público'
+        };
+
+        console.log('👤 Dados do novo cliente:', newClient);
+        
+        // Adicionar cliente ao sistema usando a função do contexto
+        addClient(newClient);
+        
+        // O addClient vai gerar um ID automático, mas vamos usar nosso ID público para o pedido
+        finalClientId = publicClientId;
+      } else {
+        console.log('👤 Cliente já existe no sistema:', existingClient);
+        finalClientId = existingClient.id;
+      }
+
+      // Converter itens do carrinho para OrderItem com estrutura correta
+      const orderItems: OrderItem[] = cartItems.map((cartItem, index) => {
+        const itemId = `item-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 6)}`;
+        return {
+          id: itemId,
+          productId: cartItem.productId,
+          productName: cartItem.productName,
+          quantity: cartItem.quantity,
+          price: cartItem.unitPrice, // preço unitário
+          unitPrice: cartItem.unitPrice,
+          size: cartItem.size,
+          observations: cartItem.observations || "",
+          preparationTime: cartItem.preparationTime || 15
+        };
+      });
+
+      console.log('📦 Itens do pedido formatados:', orderItems);
+
+      const orderData = {
+        clientName: clientData.name.trim(),
+        clientId: finalClientId,
+        phone: clientData.phone.trim(),
+        items: orderItems,
+        total: getTotalPrice(),
+        status: "Pendente" as const,
+        priority: "Média" as const,
+        orderType: "Entrega" as const,
+        paymentMethod: "Dinheiro" as const,
+        notes: `Pedido feito via cardápio público. Endereço: ${clientData.address || 'Não informado'}`,
+        estimatedTime: getEstimatedPreparationTime(),
+        deliveryAddress: clientData.address ? clientData.address.trim() : '',
+      };
+
+      console.log('✅ === DADOS FINAIS DO PEDIDO ===');
+      console.log('📋 Pedido completo:', JSON.stringify(orderData, null, 2));
+      console.log('🆔 Cliente ID final:', finalClientId);
+      console.log('📞 Telefone:', orderData.phone);
+      console.log('📍 Endereço:', orderData.deliveryAddress);
+      console.log('💰 Total:', orderData.total);
+      console.log('📦 Quantidade de itens:', orderData.items.length);
+
       if (typeof addOrder !== 'function') {
         throw new Error('addOrder não é uma função válida');
       }
-      addOrder(orderData);
 
+      // Adicionar o pedido ao sistema
+      addOrder(orderData);
+      
+      console.log('🎉 === PEDIDO ENVIADO COM SUCESSO ===');
+      
+      // Limpar carrinho e fechar modal
       clearCart();
       setIsCartOpen(false);
+      
+      // Mostrar mensagens de sucesso
       toast.success("Pedido enviado com sucesso! 🎉");
+      
       setTimeout(() => {
         toast.success("Seu pedido foi enviado para a cozinha! 👨‍🍳");
-        console.log('🎉 === CHECKOUT FINALIZADO COM SUCESSO ===');
+        toast.success("Acompanhe o status na tela da cozinha!");
       }, 1500);
+
     } catch (error) {
       console.error('❌ ERRO CRÍTICO no checkout:', error);
       toast.error("Erro ao criar pedido. Tente novamente.");
@@ -332,7 +374,6 @@ const CardapioPublicoContent = () => {
       <div className="w-full px-4 sm:px-6 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto">
           <div className="relative bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl overflow-hidden shadow-lg border border-orange-200/50">
-            {/* Banner sem imagem de fundo */}
             <div className="relative h-auto min-h-32 sm:min-h-40 md:min-h-48 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 p-6">
               <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative h-full flex flex-col items-center justify-center text-center">
@@ -343,7 +384,6 @@ const CardapioPublicoContent = () => {
                   <p className="text-sm sm:text-lg opacity-90 mb-4">
                     {bannerConfig.subtitle}
                   </p>
-                  {/* Mostrar imagem abaixo do texto promocional */}
                   {bannerConfig.backgroundImage && (
                     <div className="mt-4">
                       <img 
@@ -364,7 +404,6 @@ const CardapioPublicoContent = () => {
               </div>
             </div>
             
-            {/* Informações da loja */}
             <div className="bg-white p-4 sm:p-6">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                 <div className="flex items-center justify-center gap-2">
@@ -527,30 +566,17 @@ const CardapioPublicoContent = () => {
         </div>
       </div>
 
-      {/* Floating Cart Button - Debug detalhado */}
-      {(() => {
-        console.log('🛒 === RENDERIZANDO FLOATING CART BUTTON ===');
-        console.log('🛒 shouldShowCart:', shouldShowCart);
-        console.log('🛒 getTotalItems():', getTotalItems());
-        console.log('🛒 getTotalPrice():', getTotalPrice());
-        
-        if (shouldShowCart) {
-          console.log('🛒 ✅ Renderizando FloatingCartButton');
-          return (
-            <FloatingCartButton
-              itemCount={getTotalItems()}
-              totalPrice={getTotalPrice()}
-              onClick={() => {
-                console.log('🛒 FloatingCartButton clicado!');
-                setIsCartOpen(true);
-              }}
-            />
-          );
-        } else {
-          console.log('🛒 ❌ NÃO renderizando FloatingCartButton');
-          return null;
-        }
-      })()}
+      {/* Floating Cart Button */}
+      {shouldShowCart && (
+        <FloatingCartButton
+          itemCount={getTotalItems()}
+          totalPrice={getTotalPrice()}
+          onClick={() => {
+            console.log('🛒 FloatingCartButton clicado!');
+            setIsCartOpen(true);
+          }}
+        />
+      )}
 
       {/* Modals */}
       <ProductDetailModal 
