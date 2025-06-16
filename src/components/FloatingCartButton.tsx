@@ -15,6 +15,9 @@ const FloatingCartButton: React.FC<FloatingCartButtonProps> = ({
   totalPrice,
   onClick
 }) => {
+  console.log('🛒 === FLOATING CART BUTTON RENDERIZADO ===');
+  console.log('🛒 Props recebidas:', { itemCount, totalPrice });
+  
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -22,15 +25,21 @@ const FloatingCartButton: React.FC<FloatingCartButtonProps> = ({
     }).format(value);
   };
 
-  console.log('FloatingCartButton - itemCount:', itemCount, 'totalPrice:', totalPrice);
-
   // Sempre renderizar quando itemCount > 0
-  if (itemCount === 0) return null;
+  if (itemCount === 0) {
+    console.log('🛒 ❌ FloatingCartButton não renderizado - itemCount é 0');
+    return null;
+  }
+
+  console.log('🛒 ✅ FloatingCartButton será renderizado');
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
       <Button
-        onClick={onClick}
+        onClick={() => {
+          console.log('🛒 FloatingCartButton clicado!');
+          onClick();
+        }}
         size="lg"
         className="bg-orange-500 hover:bg-orange-600 text-white shadow-2xl rounded-full px-6 py-4 h-auto animate-pulse hover:animate-none transition-all transform hover:scale-105"
       >

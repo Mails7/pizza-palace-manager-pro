@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
@@ -65,11 +64,14 @@ const CardapioPublicoContent = () => {
     clearCart 
   } = useShoppingCart();
 
-  console.log('🛒 CardapioPublico - Estado do carrinho:', {
-    items: cartItems.length, 
-    totalItems: getTotalItems(), 
-    totalPrice: getTotalPrice()
-  });
+  // Log detalhado do carrinho sempre que mudar
+  useEffect(() => {
+    console.log('🛒 === ESTADO DO CARRINHO ATUALIZADO ===');
+    console.log('🛒 Itens no carrinho:', cartItems);
+    console.log('🛒 Quantidade total de itens:', getTotalItems());
+    console.log('🛒 Preço total:', getTotalPrice());
+    console.log('🛒 Deve mostrar FloatingCartButton?', getTotalItems() > 0);
+  }, [cartItems, getTotalItems, getTotalPrice]);
 
   // Verificar se já existe dados do cliente salvos no localStorage
   useEffect(() => {
@@ -126,6 +128,9 @@ const CardapioPublicoContent = () => {
   };
 
   const handleAddToCart = (product: any) => {
+    console.log('🛒 === ADICIONANDO PRODUTO AO CARRINHO ===');
+    console.log('🛒 Produto selecionado:', product);
+    
     const defaultSize = product.prices[0]?.size || "M";
     const defaultPrice = product.prices[0]?.price || 0;
     
@@ -139,9 +144,18 @@ const CardapioPublicoContent = () => {
       preparationTime: product.preparationTime || 15
     };
 
-    console.log('Tentando adicionar ao carrinho:', cartItem);
-    addToCart(cartItem);
-    toast.success(`${product.name} adicionado ao carrinho!`);
+    console.log('🛒 Item que será adicionado ao carrinho:', cartItem);
+    console.log('🛒 Estado atual do carrinho antes de adicionar:', cartItems);
+    console.log('🛒 Função addToCart disponível?', typeof addToCart);
+    
+    try {
+      addToCart(cartItem);
+      console.log('🛒 ✅ Item adicionado com sucesso!');
+      toast.success(`${product.name} adicionado ao carrinho!`);
+    } catch (error) {
+      console.error('🛒 ❌ Erro ao adicionar item ao carrinho:', error);
+      toast.error("Erro ao adicionar item ao carrinho");
+    }
   };
 
   const handleClientDataSubmit = (data: ClientData) => {
@@ -254,6 +268,13 @@ const CardapioPublicoContent = () => {
   if (!hasAccess) {
     return <ClientDataForm onSubmit={handleClientDataSubmit} />;
   }
+
+  // Log antes de renderizar o FloatingCartButton
+  const shouldShowCart = getTotalItems() > 0;
+  console.log('🛒 === RENDERIZAÇÃO ===');
+  console.log('🛒 Deve mostrar carrinho?', shouldShowCart);
+  console.log('🛒 Total de itens para mostrar:', getTotalItems());
+  console.log('🛒 Preço total para mostrar:', getTotalPrice());
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 pb-20 w-full">
@@ -506,14 +527,30 @@ const CardapioPublicoContent = () => {
         </div>
       </div>
 
-      {/* Floating Cart Button - Sempre renderizar quando há itens */}
-      {getTotalItems() > 0 && (
-        <FloatingCartButton
-          itemCount={getTotalItems()}
-          totalPrice={getTotalPrice()}
-          onClick={() => setIsCartOpen(true)}
-        />
-      )}
+      {/* Floating Cart Button - Debug detalhado */}
+      {(() => {
+        console.log('🛒 === RENDERIZANDO FLOATING CART BUTTON ===');
+        console.log('🛒 shouldShowCart:', shouldShowCart);
+        console.log('🛒 getTotalItems():', getTotalItems());
+        console.log('🛒 getTotalPrice():', getTotalPrice());
+        
+        if (shouldShowCart) {
+          console.log('🛒 ✅ Renderizando FloatingCartButton');
+          return (
+            <FloatingCartButton
+              itemCount={getTotalItems()}
+              totalPrice={getTotalPrice()}
+              onClick={() => {
+                console.log('🛒 FloatingCartButton clicado!');
+                setIsCartOpen(true);
+              }}
+            />
+          );
+        } else {
+          console.log('🛒 ❌ NÃO renderizando FloatingCartButton');
+          return null;
+        }
+      })()}
 
       {/* Modals */}
       <ProductDetailModal 
@@ -532,6 +569,7 @@ const CardapioPublicoContent = () => {
 };
 
 const CardapioPublico = () => {
+  console.log('🛒 === CARDÁPIO PÚBLICO WRAPPER RENDERIZADO ===');
   return (
     <ShoppingCartProvider>
       <CardapioPublicoContent />

@@ -21,43 +21,56 @@ const ShoppingCartContext = createContext<ShoppingCartContextType | undefined>(u
 export const ShoppingCartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
+  console.log('🛒 === SHOPPING CART PROVIDER INICIADO ===');
+
   // Carregar itens do localStorage na inicialização
   useEffect(() => {
+    console.log('🛒 Carregando carrinho do localStorage...');
     const savedCart = localStorage.getItem('publicMenuCart');
     if (savedCart) {
       try {
         const parsedCart = JSON.parse(savedCart);
+        console.log('🛒 Carrinho carregado do localStorage:', parsedCart);
         setCartItems(parsedCart);
-        console.log('Carrinho carregado do localStorage:', parsedCart);
       } catch (error) {
-        console.error('Erro ao carregar carrinho:', error);
+        console.error('🛒 Erro ao carregar carrinho:', error);
         localStorage.removeItem('publicMenuCart');
       }
+    } else {
+      console.log('🛒 Nenhum carrinho encontrado no localStorage');
     }
   }, []);
 
   // Salvar no localStorage sempre que o carrinho mudar
   useEffect(() => {
+    console.log('🛒 Salvando carrinho no localStorage:', cartItems);
     localStorage.setItem('publicMenuCart', JSON.stringify(cartItems));
-    console.log('Carrinho salvo no localStorage:', cartItems);
   }, [cartItems]);
 
   const addToCart = (item: Omit<CartItem, 'cartId'>) => {
+    console.log('🛒 === FUNÇÃO ADD TO CART CHAMADA ===');
+    console.log('🛒 Item recebido:', item);
+    
     const cartId = `cart-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const newItem: CartItem = {
       ...item,
       cartId
     };
-    console.log('Adicionando item ao carrinho:', newItem);
+    
+    console.log('🛒 Novo item com cartId:', newItem);
+    console.log('🛒 Estado atual do carrinho:', cartItems);
+    
     setCartItems(prev => {
       const newCartItems = [...prev, newItem];
-      console.log('Novo estado do carrinho:', newCartItems);
+      console.log('🛒 Novo estado do carrinho após adição:', newCartItems);
       return newCartItems;
     });
+    
+    console.log('🛒 ✅ addToCart executado com sucesso');
   };
 
   const removeFromCart = (cartId: string) => {
-    console.log('Removendo item do carrinho:', cartId);
+    console.log('🛒 Removendo item do carrinho:', cartId);
     setCartItems(prev => prev.filter(item => item.cartId !== cartId));
   };
 
@@ -67,7 +80,7 @@ export const ShoppingCartProvider: React.FC<{ children: ReactNode }> = ({ childr
       return;
     }
     
-    console.log('Atualizando quantidade:', cartId, newQuantity);
+    console.log('🛒 Atualizando quantidade:', cartId, newQuantity);
     setCartItems(prev => prev.map(item => 
       item.cartId === cartId 
         ? { ...item, quantity: newQuantity, price: item.unitPrice * newQuantity }
@@ -76,22 +89,30 @@ export const ShoppingCartProvider: React.FC<{ children: ReactNode }> = ({ childr
   };
 
   const clearCart = () => {
-    console.log('Limpando carrinho');
+    console.log('🛒 Limpando carrinho');
     setCartItems([]);
     localStorage.removeItem('publicMenuCart');
   };
 
   const getTotalItems = () => {
     const total = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    console.log('Total de itens no carrinho:', total);
+    console.log('🛒 getTotalItems calculado:', total, 'baseado em:', cartItems);
     return total;
   };
 
   const getTotalPrice = () => {
     const total = cartItems.reduce((sum, item) => sum + item.price, 0);
-    console.log('Preço total do carrinho:', total);
+    console.log('🛒 getTotalPrice calculado:', total, 'baseado em:', cartItems);
     return total;
   };
+
+  // Log sempre que cartItems mudar
+  useEffect(() => {
+    console.log('🛒 === CART ITEMS ATUALIZADOS ===');
+    console.log('🛒 Novos cartItems:', cartItems);
+    console.log('🛒 Total de itens:', getTotalItems());
+    console.log('🛒 Preço total:', getTotalPrice());
+  }, [cartItems]);
 
   return (
     <ShoppingCartContext.Provider value={{
@@ -113,5 +134,7 @@ export const useShoppingCart = () => {
   if (context === undefined) {
     throw new Error('useShoppingCart deve ser usado dentro de ShoppingCartProvider');
   }
+  
+  console.log('🛒 useShoppingCart hook chamado, contexto:', context);
   return context;
 };
