@@ -1,310 +1,44 @@
 
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useApp } from "@/contexts/AppContext";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ShoppingBag, Search, User, Star, Clock, MapPin, Plus } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "@/components/ui/sonner";
-import ProductDetailModal from "@/components/modals/ProductDetailModal";
+import React from "react";
+import { ShoppingCartProvider } from "@/contexts/ShoppingCartContext";
+import { useCardapioLogic } from "@/hooks/useCardapioLogic";
 import ClientDataForm from "@/components/forms/ClientDataForm";
+import ProductDetailModal from "@/components/modals/ProductDetailModal";
 import ShoppingCartModal from "@/components/modals/ShoppingCartModal";
 import FloatingCartButton from "@/components/FloatingCartButton";
-import { ShoppingCartProvider, useShoppingCart } from "@/contexts/ShoppingCartContext";
-import { OrderItem } from "@/types";
-
-interface ClientData {
-  name: string;
-  phone: string;
-  email: string;
-  address: string;
-}
-
-interface BannerConfig {
-  title: string;
-  subtitle: string;
-  backgroundImage: string;
-  storeName: string;
-  operatingHours: string;
-  deliveryInfo: string;
-  rating: string;
-}
+import HeroSection from "@/components/cardapio/HeroSection";
+import StoreBanner from "@/components/cardapio/StoreBanner";
+import SearchSection from "@/components/cardapio/SearchSection";
+import ProductsGrid from "@/components/cardapio/ProductsGrid";
+import Footer from "@/components/cardapio/Footer";
 
 const CardapioPublicoContent = () => {
-  const navigate = useNavigate();
-  const { products, addOrder, clients, addClient } = useApp();
-  
-  console.log('🎯 === CARDÁPIO PÚBLICO CARREGADO ===');
-  console.log('📋 Função addOrder disponível:', typeof addOrder);
-  console.log('📋 Produtos disponíveis:', products.length);
-  console.log('👥 Clientes no sistema:', clients.length);
-  
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const [isProductDetailOpen, setIsProductDetailOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [clientData, setClientData] = useState<ClientData | null>(null);
-  const [hasAccess, setHasAccess] = useState(false);
-  const [bannerConfig, setBannerConfig] = useState<BannerConfig>({
-    title: "🍕 Promoção Especial! 🍕",
-    subtitle: "Pizzas grandes a partir de R$ 29,90",
-    backgroundImage: "",
-    storeName: "Pizzaria do Kassio",
-    operatingHours: "18h às 23h",
-    deliveryInfo: "Grátis ac. R$ 50",
-    rating: "4.8 estrelas"
-  });
-
-  const { 
-    addToCart, 
-    getTotalItems, 
-    getTotalPrice, 
-    cartItems,
-    clearCart 
-  } = useShoppingCart();
-
-  // Log detalhado do carrinho sempre que mudar
-  useEffect(() => {
-    console.log('🛒 === ESTADO DO CARRINHO ATUALIZADO ===');
-    console.log('🛒 Itens no carrinho:', cartItems);
-    console.log('🛒 Quantidade total de itens:', getTotalItems());
-    console.log('🛒 Preço total:', getTotalPrice());
-    console.log('🛒 Deve mostrar FloatingCartButton?', getTotalItems() > 0);
-  }, [cartItems, getTotalItems, getTotalPrice]);
-
-  // Verificar se já existe dados do cliente salvos no localStorage
-  useEffect(() => {
-    const savedClientData = localStorage.getItem('cardapioClientData');
-    if (savedClientData) {
-      try {
-        const parsedData = JSON.parse(savedClientData);
-        setClientData(parsedData);
-        setHasAccess(true);
-        console.log('👤 Dados do cliente carregados:', parsedData);
-      } catch (error) {
-        console.error('Erro ao carregar dados do cliente:', error);
-        localStorage.removeItem('cardapioClientData');
-      }
-    }
-
-    // Carregar configurações do banner
-    const savedBannerConfig = localStorage.getItem('bannerConfig');
-    if (savedBannerConfig) {
-      try {
-        const parsedConfig = JSON.parse(savedBannerConfig);
-        setBannerConfig(parsedConfig);
-      } catch (error) {
-        console.error('Erro ao carregar configurações do banner:', error);
-      }
-    }
-  }, []);
-
-  // Obter categorias únicas dos produtos
-  const categories = ["all", ...Array.from(new Set(products.map(product => product.category)))];
-
-  // Filtrar produtos por categoria e termo de pesquisa
-  const filteredProducts = products.filter(product => {
-    const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    return matchesCategory && matchesSearch && product.available;
-  });
-
-  const handleProductClick = (product: any) => {
-    setSelectedProduct(product);
-    setIsProductDetailOpen(true);
-  };
-
-  const handleAddToCart = (product: any) => {
-    console.log('🛒 === ADICIONANDO PRODUTO AO CARRINHO ===');
-    console.log('🛒 Produto selecionado:', product);
-    
-    const defaultSize = product.prices[0]?.size || "M";
-    const defaultPrice = product.prices[0]?.price || 0;
-    
-    const cartItem = {
-      productId: product.id,
-      productName: product.name,
-      quantity: 1,
-      price: defaultPrice, // preço total (unitPrice * quantity)
-      unitPrice: defaultPrice,
-      size: defaultSize,
-      preparationTime: product.preparationTime || 15
-    };
-
-    console.log('🛒 Item que será adicionado ao carrinho:', cartItem);
-    
-    try {
-      addToCart(cartItem);
-      console.log('🛒 ✅ Item adicionado com sucesso!');
-      toast.success(`${product.name} adicionado ao carrinho!`);
-    } catch (error) {
-      console.error('🛒 ❌ Erro ao adicionar item ao carrinho:', error);
-      toast.error("Erro ao adicionar item ao carrinho");
-    }
-  };
-
-  const handleClientDataSubmit = (data: ClientData) => {
-    console.log('👤 === DADOS DO CLIENTE SUBMETIDOS ===');
-    console.log('👤 Dados recebidos:', data);
-    
-    // Salvar dados no localStorage
-    localStorage.setItem('cardapioClientData', JSON.stringify(data));
-    setClientData(data);
-    
-    setTimeout(() => {
-      setHasAccess(true);
-      console.log('✅ Acesso liberado para o cliente');
-    }, 1000);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('cardapioClientData');
-    setClientData(null);
-    setHasAccess(false);
-    clearCart(); // Limpar carrinho ao fazer logout
-    toast.success("Dados removidos com sucesso!");
-  };
-
-  const getEstimatedPreparationTime = () => {
-    const maxTime = Math.max(...cartItems.map(item => item.preparationTime || 15));
-    return maxTime + Math.floor(cartItems.length / 3) * 5;
-  };
-
-  const handleCheckout = () => {
-    console.log('🚀 === CHECKOUT CARDÁPIO PÚBLICO INICIADO ===');
-    console.log('🛒 Itens no carrinho:', cartItems);
-    console.log('📊 Total de itens:', cartItems.length);
-    console.log('💰 Preço total:', getTotalPrice());
-    console.log('👤 Dados do cliente:', clientData);
-
-    // Validações básicas
-    if (cartItems.length === 0) {
-      console.log('❌ Carrinho vazio - abortando checkout');
-      toast.error("Carrinho vazio!");
-      return;
-    }
-
-    if (!clientData || !clientData.name || !clientData.phone) {
-      console.log('❌ Dados do cliente incompletos - abortando checkout');
-      toast.error("Dados do cliente incompletos!");
-      return;
-    }
-
-    try {
-      // Gerar um ID único para o cliente público
-      const publicClientId = `public-client-${Date.now()}-${clientData.phone.replace(/\D/g, '').slice(-6)}`;
-      console.log('🆔 ID do cliente público gerado:', publicClientId);
-
-      // Verificar se o cliente já existe no sistema
-      const existingClient = clients.find(c => 
-        c.phone === clientData.phone || 
-        (c.name === clientData.name && c.phone === clientData.phone)
-      );
-
-      let finalClientId = publicClientId;
-
-      if (!existingClient) {
-        // Cliente não existe, criar um novo
-        console.log('👤 Criando novo cliente no sistema...');
-        
-        const newClient = {
-          name: clientData.name.trim(),
-          phone: clientData.phone.trim(),
-          address: clientData.address ? clientData.address.trim() : '',
-          notes: 'Cliente criado via cardápio público'
-        };
-
-        console.log('👤 Dados do novo cliente:', newClient);
-        
-        // Adicionar cliente ao sistema usando a função do contexto
-        addClient(newClient);
-        
-        // O addClient vai gerar um ID automático, mas vamos usar nosso ID público para o pedido
-        finalClientId = publicClientId;
-      } else {
-        console.log('👤 Cliente já existe no sistema:', existingClient);
-        finalClientId = existingClient.id;
-      }
-
-      // Converter itens do carrinho para OrderItem com estrutura correta
-      const orderItems: OrderItem[] = cartItems.map((cartItem, index) => {
-        const itemId = `item-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 6)}`;
-        return {
-          id: itemId,
-          productId: cartItem.productId,
-          productName: cartItem.productName,
-          quantity: cartItem.quantity,
-          price: cartItem.unitPrice, // preço unitário
-          unitPrice: cartItem.unitPrice,
-          size: cartItem.size,
-          observations: cartItem.observations || "",
-          preparationTime: cartItem.preparationTime || 15
-        };
-      });
-
-      console.log('📦 Itens do pedido formatados:', orderItems);
-
-      const orderData = {
-        clientName: clientData.name.trim(),
-        clientId: finalClientId,
-        phone: clientData.phone.trim(),
-        items: orderItems,
-        total: getTotalPrice(),
-        status: "Pendente" as const,
-        priority: "Média" as const,
-        orderType: "Entrega" as const,
-        paymentMethod: "Dinheiro" as const,
-        notes: `Pedido feito via cardápio público. Endereço: ${clientData.address || 'Não informado'}`,
-        estimatedTime: getEstimatedPreparationTime(),
-        deliveryAddress: clientData.address ? clientData.address.trim() : '',
-      };
-
-      console.log('✅ === DADOS FINAIS DO PEDIDO ===');
-      console.log('📋 Pedido completo:', JSON.stringify(orderData, null, 2));
-      console.log('🆔 Cliente ID final:', finalClientId);
-      console.log('📞 Telefone:', orderData.phone);
-      console.log('📍 Endereço:', orderData.deliveryAddress);
-      console.log('💰 Total:', orderData.total);
-      console.log('📦 Quantidade de itens:', orderData.items.length);
-
-      if (typeof addOrder !== 'function') {
-        throw new Error('addOrder não é uma função válida');
-      }
-
-      // Adicionar o pedido ao sistema
-      addOrder(orderData);
-      
-      console.log('🎉 === PEDIDO ENVIADO COM SUCESSO ===');
-      
-      // Limpar carrinho e fechar modal
-      clearCart();
-      setIsCartOpen(false);
-      
-      // Mostrar mensagens de sucesso
-      toast.success("Pedido enviado com sucesso! 🎉");
-      
-      setTimeout(() => {
-        toast.success("Seu pedido foi enviado para a cozinha! 👨‍🍳");
-        toast.success("Acompanhe o status na tela da cozinha!");
-      }, 1500);
-
-    } catch (error) {
-      console.error('❌ ERRO CRÍTICO no checkout:', error);
-      toast.error("Erro ao criar pedido. Tente novamente.");
-    }
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
+  const {
+    // State
+    products,
+    searchTerm,
+    selectedCategory,
+    selectedProduct,
+    isProductDetailOpen,
+    isCartOpen,
+    clientData,
+    hasAccess,
+    bannerConfig,
+    // Shopping cart
+    getTotalItems,
+    getTotalPrice,
+    // Handlers
+    setSearchTerm,
+    setSelectedCategory,
+    setIsProductDetailOpen,
+    setIsCartOpen,
+    handleProductClick,
+    handleAddToCart,
+    handleClientDataSubmit,
+    handleLogout,
+    handleCheckout,
+    formatCurrency
+  } = useCardapioLogic();
 
   // Se não tem acesso, mostrar o formulário de dados
   if (!hasAccess) {
@@ -320,251 +54,32 @@ const CardapioPublicoContent = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 pb-20 w-full">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-orange-600 to-red-600 text-white overflow-hidden w-full">
-        <div className="absolute inset-0 bg-black opacity-20"></div>
-        <div className="relative w-full px-4 sm:px-6 py-8 sm:py-12">
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-6 max-w-7xl mx-auto">
-            <div className="text-center lg:text-left flex-1">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 animate-fade-in">
-                Nosso Cardápio
-              </h1>
-              <p className="text-base sm:text-lg lg:text-xl mb-4 opacity-90 max-w-2xl">
-                Sabores únicos que despertam seus sentidos
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 text-sm justify-center lg:justify-start">
-                <div className="flex items-center gap-2 justify-center lg:justify-start">
-                  <Clock className="h-4 w-4" />
-                  <span>{bannerConfig.operatingHours}</span>
-                </div>
-                <div className="flex items-center gap-2 justify-center lg:justify-start">
-                  <MapPin className="h-4 w-4" />
-                  <span>Delivery disponível</span>
-                </div>
-                <div className="flex items-center gap-2 justify-center lg:justify-start">
-                  <Star className="h-4 w-4" />
-                  <span>{bannerConfig.rating}</span>
-                </div>
-              </div>
-            </div>
-            
-            {clientData && (
-              <div className="w-full sm:w-auto lg:w-64 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                <div className="flex items-center gap-3 text-white mb-3">
-                  <User className="h-5 w-5" />
-                  <span className="font-medium text-sm sm:text-base">
-                    Olá, {clientData.name.split(' ')[0]}!
-                  </span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="text-white hover:bg-white/20 w-full text-sm"
-                >
-                  Alterar Dados
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <HeroSection 
+        bannerConfig={bannerConfig}
+        clientData={clientData}
+        onLogout={handleLogout}
+      />
 
-      {/* Store Banner Section */}
-      <div className="w-full px-4 sm:px-6 py-6 sm:py-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="relative bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl overflow-hidden shadow-lg border border-orange-200/50">
-            <div className="relative h-auto min-h-32 sm:min-h-40 md:min-h-48 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 p-6">
-              <div className="absolute inset-0 bg-black/20"></div>
-              <div className="relative h-full flex flex-col items-center justify-center text-center">
-                <div className="text-white">
-                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
-                    {bannerConfig.title}
-                  </h2>
-                  <p className="text-sm sm:text-lg opacity-90 mb-4">
-                    {bannerConfig.subtitle}
-                  </p>
-                  {bannerConfig.backgroundImage && (
-                    <div className="mt-4">
-                      <img 
-                        src={bannerConfig.backgroundImage} 
-                        alt="Imagem promocional"
-                        className="mx-auto max-w-xs sm:max-w-sm md:max-w-md rounded-lg shadow-lg border-2 border-white/30"
-                        onLoad={() => console.log('Imagem carregada com sucesso!')}
-                        onError={(e) => console.error('Erro ao carregar imagem:', e)}
-                      />
-                    </div>
-                  )}
-                  {!bannerConfig.backgroundImage && (
-                    <p className="text-xs opacity-60 mt-2">
-                      Configure uma imagem promocional nas configurações
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-4 sm:p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                <div className="flex items-center justify-center gap-2">
-                  <Clock className="h-5 w-5 text-orange-500" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">Horário</p>
-                    <p className="text-xs text-gray-500">{bannerConfig.operatingHours}</p>
-                  </div>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <MapPin className="h-5 w-5 text-orange-500" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">Delivery</p>
-                    <p className="text-xs text-gray-500">{bannerConfig.deliveryInfo}</p>
-                  </div>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <Star className="h-5 w-5 text-orange-500" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">Avaliação</p>
-                    <p className="text-xs text-gray-500">{bannerConfig.rating}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <StoreBanner bannerConfig={bannerConfig} />
 
-      {/* Search Section */}
+      <SearchSection 
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+      />
+
       <div className="w-full px-4 sm:px-6 py-4 sm:py-6">
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6 max-w-7xl mx-auto">
-          <div className="relative max-w-lg mx-auto">
-            <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-            <Input
-              className="pl-10 h-10 sm:h-12 text-sm sm:text-base border-2 border-gray-200 focus:border-orange-500 rounded-lg"
-              placeholder="Buscar seus pratos favoritos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
-
-        {/* Categories Tabs */}
-        <div className="max-w-7xl mx-auto">
-          <Tabs defaultValue="all" value={selectedCategory} onValueChange={setSelectedCategory} className="mb-4 sm:mb-6">
-            <div className="flex justify-center mb-4 sm:mb-6">
-              <div className="w-full overflow-x-auto">
-                <TabsList className="bg-white shadow-lg rounded-xl p-1 flex gap-1 min-w-max mx-auto">
-                  <TabsTrigger 
-                    value="all" 
-                    className="rounded-lg px-3 sm:px-4 py-2 text-sm data-[state=active]:bg-orange-500 data-[state=active]:text-white whitespace-nowrap"
-                  >
-                    Todos
-                  </TabsTrigger>
-                  {Array.from(new Set(products.map(product => product.category))).map(category => (
-                    <TabsTrigger 
-                      key={category} 
-                      value={category}
-                      className="rounded-lg px-3 sm:px-4 py-2 text-sm data-[state=active]:bg-orange-500 data-[state=active]:text-white whitespace-nowrap"
-                    >
-                      {category}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </div>
-            </div>
-
-            {/* Products Grid */}
-            {["all", ...Array.from(new Set(products.map(product => product.category)))].map(category => (
-              <TabsContent key={category} value={category} className="mt-0">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                  {products.filter(product => {
-                    const matchesCategory = category === "all" || product.category === category;
-                    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
-                    
-                    return matchesCategory && matchesSearch && product.available;
-                  }).map(product => (
-                    <Card 
-                      key={product.id} 
-                      className="group overflow-hidden bg-white rounded-xl border-0 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" 
-                    >
-                      {product.image && (
-                        <div className="h-36 sm:h-44 md:h-48 overflow-hidden rounded-t-xl">
-                          <img 
-                            src={product.image} 
-                            alt={product.name} 
-                            className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300" 
-                          />
-                        </div>
-                      )}
-                      <CardHeader className="pb-2 p-3 sm:p-4">
-                        <CardTitle className="text-base sm:text-lg font-bold text-gray-800 group-hover:text-orange-600 transition-colors line-clamp-2">
-                          {product.name}
-                        </CardTitle>
-                        <CardDescription className="line-clamp-2 text-xs sm:text-sm text-gray-600">
-                          {product.description}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardFooter className="flex justify-between items-center pt-0 p-3 sm:p-4">
-                        <div>
-                          <p className="text-xs text-gray-500">A partir de</p>
-                          <p className="text-base sm:text-lg font-bold text-orange-600">
-                            {formatCurrency(product.prices[0].price)}
-                          </p>
-                        </div>
-                        <div className="flex gap-1 sm:gap-2">
-                          <Button 
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleProductClick(product)}
-                            className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm"
-                          >
-                            Ver
-                          </Button>
-                          <Button 
-                            size="sm"
-                            onClick={() => handleAddToCart(product)}
-                            className="bg-orange-500 hover:bg-orange-600 text-white px-2 sm:px-3 py-1.5 text-xs sm:text-sm"
-                          >
-                            <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </Button>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  ))}
-                </div>
-                
-                {products.filter(product => {
-                  const matchesCategory = category === "all" || product.category === category;
-                  const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                       product.description.toLowerCase().includes(searchTerm.toLowerCase());
-                  
-                  return matchesCategory && matchesSearch && product.available;
-                }).length === 0 && (
-                  <div className="text-center py-8 sm:py-12">
-                    <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 max-w-md mx-auto">
-                      <Search className="h-10 sm:h-12 w-10 sm:w-12 text-gray-300 mx-auto mb-3" />
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-600 mb-2">
-                        Nenhum produto encontrado
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Tente buscar por outro termo ou categoria
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </TabsContent>
-            ))}
-          </Tabs>
-        </div>
+        <ProductsGrid 
+          products={products}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          searchTerm={searchTerm}
+          onProductClick={handleProductClick}
+          onAddToCart={handleAddToCart}
+          formatCurrency={formatCurrency}
+        />
       </div>
 
-      {/* Footer */}
-      <div className="bg-gray-800 text-white py-6 sm:py-8 mt-8 sm:mt-12 w-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-sm sm:text-base mb-2">Obrigado por escolher {bannerConfig.storeName}!</p>
-          <p className="text-xs sm:text-sm text-gray-400">Fazemos com amor, servimos com carinho ❤️</p>
-        </div>
-      </div>
+      <Footer bannerConfig={bannerConfig} />
 
       {/* Floating Cart Button */}
       {shouldShowCart && (
