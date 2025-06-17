@@ -48,9 +48,18 @@ const CardapioPublicoContent = () => {
         <ClientDataForm onSubmit={handleClientDataSubmit} />
         <Toaster 
           position="top-right"
+          expand={true}
+          richColors={true}
+          closeButton={true}
           toastOptions={{
+            duration: 4000,
             style: {
-              zIndex: 9999,
+              zIndex: 10000,
+              fontSize: '14px',
+              padding: '16px',
+              borderRadius: '8px',
+              border: '1px solid #e5e7eb',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
             },
           }}
         />
@@ -121,13 +130,29 @@ const CardapioPublicoContent = () => {
         />
       </div>
 
-      {/* Toaster posicionado no canto superior direito */}
+      {/* Toaster com configurações otimizadas para melhor visibilidade */}
       <Toaster 
         position="top-right"
+        expand={true}
+        richColors={true}
+        closeButton={true}
+        offset={16}
         toastOptions={{
+          duration: 4000,
           style: {
-            zIndex: 9999,
+            zIndex: 10000,
+            fontSize: '14px',
+            fontWeight: '500',
+            padding: '16px 20px',
+            borderRadius: '12px',
+            border: '1px solid #e5e7eb',
+            backgroundColor: '#ffffff',
+            color: '#374151',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            minWidth: '300px',
+            maxWidth: '400px',
           },
+          className: 'font-medium',
         }}
       />
     </>
