@@ -15,16 +15,16 @@ import { useKitchenAutomation } from "@/hooks/useKitchenAutomation";
 
 const Cozinha = () => {
   console.log("🍳 === PÁGINA COZINHA CARREGADA ===");
-  
-  const { 
-    kitchenOrders, 
-    updateOrderStatus, 
+
+  const {
+    kitchenOrders,
+    updateOrderStatus,
     deleteOrder,
-    autoUpdateEnabled, 
+    autoUpdateEnabled,
     toggleAutoUpdate,
     orders
   } = useApp();
-  
+
   console.log('📊 Total de pedidos no contexto geral:', orders.length);
   console.log('🍳 Kitchen orders recebidos do contexto:', kitchenOrders);
   console.log('⏳ Pedidos pendentes:', kitchenOrders.pending.length);
@@ -32,9 +32,9 @@ const Cozinha = () => {
   console.log('✅ Prontos:', kitchenOrders.ready.length);
   console.log('🚚 Em entrega:', kitchenOrders.delivering.length);
   console.log('📦 Entregues:', kitchenOrders.delivered.length);
-  
+
   const [showDelivered, setShowDelivered] = useState(false);
-  
+
   const {
     expandedOrder,
     setExpandedOrder,
@@ -69,32 +69,32 @@ const Cozinha = () => {
   console.log("📱 Sidebar state:", { expandedOrder: !!expandedOrder, expandedStage: !!expandedStage });
 
   return (
-    <SidebarProvider open={false} onOpenChange={() => {}}>
-      <div className="min-h-screen flex w-full bg-gray-50">
-        <KitchenSidebar 
+    <SidebarProvider open={false} onOpenChange={() => { }}>
+      <div className="min-h-screen flex w-full">
+        <KitchenSidebar
           kitchenOrders={kitchenOrders}
           autoUpdateEnabled={autoUpdateEnabled}
           toggleAutoUpdate={toggleAutoUpdate}
         />
-        
-        <SidebarInset className="flex-1 min-w-0">
+
+        <SidebarInset className="flex-1 min-w-0 bg-transparent">
           <div className="h-full flex flex-col">
-            <header className="border-b bg-white p-4 flex-shrink-0">
+            <header className="border-b bg-white/80 backdrop-blur-sm p-4 flex-shrink-0 border-purple-100">
               <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Cozinha - Sistema de Pedidos</h1>
-                
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">Cozinha - Sistema de Pedidos</h1>
+
                 <Button
                   variant="outline"
                   onClick={() => setShowDelivered(true)}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 border-purple-200 hover:bg-purple-50 text-purple-700"
                 >
                   <Package className="h-4 w-4" />
                   Pedidos Entregues
-                  <Badge variant="secondary">{kitchenOrders.delivered.length}</Badge>
+                  <Badge variant="secondary" className="bg-purple-100 text-purple-700">{kitchenOrders.delivered.length}</Badge>
                 </Button>
               </div>
             </header>
-            
+
             <main className="flex-1 p-4 overflow-hidden">
               <div className="flex gap-4 h-full">
                 <OrderSection
@@ -106,7 +106,7 @@ const Cozinha = () => {
                   onOrderAction={moveToNextStatus}
                   onExpandStage={setExpandedStage}
                 />
-                
+
                 <OrderSection
                   title="Em Preparo"
                   orders={kitchenOrders.preparing}
@@ -116,7 +116,7 @@ const Cozinha = () => {
                   onOrderAction={moveToNextStatus}
                   onExpandStage={setExpandedStage}
                 />
-                
+
                 <OrderSection
                   title="Prontos"
                   orders={kitchenOrders.ready}
@@ -126,7 +126,7 @@ const Cozinha = () => {
                   onOrderAction={moveToNextStatus}
                   onExpandStage={setExpandedStage}
                 />
-                
+
                 <OrderSection
                   title="Em Entrega"
                   orders={kitchenOrders.delivering}
@@ -141,7 +141,7 @@ const Cozinha = () => {
           </div>
         </SidebarInset>
       </div>
-      
+
       {expandedOrder && (
         <ExpandedOrderCard
           order={expandedOrder}
@@ -150,14 +150,14 @@ const Cozinha = () => {
           actionLabel={getActionLabel(expandedOrder.status)}
         />
       )}
-      
+
       {expandedStage && (
         <KitchenStageExpanded
           title={getSectionTitle(expandedStage)}
-          orders={kitchenOrders[expandedStage === 'Pendente' ? 'pending' : 
-                            expandedStage === 'Em Preparo' ? 'preparing' :
-                            expandedStage === 'Pronto' ? 'ready' :
-                            expandedStage === 'Em Entrega' ? 'delivering' : 'delivered']}
+          orders={kitchenOrders[expandedStage === 'Pendente' ? 'pending' :
+            expandedStage === 'Em Preparo' ? 'preparing' :
+              expandedStage === 'Pronto' ? 'ready' :
+                expandedStage === 'Em Entrega' ? 'delivering' : 'delivered']}
           status={expandedStage}
           actionLabel={getActionLabel(expandedStage)}
           onClose={() => setExpandedStage(null)}
@@ -165,7 +165,7 @@ const Cozinha = () => {
           onOrderAction={moveToNextStatus}
         />
       )}
-      
+
       {showDelivered && (
         <DeliveredOrdersSection
           orders={kitchenOrders.delivered}

@@ -38,10 +38,10 @@ const EditarProduto = () => {
   const { updateProduct, products } = useApp();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  
+
   // Encontrar o produto a ser editado
   const product = products.find(p => p.id === id);
-  
+
   // Se o produto não existir, redirecionar
   React.useEffect(() => {
     if (!product) {
@@ -62,25 +62,25 @@ const EditarProduto = () => {
       isKitchenItem: product?.isKitchenItem ?? true,
       taxExempt: product?.taxExempt ?? false,
       preparationTime: product?.preparationTime,
-      hasCrust: false,
-      crustFlavors: [{ id: "0", name: "" }],
-      crustPrices: pizzaSizes.map(size => ({ size, price: 0 })),
+      hasCrust: product?.hasCrust || false,
+      crustFlavors: product?.crustFlavors || [{ id: "0", name: "" }],
+      crustPrices: product?.crustPrices || pizzaSizes.map(size => ({ size, price: 0 })),
     },
   });
 
   // Estados separados para campos especiais de pizza
   const watchType = form.watch("type");
-  const [hasCrust, setHasCrust] = React.useState(false);
-  const [crustFlavors, setCrustFlavors] = React.useState([{ id: "0", name: "" }]);
+  const [hasCrust, setHasCrust] = React.useState(product?.hasCrust || false);
+  const [crustFlavors, setCrustFlavors] = React.useState(product?.crustFlavors || [{ id: "0", name: "" }]);
   const [crustPrices, setCrustPrices] = React.useState(
-    pizzaSizes.map(size => ({ size, price: 0 }))
+    product?.crustPrices || pizzaSizes.map(size => ({ size, price: 0 }))
   );
   const watchPrices = form.watch("prices");
 
   // Atualizar preços quando o tipo muda
   React.useEffect(() => {
     const isPizza = watchType?.toLowerCase().includes('pizza');
-    
+
     if (!isPizza) {
       // Se mudou para não-pizza, garantir que tem apenas um preço
       const currentPrices = form.getValues("prices");
@@ -101,7 +101,7 @@ const EditarProduto = () => {
 
   function onSubmit(data: ProductFormValues) {
     if (!product) return;
-    
+
     // Se for pizza e tiver borda, adicionar campos extras
     const isPizza = data.type?.toLowerCase().includes('pizza');
     const hasCrustSelected = isPizza && hasCrust;
@@ -123,7 +123,7 @@ const EditarProduto = () => {
         crustPrices,
       }),
     };
-    
+
     updateProduct(product.id, productData);
     navigate('/produtos');
   }
@@ -133,19 +133,19 @@ const EditarProduto = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-red-50 p-6">
+    <div className="p-6">
       <div className="flex items-center mb-6">
         <Link to="/produtos" className="text-gray-500 mr-2 hover:text-orange-600 transition-all duration-200 hover:scale-105">
           Produtos
         </Link>
         <ArrowDown className="h-4 w-4 text-gray-400 mx-2 rotate-90" />
-        <span className="font-medium bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+        <span className="font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
           ✏️ Editar Produto
         </span>
       </div>
-      
+
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-full shadow-xl">
+        <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-xl">
           <Edit className="h-6 w-6 text-white" />
         </div>
         <div>
@@ -159,13 +159,13 @@ const EditarProduto = () => {
           </div>
         </div>
       </div>
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-orange-200 overflow-hidden">
-                <div className="bg-gradient-to-r from-orange-600 to-red-600 p-4">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-purple-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4">
                   <h3 className="text-white font-semibold flex items-center gap-2">
                     <Star className="h-5 w-5" />
                     Informações do Produto
@@ -175,7 +175,7 @@ const EditarProduto = () => {
                   <BasicInfoForm control={form.control} errors={form.formState.errors} />
                 </div>
               </div>
-              
+
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-yellow-200 overflow-hidden">
                 <div className="bg-gradient-to-r from-yellow-600 to-orange-600 p-4">
                   <h3 className="text-white font-semibold flex items-center gap-2">
@@ -187,7 +187,7 @@ const EditarProduto = () => {
                   <PricingForm control={form.control} errors={form.formState.errors} />
                 </div>
               </div>
-              
+
               {/* Só exibe opções de borda para pizza */}
               {watchType && watchType.toLowerCase().includes('pizza') && (
                 <PizzaCrustOptions
@@ -215,19 +215,19 @@ const EditarProduto = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="flex justify-end gap-4 p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => navigate('/produtos')}
               className="hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200 transition-all duration-200"
             >
               ❌ Cancelar
             </Button>
-            <Button 
-              type="submit" 
-              className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white shadow-lg transition-all duration-200 hover:scale-105"
+            <Button
+              type="submit"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg transition-all duration-200 hover:scale-105"
             >
               💾 Salvar Alterações
             </Button>

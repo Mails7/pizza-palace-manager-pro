@@ -11,11 +11,11 @@ import { useApp } from "@/contexts/AppContext";
 
 const Pedidos = () => {
   const { orders } = useApp();
-  
+
   console.log('📋 === PÁGINA PEDIDOS CARREGADA ===');
   console.log('📊 Total de pedidos no contexto:', orders.length);
   console.log('📄 Pedidos completos:', orders);
-  
+
   const {
     searchTerm,
     setSearchTerm,
@@ -42,35 +42,41 @@ const Pedidos = () => {
   } = useOrdersLogic();
 
   console.log('🔍 Pedidos filtrados na página:', filteredOrders.length);
-  
+
   return (
     <div className="p-6">
-      <PageHeader 
-        title="Pedidos" 
-        actionLabel="Novo Pedido" 
+      <PageHeader
+        title="Pedidos"
+        actionLabel="Novo Pedido"
         actionIcon={Plus}
-        onAction={handleNewOrderClick} 
+        onAction={handleNewOrderClick}
       />
-      
-      <OrdersFilter
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-      />
-      
+
+      <div className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl p-6 mb-6 border border-purple-100">
+        <OrdersFilter
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+        />
+      </div>
+
       {filteredOrders.length === 0 ? (
-        <EmptyState 
-          message="Nenhum pedido encontrado"
-          icon={<ShoppingBag className="h-12 w-12" />}
-        />
+        <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-12 border border-purple-100 flex justify-center">
+          <EmptyState
+            message="Nenhum pedido encontrado"
+            icon={<ShoppingBag className="h-12 w-12 text-purple-300" />}
+          />
+        </div>
       ) : (
-        <OrdersTable
-          orders={filteredOrders}
-          onDeleteOrder={deleteOrder}
-          onEditOrder={handleEditOrder}
-          onPriorityChange={handlePriorityChange}
-        />
+        <div className="bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl overflow-hidden border border-purple-200">
+          <OrdersTable
+            orders={filteredOrders}
+            onDeleteOrder={deleteOrder}
+            onEditOrder={handleEditOrder}
+            onPriorityChange={handlePriorityChange}
+          />
+        </div>
       )}
 
       <OrderModals

@@ -46,7 +46,7 @@ const CardapioPublicoContent = () => {
     return (
       <>
         <ClientDataForm onSubmit={handleClientDataSubmit} />
-        <Toaster 
+        <Toaster
           position="top-right"
           expand={true}
           richColors={true}
@@ -76,8 +76,8 @@ const CardapioPublicoContent = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 pb-20 w-full">
-        <HeroSection 
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 pb-20 w-full">
+        <HeroSection
           bannerConfig={bannerConfig}
           clientData={clientData}
           onLogout={handleLogout}
@@ -85,13 +85,13 @@ const CardapioPublicoContent = () => {
 
         <StoreBanner bannerConfig={bannerConfig} />
 
-        <SearchSection 
+        <SearchSection
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
         />
 
         <div className="w-full px-4 sm:px-6 py-4 sm:py-6">
-          <ProductsGrid 
+          <ProductsGrid
             products={products}
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
@@ -117,7 +117,7 @@ const CardapioPublicoContent = () => {
         )}
 
         {/* Modals */}
-        <ProductDetailModal 
+        <ProductDetailModal
           isOpen={isProductDetailOpen}
           onClose={() => setIsProductDetailOpen(false)}
           product={selectedProduct}
@@ -131,7 +131,7 @@ const CardapioPublicoContent = () => {
       </div>
 
       {/* Toaster com configurações otimizadas para melhor visibilidade */}
-      <Toaster 
+      <Toaster
         position="top-right"
         expand={true}
         richColors={true}

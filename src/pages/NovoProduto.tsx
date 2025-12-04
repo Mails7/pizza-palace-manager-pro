@@ -68,7 +68,7 @@ const NovoProduto = () => {
   // Atualizar preços quando o tipo muda
   React.useEffect(() => {
     const isPizza = watchType?.toLowerCase().includes('pizza');
-    
+
     if (isPizza) {
       // Se mudou para pizza, garantir que tem pelo menos um preço com tamanho
       const currentPrices = form.getValues("prices");
@@ -117,7 +117,7 @@ const NovoProduto = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6">
+    <div className="p-6">
       <div className="flex items-center mb-6">
         <Link to="/produtos" className="text-gray-500 mr-2 hover:text-purple-600 transition-all duration-200 hover:scale-105">
           Produtos
@@ -127,7 +127,7 @@ const NovoProduto = () => {
           ✨ Novo Produto
         </span>
       </div>
-      
+
       <div className="flex items-center gap-3 mb-6">
         <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-xl">
           <Package className="h-6 w-6 text-white" />
@@ -143,7 +143,7 @@ const NovoProduto = () => {
           </div>
         </div>
       </div>
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -159,7 +159,7 @@ const NovoProduto = () => {
                   <BasicInfoForm control={form.control} errors={form.formState.errors} />
                 </div>
               </div>
-              
+
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200 overflow-hidden">
                 <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-4">
                   <h3 className="text-white font-semibold flex items-center gap-2">
@@ -171,7 +171,7 @@ const NovoProduto = () => {
                   <PricingForm control={form.control} errors={form.formState.errors} />
                 </div>
               </div>
-              
+
               {/* Só exibe opções de borda para pizza */}
               {watchType && watchType.toLowerCase().includes('pizza') && (
                 <PizzaCrustOptions
@@ -199,18 +199,18 @@ const NovoProduto = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="flex justify-end gap-4 p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => navigate('/produtos')}
               className="hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200 transition-all duration-200"
             >
               ❌ Cancelar
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg transition-all duration-200 hover:scale-105"
             >
               ✨ Salvar Produto

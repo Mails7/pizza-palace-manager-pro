@@ -3,15 +3,15 @@ import React, { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import PageHeader from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -29,21 +29,21 @@ const Produtos = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("Todas as Categorias");
-  
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
     }).format(value);
   };
-  
+
   // Get unique categories
   const categories = ["Todas as Categorias", ...new Set(products.map(product => product.category))];
-  
+
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === "Todas as Categorias" || product.category === categoryFilter;
-    
+
     return matchesSearch && matchesCategory;
   });
 
@@ -63,24 +63,18 @@ const Produtos = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg">
-          <Package className="h-6 w-6 text-white" />
+    <div className="p-6">
+      <PageHeader
+        title="Produtos"
+        actionLabel="✨ Novo Produto"
+        actionHref="/produtos/novo"
+      >
+        <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+          <Sparkles className="h-4 w-4 text-yellow-500" />
+          <span>Gerencie seus produtos com estilo</span>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
-            Produtos
-          </h1>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Sparkles className="h-4 w-4 text-yellow-500" />
-            <span>Gerencie seus produtos com estilo</span>
-          </div>
-        </div>
-      </div>
-      
-      <PageHeader title="" actionLabel="✨ Novo Produto" actionHref="/produtos/novo" />
-      
+      </PageHeader>
+
       <div className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl p-6 mb-6 border border-purple-200">
         <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
           <Search className="h-5 w-5 text-purple-500" />
@@ -112,7 +106,7 @@ const Produtos = () => {
           </Select>
         </div>
       </div>
-      
+
       <div className="bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl overflow-hidden border border-purple-200">
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4">
           <h3 className="text-white font-semibold flex items-center gap-2">
@@ -134,16 +128,15 @@ const Produtos = () => {
           </TableHeader>
           <TableBody>
             {filteredProducts.map((product, index) => (
-              <TableRow 
-                key={product.id} 
-                className={`hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-200 border-b border-purple-100 ${
-                  index % 2 === 0 ? 'bg-white' : 'bg-purple-25'
-                }`}
+              <TableRow
+                key={product.id}
+                className={`hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-200 border-b border-purple-100 ${index % 2 === 0 ? 'bg-white' : 'bg-purple-25'
+                  }`}
               >
                 <TableCell>
                   <div className="h-14 w-14 rounded-xl overflow-hidden shadow-lg border-2 border-purple-200 hover:scale-105 transition-transform duration-200">
-                    <img 
-                      src={product.image} 
+                    <img
+                      src={product.image}
                       alt={product.name}
                       className="w-full h-full object-cover"
                     />
@@ -172,10 +165,10 @@ const Produtos = () => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge 
-                    variant="outline" 
-                    className={product.available 
-                      ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-300 hover:from-green-200 hover:to-emerald-200" 
+                  <Badge
+                    variant="outline"
+                    className={product.available
+                      ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-300 hover:from-green-200 hover:to-emerald-200"
                       : "bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-300 hover:from-red-200 hover:to-rose-200"
                     }
                   >
@@ -184,8 +177,8 @@ const Produtos = () => {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button 
-                      size="icon" 
+                    <Button
+                      size="icon"
                       variant="ghost"
                       onClick={() => handleViewProduct(product)}
                       title="Visualizar produto"
@@ -193,8 +186,8 @@ const Produtos = () => {
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button 
-                      size="icon" 
+                    <Button
+                      size="icon"
                       variant="ghost"
                       onClick={() => handleEditProduct(product)}
                       title="Editar produto"
@@ -202,8 +195,8 @@ const Produtos = () => {
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button 
-                      size="icon" 
+                    <Button
+                      size="icon"
                       variant="ghost"
                       onClick={() => handleDeleteProduct(product)}
                       title="Excluir produto"

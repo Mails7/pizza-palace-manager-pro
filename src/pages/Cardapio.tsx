@@ -29,8 +29,8 @@ const Cardapio = () => {
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        product.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
+      product.description.toLowerCase().includes(searchTerm.toLowerCase());
+
     return matchesCategory && matchesSearch;
   });
 
@@ -66,67 +66,72 @@ const Cardapio = () => {
 
   return (
     <div className="p-6">
-      <PageHeader 
-        title="Cardápio" 
+      <PageHeader
+        title="Cardápio"
         actionLabel="Compartilhar Cardápio"
         actionIcon={Share}
         onAction={handleShare}
       />
-      
-      <div className="bg-white shadow-sm rounded-lg p-6 mb-6">
-        <h2 className="text-lg font-medium mb-4">Filtros</h2>
+
+      <div className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl p-6 mb-6 border border-purple-100">
+        <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
+          <Search className="h-5 w-5 text-purple-500" />
+          <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Filtros
+          </span>
+        </h2>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-3 h-4 w-4 text-purple-400" />
             <Input
-              className="pl-10"
-              placeholder="Buscar produtos..."
+              className="pl-10 border-purple-200 focus:border-purple-400 bg-white/70 transition-all duration-200"
+              placeholder="🔍 Buscar produtos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
       </div>
-      
+
       <Tabs defaultValue="all" value={selectedCategory} onValueChange={setSelectedCategory}>
-        <TabsList className="mb-6">
-          <TabsTrigger value="all">Todos</TabsTrigger>
+        <TabsList className="mb-6 bg-white/50 backdrop-blur-sm border border-purple-100 p-1 rounded-xl">
+          <TabsTrigger value="all" className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 rounded-lg">Todos</TabsTrigger>
           {categories.slice(1).map(category => (
-            <TabsTrigger key={category} value={category}>
+            <TabsTrigger key={category} value={category} className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 rounded-lg">
               {category}
             </TabsTrigger>
           ))}
         </TabsList>
-        
+
         <TabsContent value={selectedCategory} className="mt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map(product => (
-              <Card key={product.id} className={!product.available ? "opacity-70" : ""}>
+              <Card key={product.id} className={`bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 border-purple-100 ${!product.available ? "opacity-70" : ""}`}>
                 <CardHeader className="flex flex-row items-start justify-between pb-2">
                   <div className="flex-1">
-                    <CardTitle className="flex items-center mb-1">
+                    <CardTitle className="flex items-center mb-1 text-gray-800">
                       {product.name}
                       {!product.available && (
-                        <Badge variant="outline" className="ml-2 bg-red-100 text-red-800 hover:bg-red-100">
+                        <Badge variant="outline" className="ml-2 bg-red-100 text-red-800 hover:bg-red-100 border-red-200">
                           Indisponível
                         </Badge>
                       )}
                     </CardTitle>
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700 hover:bg-purple-200">
                       {product.category}
                     </Badge>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => handleEditProduct(product)}>
+                  <Button variant="ghost" size="icon" onClick={() => handleEditProduct(product)} className="hover:bg-purple-100 hover:text-purple-700 rounded-full">
                     <Edit className="h-4 w-4" />
                   </Button>
                 </CardHeader>
                 <CardContent className="pb-4">
                   <div className="mb-4">
-                    <AspectRatio ratio={16 / 9} className="bg-muted rounded-md overflow-hidden">
+                    <AspectRatio ratio={16 / 9} className="bg-muted rounded-xl overflow-hidden shadow-md">
                       <img
                         src={product.image || "/placeholder.svg"}
                         alt={product.name}
-                        className="object-cover w-full h-full"
+                        className="object-cover w-full h-full hover:scale-105 transition-transform duration-500"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.src = "/placeholder.svg";
@@ -134,23 +139,25 @@ const Cardapio = () => {
                       />
                     </AspectRatio>
                   </div>
-                  <p className="text-sm text-gray-700 mb-3">{product.description}</p>
-                  <div className="space-y-1">
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
+                  <div className="space-y-2">
                     {product.prices.map((price: any, index: number) => (
-                      <div key={index} className="flex justify-between text-sm">
-                        <span>Tamanho {price.size}</span>
-                        <span className="font-medium">{formatCurrency(price.price)}</span>
+                      <div key={index} className="flex justify-between text-sm bg-purple-50/50 p-2 rounded-lg border border-purple-100">
+                        <span className="text-gray-700">Tamanho {price.size}</span>
+                        <span className="font-bold text-purple-700">{formatCurrency(price.price)}</span>
                       </div>
                     ))}
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between pt-2 border-t">
-                  <span className="text-sm text-gray-500">
-                    Disponível
+                <CardFooter className="flex justify-between pt-4 border-t border-purple-100">
+                  <span className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${product.available ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                    {product.available ? 'Disponível' : 'Indisponível'}
                   </span>
-                  <Switch 
-                    checked={product.available} 
+                  <Switch
+                    checked={product.available}
                     onCheckedChange={(checked) => handleAvailabilityChange(product.id, checked)}
+                    className="data-[state=checked]:bg-purple-600"
                   />
                 </CardFooter>
               </Card>

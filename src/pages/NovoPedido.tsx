@@ -116,14 +116,16 @@ const NovoPedido = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 p-4">
+    <div className="p-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-            <ShoppingBag className="h-8 w-8 text-orange-600" />
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent mb-2 flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl shadow-lg">
+              <ShoppingBag className="h-6 w-6 text-white" />
+            </div>
             Finalizar Pedido
           </h1>
-          <p className="text-gray-600">Confirme os dados e finalize seu pedido</p>
+          <p className="text-gray-600 ml-14">Confirme os dados e finalize seu pedido</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -146,7 +148,7 @@ const NovoPedido = () => {
               setOrderNotes={setOrderNotes}
               tables={tables}
             />
-            
+
             <OrderFormActions
               onBack={handleBack}
               onSubmit={handleSubmit}

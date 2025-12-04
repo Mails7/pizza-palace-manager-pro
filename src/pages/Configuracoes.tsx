@@ -13,13 +13,13 @@ import PageHeader from "@/components/PageHeader";
 import N8nConfigSection from "@/components/N8nConfigSection";
 import PrintConfigSection from "@/components/PrintConfigSection";
 import BannerConfigSection from "@/components/BannerConfigSection";
-import { 
-  Settings, 
-  Store, 
-  Bell, 
-  Printer, 
-  CreditCard, 
-  Users, 
+import {
+  Settings,
+  Store,
+  Bell,
+  Printer,
+  CreditCard,
+  Users,
   Shield,
   Save,
   Palette,
@@ -86,49 +86,49 @@ const Configuracoes = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <PageHeader 
-        title="Configurações" 
+      <PageHeader
+        title="Configurações"
         actionLabel="Salvar Alterações"
         actionIcon={Save}
         onAction={handleSave}
       />
 
       <Tabs defaultValue="store" className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="store" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-7 bg-white/50 backdrop-blur-sm border border-purple-100 p-1 rounded-xl h-auto">
+          <TabsTrigger value="store" className="flex items-center gap-2 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 rounded-lg py-3">
             <Store className="h-4 w-4" />
-            Loja
+            <span className="hidden md:inline">Loja</span>
           </TabsTrigger>
-          <TabsTrigger value="banner" className="flex items-center gap-2">
+          <TabsTrigger value="banner" className="flex items-center gap-2 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 rounded-lg py-3">
             <Image className="h-4 w-4" />
-            Banner
+            <span className="hidden md:inline">Banner</span>
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="flex items-center gap-2">
+          <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 rounded-lg py-3">
             <Bell className="h-4 w-4" />
-            Notificações
+            <span className="hidden md:inline">Notificações</span>
           </TabsTrigger>
-          <TabsTrigger value="print" className="flex items-center gap-2">
+          <TabsTrigger value="print" className="flex items-center gap-2 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 rounded-lg py-3">
             <Printer className="h-4 w-4" />
-            Impressão
+            <span className="hidden md:inline">Impressão</span>
           </TabsTrigger>
-          <TabsTrigger value="payment" className="flex items-center gap-2">
+          <TabsTrigger value="payment" className="flex items-center gap-2 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 rounded-lg py-3">
             <CreditCard className="h-4 w-4" />
-            Pagamento
+            <span className="hidden md:inline">Pagamento</span>
           </TabsTrigger>
-          <TabsTrigger value="n8n" className="flex items-center gap-2">
+          <TabsTrigger value="n8n" className="flex items-center gap-2 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 rounded-lg py-3">
             <Webhook className="h-4 w-4" />
-            n8n
+            <span className="hidden md:inline">n8n</span>
           </TabsTrigger>
-          <TabsTrigger value="system" className="flex items-center gap-2">
+          <TabsTrigger value="system" className="flex items-center gap-2 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 rounded-lg py-3">
             <Shield className="h-4 w-4" />
-            Sistema
+            <span className="hidden md:inline">Sistema</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="store" className="space-y-6">
-          <Card>
+        <TabsContent value="store" className="space-y-6 mt-6">
+          <Card className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl border-purple-100">
             <CardHeader>
-              <CardTitle>Informações da Loja</CardTitle>
+              <CardTitle className="text-gray-800">Informações da Loja</CardTitle>
               <CardDescription>
                 Configure as informações básicas da sua pizzaria
               </CardDescription>
@@ -140,7 +140,8 @@ const Configuracoes = () => {
                   <Input
                     id="storeName"
                     value={storeSettings.name}
-                    onChange={(e) => setStoreSettings({...storeSettings, name: e.target.value})}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, name: e.target.value })}
+                    className="bg-white/50 border-purple-200 focus:border-purple-400"
                   />
                 </div>
                 <div>
@@ -148,7 +149,8 @@ const Configuracoes = () => {
                   <Input
                     id="phone"
                     value={storeSettings.phone}
-                    onChange={(e) => setStoreSettings({...storeSettings, phone: e.target.value})}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, phone: e.target.value })}
+                    className="bg-white/50 border-purple-200 focus:border-purple-400"
                   />
                 </div>
                 <div>
@@ -157,7 +159,8 @@ const Configuracoes = () => {
                     id="email"
                     type="email"
                     value={storeSettings.email}
-                    onChange={(e) => setStoreSettings({...storeSettings, email: e.target.value})}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, email: e.target.value })}
+                    className="bg-white/50 border-purple-200 focus:border-purple-400"
                   />
                 </div>
                 <div>
@@ -165,7 +168,8 @@ const Configuracoes = () => {
                   <Input
                     id="address"
                     value={storeSettings.address}
-                    onChange={(e) => setStoreSettings({...storeSettings, address: e.target.value})}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, address: e.target.value })}
+                    className="bg-white/50 border-purple-200 focus:border-purple-400"
                   />
                 </div>
                 <div>
@@ -173,7 +177,8 @@ const Configuracoes = () => {
                   <Input
                     id="city"
                     value={storeSettings.city}
-                    onChange={(e) => setStoreSettings({...storeSettings, city: e.target.value})}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, city: e.target.value })}
+                    className="bg-white/50 border-purple-200 focus:border-purple-400"
                   />
                 </div>
                 <div>
@@ -181,11 +186,12 @@ const Configuracoes = () => {
                   <Input
                     id="zipCode"
                     value={storeSettings.zipCode}
-                    onChange={(e) => setStoreSettings({...storeSettings, zipCode: e.target.value})}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, zipCode: e.target.value })}
+                    className="bg-white/50 border-purple-200 focus:border-purple-400"
                   />
                 </div>
               </div>
-              <Separator />
+              <Separator className="bg-purple-100" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="openTime">Horário de Abertura</Label>
@@ -193,7 +199,8 @@ const Configuracoes = () => {
                     id="openTime"
                     type="time"
                     value={storeSettings.openTime}
-                    onChange={(e) => setStoreSettings({...storeSettings, openTime: e.target.value})}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, openTime: e.target.value })}
+                    className="bg-white/50 border-purple-200 focus:border-purple-400"
                   />
                 </div>
                 <div>
@@ -202,7 +209,8 @@ const Configuracoes = () => {
                     id="closeTime"
                     type="time"
                     value={storeSettings.closeTime}
-                    onChange={(e) => setStoreSettings({...storeSettings, closeTime: e.target.value})}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, closeTime: e.target.value })}
+                    className="bg-white/50 border-purple-200 focus:border-purple-400"
                   />
                 </div>
                 <div>
@@ -212,7 +220,8 @@ const Configuracoes = () => {
                     type="number"
                     step="0.01"
                     value={storeSettings.deliveryFee}
-                    onChange={(e) => setStoreSettings({...storeSettings, deliveryFee: e.target.value})}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, deliveryFee: e.target.value })}
+                    className="bg-white/50 border-purple-200 focus:border-purple-400"
                   />
                 </div>
                 <div>
@@ -222,7 +231,8 @@ const Configuracoes = () => {
                     type="number"
                     step="0.01"
                     value={storeSettings.minimumOrder}
-                    onChange={(e) => setStoreSettings({...storeSettings, minimumOrder: e.target.value})}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, minimumOrder: e.target.value })}
+                    className="bg-white/50 border-purple-200 focus:border-purple-400"
                   />
                 </div>
               </div>
@@ -230,14 +240,14 @@ const Configuracoes = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="banner" className="space-y-6">
+        <TabsContent value="banner" className="space-y-6 mt-6">
           <BannerConfigSection />
         </TabsContent>
 
-        <TabsContent value="notifications" className="space-y-6">
-          <Card>
+        <TabsContent value="notifications" className="space-y-6 mt-6">
+          <Card className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl border-purple-100">
             <CardHeader>
-              <CardTitle>Configurações de Notificações</CardTitle>
+              <CardTitle className="text-gray-800">Configurações de Notificações</CardTitle>
               <CardDescription>
                 Personalize como você recebe notificações do sistema
               </CardDescription>
@@ -250,10 +260,11 @@ const Configuracoes = () => {
                 </div>
                 <Switch
                   checked={notifications.newOrders}
-                  onCheckedChange={(checked) => setNotifications({...notifications, newOrders: checked})}
+                  onCheckedChange={(checked) => setNotifications({ ...notifications, newOrders: checked })}
+                  className="data-[state=checked]:bg-purple-600"
                 />
               </div>
-              <Separator />
+              <Separator className="bg-purple-100" />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Atualizações de Pedidos</Label>
@@ -261,10 +272,11 @@ const Configuracoes = () => {
                 </div>
                 <Switch
                   checked={notifications.orderUpdates}
-                  onCheckedChange={(checked) => setNotifications({...notifications, orderUpdates: checked})}
+                  onCheckedChange={(checked) => setNotifications({ ...notifications, orderUpdates: checked })}
+                  className="data-[state=checked]:bg-purple-600"
                 />
               </div>
-              <Separator />
+              <Separator className="bg-purple-100" />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Estoque Baixo</Label>
@@ -272,10 +284,11 @@ const Configuracoes = () => {
                 </div>
                 <Switch
                   checked={notifications.lowStock}
-                  onCheckedChange={(checked) => setNotifications({...notifications, lowStock: checked})}
+                  onCheckedChange={(checked) => setNotifications({ ...notifications, lowStock: checked })}
+                  className="data-[state=checked]:bg-purple-600"
                 />
               </div>
-              <Separator />
+              <Separator className="bg-purple-100" />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Relatórios Diários</Label>
@@ -283,10 +296,11 @@ const Configuracoes = () => {
                 </div>
                 <Switch
                   checked={notifications.dailyReports}
-                  onCheckedChange={(checked) => setNotifications({...notifications, dailyReports: checked})}
+                  onCheckedChange={(checked) => setNotifications({ ...notifications, dailyReports: checked })}
+                  className="data-[state=checked]:bg-purple-600"
                 />
               </div>
-              <Separator />
+              <Separator className="bg-purple-100" />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Notificações por Email</Label>
@@ -294,10 +308,11 @@ const Configuracoes = () => {
                 </div>
                 <Switch
                   checked={notifications.emailNotifications}
-                  onCheckedChange={(checked) => setNotifications({...notifications, emailNotifications: checked})}
+                  onCheckedChange={(checked) => setNotifications({ ...notifications, emailNotifications: checked })}
+                  className="data-[state=checked]:bg-purple-600"
                 />
               </div>
-              <Separator />
+              <Separator className="bg-purple-100" />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Alertas Sonoros</Label>
@@ -305,21 +320,22 @@ const Configuracoes = () => {
                 </div>
                 <Switch
                   checked={notifications.soundAlerts}
-                  onCheckedChange={(checked) => setNotifications({...notifications, soundAlerts: checked})}
+                  onCheckedChange={(checked) => setNotifications({ ...notifications, soundAlerts: checked })}
+                  className="data-[state=checked]:bg-purple-600"
                 />
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="print" className="space-y-6">
+        <TabsContent value="print" className="space-y-6 mt-6">
           <PrintConfigSection />
         </TabsContent>
 
-        <TabsContent value="payment" className="space-y-6">
-          <Card>
+        <TabsContent value="payment" className="space-y-6 mt-6">
+          <Card className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl border-purple-100">
             <CardHeader>
-              <CardTitle>Formas de Pagamento</CardTitle>
+              <CardTitle className="text-gray-800">Formas de Pagamento</CardTitle>
               <CardDescription>
                 Configure as formas de pagamento aceitas
               </CardDescription>
@@ -332,10 +348,11 @@ const Configuracoes = () => {
                 </div>
                 <Switch
                   checked={paymentSettings.acceptCash}
-                  onCheckedChange={(checked) => setPaymentSettings({...paymentSettings, acceptCash: checked})}
+                  onCheckedChange={(checked) => setPaymentSettings({ ...paymentSettings, acceptCash: checked })}
+                  className="data-[state=checked]:bg-purple-600"
                 />
               </div>
-              <Separator />
+              <Separator className="bg-purple-100" />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Cartão</Label>
@@ -343,7 +360,8 @@ const Configuracoes = () => {
                 </div>
                 <Switch
                   checked={paymentSettings.acceptCard}
-                  onCheckedChange={(checked) => setPaymentSettings({...paymentSettings, acceptCard: checked})}
+                  onCheckedChange={(checked) => setPaymentSettings({ ...paymentSettings, acceptCard: checked })}
+                  className="data-[state=checked]:bg-purple-600"
                 />
               </div>
               {paymentSettings.acceptCard && (
@@ -354,11 +372,12 @@ const Configuracoes = () => {
                     type="number"
                     step="0.1"
                     value={paymentSettings.cardFee}
-                    onChange={(e) => setPaymentSettings({...paymentSettings, cardFee: e.target.value})}
+                    onChange={(e) => setPaymentSettings({ ...paymentSettings, cardFee: e.target.value })}
+                    className="bg-white/50 border-purple-200 focus:border-purple-400"
                   />
                 </div>
               )}
-              <Separator />
+              <Separator className="bg-purple-100" />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>PIX</Label>
@@ -366,7 +385,8 @@ const Configuracoes = () => {
                 </div>
                 <Switch
                   checked={paymentSettings.acceptPix}
-                  onCheckedChange={(checked) => setPaymentSettings({...paymentSettings, acceptPix: checked})}
+                  onCheckedChange={(checked) => setPaymentSettings({ ...paymentSettings, acceptPix: checked })}
+                  className="data-[state=checked]:bg-purple-600"
                 />
               </div>
               {paymentSettings.acceptPix && (
@@ -377,7 +397,8 @@ const Configuracoes = () => {
                     type="number"
                     step="0.1"
                     value={paymentSettings.pixDiscount}
-                    onChange={(e) => setPaymentSettings({...paymentSettings, pixDiscount: e.target.value})}
+                    onChange={(e) => setPaymentSettings({ ...paymentSettings, pixDiscount: e.target.value })}
+                    className="bg-white/50 border-purple-200 focus:border-purple-400"
                   />
                 </div>
               )}
@@ -385,14 +406,14 @@ const Configuracoes = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="n8n" className="space-y-6">
+        <TabsContent value="n8n" className="space-y-6 mt-6">
           <N8nConfigSection />
         </TabsContent>
 
-        <TabsContent value="system" className="space-y-6">
-          <Card>
+        <TabsContent value="system" className="space-y-6 mt-6">
+          <Card className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl border-purple-100">
             <CardHeader>
-              <CardTitle>Informações do Sistema</CardTitle>
+              <CardTitle className="text-gray-800">Informações do Sistema</CardTitle>
               <CardDescription>
                 Informações sobre o sistema e configurações avançadas
               </CardDescription>
@@ -401,27 +422,27 @@ const Configuracoes = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Versão do Sistema</Label>
-                  <Badge variant="outline">v1.0.0</Badge>
+                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">v1.0.0</Badge>
                 </div>
                 <div className="space-y-2">
                   <Label>Última Atualização</Label>
-                  <Badge variant="outline">14/06/2025</Badge>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">14/06/2025</Badge>
                 </div>
               </div>
-              <Separator />
+              <Separator className="bg-purple-100" />
               <div className="space-y-4">
                 <h4 className="text-sm font-medium">Ações do Sistema</h4>
                 <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="hover:bg-purple-50 hover:text-purple-700 border-purple-200">
                     Fazer Backup
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="hover:bg-purple-50 hover:text-purple-700 border-purple-200">
                     Limpar Cache
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="hover:bg-purple-50 hover:text-purple-700 border-purple-200">
                     Exportar Dados
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="hover:bg-purple-50 hover:text-purple-700 border-purple-200">
                     Ver Logs
                   </Button>
                 </div>
@@ -432,8 +453,8 @@ const Configuracoes = () => {
       </Tabs>
 
       <div className="mt-6 flex justify-end">
-        <Button 
-          onClick={handleSave} 
+        <Button
+          onClick={handleSave}
           disabled={isLoading}
           className="bg-black hover:bg-gray-800 text-white"
         >

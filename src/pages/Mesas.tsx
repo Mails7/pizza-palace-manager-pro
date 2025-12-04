@@ -24,9 +24,9 @@ const Mesas = () => {
   };
 
   const getTableOrders = (tableId: string) => {
-    return orders.filter(order => 
-      order.tableId === tableId && 
-      order.status !== "Entregue" && 
+    return orders.filter(order =>
+      order.tableId === tableId &&
+      order.status !== "Entregue" &&
       order.status !== "Cancelado"
     );
   };
@@ -45,33 +45,33 @@ const Mesas = () => {
 
   const getTableStatus = (table: any) => {
     const tableOrders = getTableOrders(table.id);
-    
+
     if (table.isReserved) {
-      return { 
-        status: "Reservada", 
+      return {
+        status: "Reservada",
         color: "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200",
         cardBg: "bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200"
       };
     }
-    
+
     if (tableOrders.length > 0) {
-      return { 
-        status: "Com Pedidos", 
+      return {
+        status: "Com Pedidos",
         color: "bg-gradient-to-r from-blue-100 to-sky-100 text-blue-800 border border-blue-200",
         cardBg: "bg-gradient-to-br from-blue-50 to-sky-50 border-blue-200"
       };
     }
-    
+
     if (table.isAvailable) {
-      return { 
-        status: "Disponível", 
+      return {
+        status: "Disponível",
         color: "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200",
         cardBg: "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200"
       };
     }
-    
-    return { 
-      status: "Ocupada", 
+
+    return {
+      status: "Ocupada",
       color: "bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-200",
       cardBg: "bg-gradient-to-br from-red-50 to-rose-50 border-red-200"
     };
@@ -79,15 +79,15 @@ const Mesas = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+      <div className="p-6">
         <PageHeader title="Mesas" actionLabel="Nova Mesa" actionHref="/mesas/nova" />
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {tables.map((table) => {
             const tableOrders = getTableOrders(table.id);
             const tableTotal = getTableTotal(table.id);
             const tableStatus = getTableStatus(table);
-            
+
             return (
               <Card key={table.id} className={`relative hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 ${tableStatus.cardBg}`}>
                 <CardContent className="p-6 space-y-4">
@@ -103,14 +103,14 @@ const Mesas = () => {
                         <Users className="h-4 w-4 mr-2 text-pizza" />
                         <span>{table.capacity} lugares</span>
                       </div>
-                      
+
                       {table.attendant && (
                         <div className="flex items-center text-gray-600 mb-2">
                           <UserCheck className="h-4 w-4 mr-2 text-green-500" />
                           <span className="text-sm font-medium">{table.attendant}</span>
                         </div>
                       )}
-                      
+
                       {table.isReserved && table.reservationName && (
                         <div className="flex items-center text-gray-600 mb-2">
                           <Calendar className="h-4 w-4 mr-2 text-purple-500" />
@@ -118,12 +118,12 @@ const Mesas = () => {
                         </div>
                       )}
                     </div>
-                    
+
                     <Badge variant="outline" className={`${tableStatus.color} font-semibold shadow-sm`}>
                       {tableStatus.status}
                     </Badge>
                   </div>
-                  
+
                   {/* Informações dos pedidos */}
                   {tableOrders.length > 0 && (
                     <div className="bg-gradient-to-r from-gray-50 to-slate-50 p-4 rounded-lg border border-gray-200 shadow-inner">
@@ -139,7 +139,7 @@ const Mesas = () => {
                           </span>
                         </div>
                       </div>
-                      
+
                       <div className="text-xs text-gray-600 space-y-1">
                         {tableOrders.slice(0, 2).map((order, index) => (
                           <div key={index} className="flex justify-between items-center bg-white p-2 rounded border">
@@ -155,10 +155,10 @@ const Mesas = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   <div className="flex justify-end gap-2 pt-4">
-                    <Button 
-                      size="icon" 
+                    <Button
+                      size="icon"
                       variant="ghost"
                       onClick={() => handleManageTable(table)}
                       title="Gerenciar Mesa"
@@ -166,8 +166,8 @@ const Mesas = () => {
                     >
                       <Settings className="h-4 w-4" />
                     </Button>
-                    <Button 
-                      size="icon" 
+                    <Button
+                      size="icon"
                       variant="ghost"
                       onClick={() => handleEditTable(table)}
                       title="Editar Mesa"
@@ -175,8 +175,8 @@ const Mesas = () => {
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button 
-                      size="icon" 
+                    <Button
+                      size="icon"
                       variant="ghost"
                       onClick={() => deleteTable(table.id)}
                       title="Excluir Mesa"

@@ -56,18 +56,18 @@ const NovaMesa = () => {
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="flex items-center mb-6">
-        <Link to="/mesas" className="text-gray-500 mr-2">
+        <Link to="/mesas" className="text-gray-500 mr-2 hover:text-purple-600 transition-all duration-200 hover:scale-105">
           Mesas
         </Link>
         <ArrowDown className="h-4 w-4 text-gray-400 mx-2 rotate-90" />
-        <span className="font-medium">Nova Mesa</span>
+        <span className="font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Nova Mesa</span>
       </div>
-      
-      <h1 className="text-3xl font-bold mb-6">Nova Mesa</h1>
-      
-      <Card>
+
+      <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">Nova Mesa</h1>
+
+      <Card className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl border-purple-100">
         <CardHeader>
-          <CardTitle>Informações da Mesa</CardTitle>
+          <CardTitle className="text-gray-800">Informações da Mesa</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -86,7 +86,7 @@ const NovaMesa = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="capacity"
@@ -150,12 +150,12 @@ const NovaMesa = () => {
                   </FormItem>
                 )}
               />
-              
+
               <div className="flex justify-end gap-4 pt-6">
                 <Button type="button" variant="outline" onClick={() => navigate('/mesas')}>
                   Cancelar
                 </Button>
-                <Button type="submit" className="bg-black text-white hover:bg-gray-800">
+                <Button type="submit" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg transition-all duration-200 hover:scale-105">
                   Criar Mesa
                 </Button>
               </div>

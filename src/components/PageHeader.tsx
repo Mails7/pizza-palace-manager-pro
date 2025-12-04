@@ -13,34 +13,36 @@ interface PageHeaderProps {
   children?: React.ReactNode;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ 
-  title, 
-  actionLabel, 
-  actionHref, 
+const PageHeader: React.FC<PageHeaderProps> = ({
+  title,
+  actionLabel,
+  actionHref,
   actionIcon,
   onAction,
-  children 
+  children
 }) => {
   const ActionIcon = actionIcon || Plus;
 
   return (
     <div className="flex items-center justify-between mb-6">
-      <h1 className="text-3xl font-bold">{title}</h1>
-      <div className="flex items-center gap-4">
+      <div>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">{title}</h1>
         {children}
+      </div>
+      <div className="flex items-center gap-4">
         {actionLabel && (
           <>
             {actionHref ? (
-              <Button asChild className="bg-black hover:bg-gray-800 text-white">
+              <Button asChild className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg transition-all duration-200 hover:scale-105">
                 <Link to={actionHref}>
                   <ActionIcon className="mr-2 h-4 w-4" />
                   {actionLabel}
                 </Link>
               </Button>
             ) : onAction ? (
-              <Button 
+              <Button
                 onClick={onAction}
-                className="bg-black hover:bg-gray-800 text-white"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg transition-all duration-200 hover:scale-105"
               >
                 <ActionIcon className="mr-2 h-4 w-4" />
                 {actionLabel}

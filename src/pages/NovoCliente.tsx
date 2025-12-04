@@ -22,12 +22,12 @@ const NovoCliente = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-6 relative overflow-hidden">
+    <div className="p-6 relative overflow-hidden">
       {/* Elementos decorativos de fundo */}
       <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full opacity-20 animate-pulse"></div>
       <div className="absolute top-40 right-20 w-16 h-16 bg-gradient-to-r from-blue-300 to-cyan-300 rounded-full opacity-20 animate-pulse delay-1000"></div>
       <div className="absolute bottom-20 left-20 w-24 h-24 bg-gradient-to-r from-yellow-300 to-orange-300 rounded-full opacity-20 animate-pulse delay-2000"></div>
-      
+
       <div className="relative z-10">
         <div className="flex items-center mb-6">
           <Link to="/clientes" className="text-gray-500 hover:text-pizza transition-colors mr-2 hover:scale-105 transform duration-200">
@@ -38,7 +38,7 @@ const NovoCliente = () => {
             ✨ Novo Cliente
           </span>
         </div>
-        
+
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-gradient-to-r from-pizza to-pizza-dark rounded-full shadow-xl animate-pulse">
             <User className="h-6 w-6 text-white" />
@@ -54,20 +54,20 @@ const NovoCliente = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-white/20 max-w-2xl relative">
           {/* Borda colorida animada */}
           <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl opacity-20 animate-pulse"></div>
           <div className="absolute inset-1 bg-white rounded-3xl"></div>
-          
+
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl border border-purple-200">
               <Star className="h-5 w-5 text-yellow-500" />
               <span className="text-purple-700 font-medium">Formulário de Cadastro</span>
               <Star className="h-5 w-5 text-yellow-500" />
             </div>
-            
-            <NewClientForm 
+
+            <NewClientForm
               onSubmitSuccess={handleClientSuccess}
               onCancel={handleCancel}
             />

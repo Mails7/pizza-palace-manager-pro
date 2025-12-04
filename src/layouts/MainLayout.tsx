@@ -27,7 +27,7 @@ import {
 const MainLayout = () => {
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full overflow-hidden bg-background">
+      <div className="flex h-screen w-full overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
         <Sidebar>
           <SidebarHeader>
             <Link to="/" className="flex items-center gap-2 px-4 py-3">

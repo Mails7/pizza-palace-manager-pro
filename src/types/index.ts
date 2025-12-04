@@ -27,6 +27,11 @@ export interface Product {
   isKitchenItem?: boolean;
   taxExempt?: boolean;
   preparationTime?: number; // em minutos
+
+  // Campos para borda de pizza
+  hasCrust?: boolean;
+  crustFlavors?: Array<{ id: string; name: string }>;
+  crustPrices?: Array<{ size: PizzaSize; price: number }>;
 }
 
 export interface OrderItem {

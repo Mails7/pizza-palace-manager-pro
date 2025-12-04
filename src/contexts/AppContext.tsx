@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { 
-  Client, 
-  Order, 
-  Product, 
-  Table, 
+import {
+  Client,
+  Order,
+  Product,
+  Table,
   OrderStatus,
   Priority,
   DashboardData
@@ -26,25 +26,25 @@ interface AppContextType {
     delivering: Order[];
     delivered: Order[];
   };
-  
+
   // Actions
   addProduct: (product: Omit<Product, 'id'>) => void;
   updateProduct: (id: string, product: Partial<Product>) => void;
   deleteProduct: (id: string) => void;
-  
+
   addClient: (client: Omit<Client, 'id' | 'orderCount' | 'totalSpent' | 'lastOrderDate'>) => void;
   updateClient: (id: string, client: Partial<Client>) => void;
   deleteClient: (id: string) => void;
-  
+
   addTable: (table: Omit<Table, 'id'>) => void;
   updateTable: (id: string, table: Partial<Table>) => void;
   deleteTable: (id: string) => void;
-  
+
   addOrder: (order: Omit<Order, 'id' | 'createdAt'>) => void;
   updateOrderStatus: (id: string, status: OrderStatus) => void;
   updateOrderPriority: (id: string, priority: Priority) => void;
   deleteOrder: (id: string) => void;
-  
+
   autoUpdateEnabled: boolean;
   toggleAutoUpdate: () => void;
 }
@@ -53,10 +53,12 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // Função helper para organizar pedidos por status
 const organizeOrdersByStatus = (orders: Order[]) => {
-  console.log('🔧 === ORGANIZANDO PEDIDOS POR STATUS ===');
-  console.log('📊 Total de pedidos recebidos:', orders.length);
-  console.log('📋 Pedidos completos:', orders.map(o => ({ id: o.id, status: o.status, clientName: o.clientName })));
-  
+  if (import.meta.env.DEV) {
+    console.log('🔧 === ORGANIZANDO PEDIDOS POR STATUS ===');
+    console.log('📊 Total de pedidos recebidos:', orders.length);
+    console.log('📋 Pedidos completos:', orders.map(o => ({ id: o.id, status: o.status, clientName: o.clientName })));
+  }
+
   const organized = {
     pending: orders.filter(order => order.status === 'Pendente'),
     preparing: orders.filter(order => order.status === 'Em Preparo'),
@@ -64,15 +66,17 @@ const organizeOrdersByStatus = (orders: Order[]) => {
     delivering: orders.filter(order => order.status === 'Em Entrega'),
     delivered: orders.filter(order => order.status === 'Entregue')
   };
-  
-  console.log('🍳 Resultado da organização:', {
-    pending: organized.pending.length,
-    preparing: organized.preparing.length,
-    ready: organized.ready.length,
-    delivering: organized.delivering.length,
-    delivered: organized.delivered.length
-  });
-  
+
+  if (import.meta.env.DEV) {
+    console.log('🍳 Resultado da organização:', {
+      pending: organized.pending.length,
+      preparing: organized.preparing.length,
+      ready: organized.ready.length,
+      delivering: organized.delivering.length,
+      delivered: organized.delivered.length
+    });
+  }
+
   return organized;
 };
 
@@ -84,23 +88,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [dashboardDataState, setDashboardData] = useState<DashboardData>(dashboardData);
   const [kitchenOrdersState, setKitchenOrders] = useState(organizeOrdersByStatus(orders));
   const [autoUpdateEnabled, setAutoUpdateEnabled] = useState(false);
-  
+
   const { notifyNewOrder, notifyCancelOrder, notifyStatusUpdate } = useN8nIntegration();
 
   // Sincronizar kitchenOrders sempre que ordersState mudar
   useEffect(() => {
-    console.log('🔄 === USEEFFECT SINCRONIZAÇÃO DISPARADO ===');
-    console.log('📊 ordersState atual:', ordersState.length);
-    console.log('📋 Detalhes dos pedidos:', ordersState.map(order => ({
-      id: order.id,
-      status: order.status,
-      clientName: order.clientName
-    })));
-    
+    if (import.meta.env.DEV) {
+      console.log('🔄 === USEEFFECT SINCRONIZAÇÃO DISPARADO ===');
+      console.log('📊 ordersState atual:', ordersState.length);
+      console.log('📋 Detalhes dos pedidos:', ordersState.map(order => ({
+        id: order.id,
+        status: order.status,
+        clientName: order.clientName
+      })));
+    }
+
     const newKitchenOrders = organizeOrdersByStatus(ordersState);
     setKitchenOrders(newKitchenOrders);
-    
-    console.log('✅ === FIM USEEFFECT SINCRONIZAÇÃO ===');
+
+    if (import.meta.env.DEV) {
+      console.log('✅ === FIM USEEFFECT SINCRONIZAÇÃO ===');
+    }
   }, [ordersState]);
 
   // Product actions
@@ -117,7 +125,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateProduct = (id: string, product: Partial<Product>) => {
-    setProducts(productsState.map(p => 
+    setProducts(productsState.map(p =>
       p.id === id ? { ...p, ...product } : p
     ));
     toast({
@@ -153,7 +161,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateClient = (id: string, client: Partial<Client>) => {
-    setClients(clientsState.map(c => 
+    setClients(clientsState.map(c =>
       c.id === id ? { ...c, ...client } : c
     ));
     toast({
@@ -187,7 +195,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateTable = (id: string, table: Partial<Table>) => {
-    setTables(tablesState.map(t => 
+    setTables(tablesState.map(t =>
       t.id === id ? { ...t, ...table } : t
     ));
     toast({
@@ -198,14 +206,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteTable = (id: string) => {
     const tableToDelete = tablesState.find(t => t.id === id);
-    
+
     // Verificar se há pedidos ativos na mesa
-    const activeOrders = ordersState.filter(order => 
-      order.tableId === id && 
-      order.status !== "Entregue" && 
+    const activeOrders = ordersState.filter(order =>
+      order.tableId === id &&
+      order.status !== "Entregue" &&
       order.status !== "Cancelado"
     );
-    
+
     if (activeOrders.length > 0) {
       toast({
         title: "Não é possível excluir",
@@ -224,7 +232,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         });
       });
     }
-    
+
     setTables(tablesState.filter(t => t.id !== id));
     if (tableToDelete) {
       toast({
@@ -236,10 +244,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Order actions
   const addOrder = (order: Omit<Order, 'id' | 'createdAt'>) => {
-    console.log('🚀 === [AppContext] ADDORDER FUNÇÃO INICIADA (CARDÁPIO PÚBLICO OU SISTEMA) ===');
-    console.log('📋 [AppContext] Dados do pedido recebido:', JSON.stringify(order, null, 2));
-    console.log('📍 [AppContext] Status recebido:', order.status);
-    console.log('📱 [AppContext] Cliente ID recebido:', order.clientId);
+    if (import.meta.env.DEV) {
+      console.log('🚀 === [AppContext] ADDORDER FUNÇÃO INICIADA (CARDÁPIO PÚBLICO OU SISTEMA) ===');
+      console.log('📋 [AppContext] Dados do pedido recebido:', JSON.stringify(order, null, 2));
+      console.log('📍 [AppContext] Status recebido:', order.status);
+      console.log('📱 [AppContext] Cliente ID recebido:', order.clientId);
+    }
 
     // Validação de dados obrigatórios do pedido
     if (!order.clientName || !order.clientId || !order.phone || !order.items || !Array.isArray(order.items)) {
@@ -252,7 +262,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return;
     }
     if (!order.status) {
-      console.warn("[AppContext] Corrigindo status vazio para 'Pendente'");
+      if (import.meta.env.DEV) {
+        console.warn("[AppContext] Corrigindo status vazio para 'Pendente'");
+      }
       order.status = "Pendente";
     }
     if (!order.priority) {
@@ -273,7 +285,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const clientAlreadyExists = clientsState.some(client => client.id === order.clientId);
       if (!clientAlreadyExists && order.clientId.startsWith('public-client-')) {
         // Cliente temporário vindo da pública! Criar!
-        console.log('🆔 Criando cliente temporário para pedido público...');
+        if (import.meta.env.DEV) {
+          console.log('🆔 Criando cliente temporário para pedido público...');
+        }
         const tempClient = {
           id: order.clientId,
           name: order.clientName,
@@ -286,10 +300,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setClients(currentClients => {
           // Não adicionar duplicado!
           if (currentClients.some(c => c.id === tempClient.id)) {
-            console.log('⚠️ Cliente temporário já existe, não adicionando duplicado:', tempClient);
+            if (import.meta.env.DEV) {
+              console.log('⚠️ Cliente temporário já existe, não adicionando duplicado:', tempClient);
+            }
             return currentClients;
           }
-          console.log('✅ Cliente temporário criado e adicionado:', tempClient);
+          if (import.meta.env.DEV) {
+            console.log('✅ Cliente temporário criado e adicionado:', tempClient);
+          }
           return [...currentClients, tempClient];
         });
       }
@@ -312,11 +330,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         notes: order.notes || ''
       };
 
-      console.log('✅ Novo pedido formatado (inserindo):', newOrder);
+      if (import.meta.env.DEV) {
+        console.log('✅ Novo pedido formatado (inserindo):', newOrder);
+      }
 
       setOrders(currentOrders => {
         const updatedOrders = [newOrder, ...currentOrders];
-        console.log('📊 [addOrder] Pedidos após inserir novo pedido:', updatedOrders.map(o => o.id));
+        if (import.meta.env.DEV) {
+          console.log('📊 [addOrder] Pedidos após inserir novo pedido:', updatedOrders.map(o => o.id));
+        }
         return updatedOrders;
       });
 
@@ -328,7 +350,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         description: `Pedido criado com sucesso para ${newOrder.clientName}!`
       });
 
-      console.log('✅ === ADDORDER FINALIZADA COM SUCESSO ===');
+      if (import.meta.env.DEV) {
+        console.log('✅ === ADDORDER FINALIZADA COM SUCESSO ===');
+      }
 
     } catch (error) {
       console.error('❌ ERRO CRÍTICO na função addOrder:', error);
@@ -341,42 +365,50 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateOrderStatus = (id: string, status: OrderStatus) => {
-    console.log('🔄 === ATUALIZANDO STATUS DO PEDIDO ===');
-    console.log('🆔 ID:', id, '📍 Novo status:', status);
-    
+    if (import.meta.env.DEV) {
+      console.log('🔄 === ATUALIZANDO STATUS DO PEDIDO ===');
+      console.log('🆔 ID:', id, '📍 Novo status:', status);
+    }
+
     const orderToUpdate = ordersState.find(o => o.id === id);
-    
+
     if (!orderToUpdate) {
-      console.log('❌ Pedido não encontrado!');
+      if (import.meta.env.DEV) {
+        console.log('❌ Pedido não encontrado!');
+      }
       return;
     }
-    
+
     const previousStatus = orderToUpdate.status;
-    console.log('📍 Status anterior:', previousStatus);
-    
+    if (import.meta.env.DEV) {
+      console.log('📍 Status anterior:', previousStatus);
+    }
+
     // Update order status - isso automaticamente vai sincronizar kitchenOrders via useEffect
-    const updatedOrders = ordersState.map(o => 
+    const updatedOrders = ordersState.map(o =>
       o.id === id ? { ...o, status } : o
     );
     setOrders(updatedOrders);
-    
+
     // Notify n8n about status update
     notifyStatusUpdate(id, status, previousStatus);
-    
+
     toast({
       title: "Status atualizado",
       description: `Pedido ${id} alterado para ${status}.`
     });
-    
-    console.log('✅ === FIM ATUALIZAÇÃO STATUS ===');
+
+    if (import.meta.env.DEV) {
+      console.log('✅ === FIM ATUALIZAÇÃO STATUS ===');
+    }
   };
 
   const updateOrderPriority = (id: string, priority: Priority) => {
-    const updatedOrders = ordersState.map(o => 
+    const updatedOrders = ordersState.map(o =>
       o.id === id ? { ...o, priority } : o
     );
     setOrders(updatedOrders);
-    
+
     toast({
       title: "Prioridade atualizada",
       description: `Prioridade do pedido ${id} alterada para ${priority}.`
@@ -385,15 +417,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteOrder = (id: string) => {
     const orderToDelete = ordersState.find(o => o.id === id);
-    
+
     // Atualizar orders - isso automaticamente vai sincronizar kitchenOrders via useEffect
     setOrders(ordersState.filter(o => o.id !== id));
-    
+
     // Notify n8n about order cancellation
     if (orderToDelete) {
       notifyCancelOrder(id, "Pedido cancelado pelo sistema");
     }
-    
+
     if (orderToDelete) {
       toast({
         title: "Pedido excluído",
@@ -410,17 +442,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
   };
 
-  console.log('🏪 === ESTADO ATUAL DO CONTEXTO ===');
-  console.log('📊 Total de pedidos no estado:', ordersState.length);
-  console.log('📋 IDs de todos os pedidos:', ordersState.map(o => o.id));
-  console.log('📋 Status de todos os pedidos:', ordersState.map(o => ({ id: o.id, status: o.status })));
-  console.log('🍳 Kitchen orders:', {
-    pending: kitchenOrdersState.pending.length,
-    preparing: kitchenOrdersState.preparing.length,
-    ready: kitchenOrdersState.ready.length,
-    delivering: kitchenOrdersState.delivering.length,
-    delivered: kitchenOrdersState.delivered.length
-  });
+  if (import.meta.env.DEV) {
+    console.log('🏪 === ESTADO ATUAL DO CONTEXTO ===');
+    console.log('📊 Total de pedidos no estado:', ordersState.length);
+    console.log('📋 IDs de todos os pedidos:', ordersState.map(o => o.id));
+    console.log('📋 Status de todos os pedidos:', ordersState.map(o => ({ id: o.id, status: o.status })));
+    console.log('🍳 Kitchen orders:', {
+      pending: kitchenOrdersState.pending.length,
+      preparing: kitchenOrdersState.preparing.length,
+      ready: kitchenOrdersState.ready.length,
+      delivering: kitchenOrdersState.delivering.length,
+      delivered: kitchenOrdersState.delivered.length
+    });
+  }
 
   return (
     <AppContext.Provider value={{
@@ -430,24 +464,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       orders: ordersState,
       dashboardData: dashboardDataState,
       kitchenOrders: kitchenOrdersState,
-      
+
       addProduct,
       updateProduct,
       deleteProduct,
-      
+
       addClient,
       updateClient,
       deleteClient,
-      
+
       addTable,
       updateTable,
       deleteTable,
-      
+
       addOrder,
       updateOrderStatus,
       updateOrderPriority,
       deleteOrder,
-      
+
       autoUpdateEnabled,
       toggleAutoUpdate
     }}>
