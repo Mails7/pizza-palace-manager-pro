@@ -7,83 +7,94 @@ interface UseKitchenAutomationProps {
   kitchenOrders: any;
   autoUpdateEnabled: boolean;
   updateOrderStatus: (orderId: string, status: OrderStatus) => void;
+  deleteOrder?: (orderId: string) => void;
 }
 
 export const useKitchenAutomation = ({
   kitchenOrders,
   autoUpdateEnabled,
-  updateOrderStatus
+  updateOrderStatus,
+  deleteOrder
 }: UseKitchenAutomationProps) => {
+  // Progressão automática quando automação está ativa
   useEffect(() => {
     if (!autoUpdateEnabled) return;
-    
+
     const intervals: NodeJS.Timeout[] = [];
-    
-    // Processamento automático para pedidos pendentes (30 segundos)
+
+    // Pendentes -> Em Preparo (1 minuto = 60000ms)
     kitchenOrders.pending.forEach((order: any) => {
       const timer = setTimeout(() => {
         updateOrderStatus(order.id, "Em Preparo");
         toast("Pedido iniciado automaticamente", {
-          description: `Pedido ${order.id} agora está Em Preparo.`
+          description: `Pedido #${order.id} agora está Em Preparo.`
         });
-      }, 30000); // 30 segundos
+      }, 60000); // 1 minuto
       intervals.push(timer);
     });
-    
-    // Processamento automático para pedidos em preparo (3 minutos)
+
+    // Em Preparo -> Pronto (4 minutos = 240000ms)
     kitchenOrders.preparing.forEach((order: any) => {
       const timer = setTimeout(() => {
         updateOrderStatus(order.id, "Pronto");
         toast("Pedido atualizado", {
-          description: `Pedido ${order.id} agora está Pronto.`
+          description: `Pedido #${order.id} agora está Pronto.`
         });
-      }, 180000); // 3 minutos
+      }, 240000); // 4 minutos
       intervals.push(timer);
     });
-    
-    // Processamento automático para pedidos prontos (2 minutos)
+
+    // Pronto -> Em Entrega (6 minutos = 360000ms)
     kitchenOrders.ready.forEach((order: any) => {
       const timer = setTimeout(() => {
         updateOrderStatus(order.id, "Em Entrega");
         toast("Pedido atualizado", {
-          description: `Pedido ${order.id} agora está Em Entrega.`
+          description: `Pedido #${order.id} agora está Em Entrega.`
         });
-      }, 120000); // 2 minutos
+      }, 360000); // 6 minutos
       intervals.push(timer);
     });
-    
-    // Processamento automático para pedidos em entrega (30 minutos)
+
+    // Em Entrega -> Entregue (30 minutos = 1800000ms)
     kitchenOrders.delivering.forEach((order: any) => {
       const timer = setTimeout(() => {
         updateOrderStatus(order.id, "Entregue");
-        toast("Pedido atualizado", {
-          description: `Pedido ${order.id} agora está Entregue.`
+        toast.success("Pedido entregue", {
+          description: `Pedido #${order.id} foi entregue com sucesso!`
         });
+
+        // Remover da lista após mais 30 minutos como entregue
+        if (deleteOrder) {
+          setTimeout(() => {
+            deleteOrder(order.id);
+            console.log(`✅ Pedido #${order.id} removido da cozinha`);
+          }, 1800000); // +30 minutos
+        }
       }, 1800000); // 30 minutos
       intervals.push(timer);
     });
-    
+
     // Limpar todos os timers quando o componente desmontar ou quando as ordens mudarem
     return () => {
       intervals.forEach(interval => clearTimeout(interval));
     };
-  }, [kitchenOrders, autoUpdateEnabled, updateOrderStatus]);
+  }, [kitchenOrders, autoUpdateEnabled, updateOrderStatus, deleteOrder]);
 
-  // Função para iniciar automaticamente pedidos pendentes mesmo sem automação ativa
+  // Sempre iniciar pedidos pendentes automaticamente (independente da automação)
   useEffect(() => {
     const intervals: NodeJS.Timeout[] = [];
-    
-    // Sempre iniciar pedidos pendentes automaticamente (30 segundos)
+
+    // Sempre iniciar pedidos pendentes automaticamente (1 minuto)
     kitchenOrders.pending.forEach((order: any) => {
       const timer = setTimeout(() => {
         updateOrderStatus(order.id, "Em Preparo");
-        toast("Pedido iniciado", {
-          description: `Pedido ${order.id} foi iniciado automaticamente.`
+        toast("🍕 Pedido iniciado", {
+          description: `Pedido #${order.id} foi iniciado automaticamente.`
         });
-      }, 30000); // 30 segundos
+      }, 60000); // 1 minuto
       intervals.push(timer);
     });
-    
+
     return () => {
       intervals.forEach(interval => clearTimeout(interval));
     };

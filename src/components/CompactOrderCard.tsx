@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Clock, Expand, User, Check, Star } from "lucide-react";
 import { OrderStatus } from "@/types";
+import { useOrderProgress } from "@/hooks/useOrderProgress";
 
 interface CompactOrderCardProps {
   order: any;
@@ -19,22 +20,11 @@ const CompactOrderCard: React.FC<CompactOrderCardProps> = ({
   onNextAction,
   actionLabel
 }) => {
-  const calculateProgress = (status: OrderStatus) => {
-    switch (status) {
-      case 'Pendente':
-        return 20;
-      case 'Em Preparo':
-        return 40;
-      case 'Pronto':
-        return 60;
-      case 'Em Entrega':
-        return 80;
-      case 'Entregue':
-        return 100;
-      default:
-        return 0;
-    }
-  };
+  // Usar hook de progresso em tempo real
+  const progress = useOrderProgress({
+    status: order.status,
+    createdAt: order.createdAt || new Date()
+  });
 
   const getStatusColors = (status: OrderStatus) => {
     switch (status) {
@@ -120,13 +110,13 @@ const CompactOrderCard: React.FC<CompactOrderCardProps> = ({
           </div>
         </div>
         <div className={`w-full bg-white/30 rounded-full h-3 mt-3 overflow-hidden shadow-inner`}>
-          <div 
+          <div
             className={`h-full transition-all duration-500 ${colors.progress} rounded-full shadow-sm`}
-            style={{ width: `${calculateProgress(order.status)}%` }}
+            style={{ width: `${progress}%` }}
           />
         </div>
       </CardHeader>
-      
+
       <CardContent className="pt-0">
         <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between bg-white/70 p-2 rounded-lg">
@@ -139,9 +129,9 @@ const CompactOrderCard: React.FC<CompactOrderCardProps> = ({
             </div>
           </div>
         </div>
-        
+
         {order.status === 'Em Entrega' && (
-          <Button 
+          <Button
             onClick={onNextAction}
             className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg transition-all duration-200"
             size="sm"
@@ -150,9 +140,9 @@ const CompactOrderCard: React.FC<CompactOrderCardProps> = ({
             Marcar como Entregue
           </Button>
         )}
-        
+
         {order.status !== 'Entregue' && order.status !== 'Em Entrega' && (
-          <Button 
+          <Button
             onClick={onNextAction}
             className="w-full bg-gradient-to-r from-pizza to-pizza-dark hover:from-pizza-dark hover:to-pizza text-white shadow-lg transition-all duration-200"
             size="sm"
@@ -160,9 +150,9 @@ const CompactOrderCard: React.FC<CompactOrderCardProps> = ({
             {actionLabel}
           </Button>
         )}
-        
+
         {order.status === 'Entregue' && (
-          <Button 
+          <Button
             variant="outline"
             className="w-full bg-white/80 border-2 border-gray-300 text-gray-600"
             size="sm"

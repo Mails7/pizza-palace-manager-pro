@@ -52,7 +52,8 @@ const Cozinha = () => {
   useKitchenAutomation({
     kitchenOrders,
     autoUpdateEnabled,
-    updateOrderStatus
+    updateOrderStatus,
+    deleteOrder
   });
 
   // Log sempre que o estado do kitchen orders mudar
