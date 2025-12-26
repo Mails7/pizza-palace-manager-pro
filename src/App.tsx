@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider } from "@/contexts/AppContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
@@ -31,13 +31,19 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AppProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <AppProvider>
           <Routes>
             {/* Rota pública para o cardápio */}
             <Route path="/cardapio-publico" element={<CardapioPublico />} />
             
-            {/* Rota da Cozinha - agora envolta por SidebarProvider */}
+            {/* Rota raiz redireciona para o dashboard */}
+            <Route 
+              path="/" 
+              element={<Navigate to="/dashboard" replace />} 
+            />
+
+            {/* Rota da Cozinha */}
             <Route
               path="/cozinha"
               element={
@@ -49,7 +55,7 @@ const App = () => (
 
             {/* Rotas administrativas no layout principal */}
             <Route path="/" element={<MainLayout />}>
-              <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
               <Route path="pedidos" element={<Pedidos />} />
               <Route path="pedidos/novo" element={<NovoPedido />} />
               <Route path="cardapio" element={<Cardapio />} />
@@ -61,11 +67,13 @@ const App = () => (
               <Route path="clientes" element={<Clientes />} />
               <Route path="clientes/novo" element={<NovoCliente />} />
               <Route path="configuracoes" element={<Configuracoes />} />
-              <Route path="*" element={<NotFound />} />
             </Route>
+
+            {/* Rota 404 - deve ser a última rota */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </AppProvider>
+        </AppProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );

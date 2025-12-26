@@ -1,160 +1,85 @@
 import { Outlet } from "react-router-dom";
-import { 
-  SidebarProvider
-} from "@/components/ui/sidebar";
-import { 
-  Sidebar, 
-  SidebarContent, 
-  SidebarHeader, 
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton
-} from "@/components/ui/sidebar";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
-
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+} from "@/components/ui/sidebar";
 import { 
-  LayoutDashboard, 
-  ShoppingBag, 
-  Pizza, 
-  Package, 
-  CoffeeIcon, 
-  Users, 
+  LayoutDashboard,
+  ShoppingBag,
+  Pizza,
+  Package,
+  CoffeeIcon,
+  Users,
   ChefHat,
-  Settings
+  Settings,
+  LogOut
 } from "lucide-react";
 
 const MainLayout = () => {
+  const menuItems = [
+    { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+    { title: "Pedidos", icon: ShoppingBag, href: "/pedidos" },
+    { title: "Cardápio", icon: Pizza, href: "/cardapio" },
+    { title: "Produtos", icon: Package, href: "/produtos" },
+    { title: "Mesas", icon: CoffeeIcon, href: "/mesas" },
+    { title: "Clientes", icon: Users, href: "/clientes" },
+    { title: "Cozinha", icon: ChefHat, href: "/cozinha" },
+    { title: "Configurações", icon: Settings, href: "/configuracoes" },
+  ];
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
-        <Sidebar>
-          <SidebarHeader>
-            <Link to="/" className="flex items-center gap-2 px-4 py-3">
-              <Pizza className="h-6 w-6 text-pizza" />
-              <span className="text-lg font-bold">Pizzaria do Kassio</span>
-            </Link>
+        <Sidebar className="border-r" collapsible="none">
+          <SidebarHeader className="border-b p-4">
+            <div className="flex items-center gap-2">
+              <Pizza className="h-8 w-8 text-orange-500" />
+              <div>
+                <h2 className="font-bold text-lg">Pizza Palace</h2>
+                <p className="text-sm text-gray-500">Sistema de Gestão</p>
+              </div>
+            </div>
           </SidebarHeader>
+          
           <SidebarContent>
             <SidebarMenu>
-              <TooltipProvider>
-                <SidebarMenuItem>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link to="/" className="flex items-center gap-3">
-                          <LayoutDashboard className="h-5 w-5" />
-                          <span>Dashboard</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Dashboard</TooltipContent>
-                  </Tooltip>
-                </SidebarMenuItem>
-                
-                <SidebarMenuItem>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link to="/pedidos" className="flex items-center gap-3">
-                          <ShoppingBag className="h-5 w-5" />
-                          <span>Pedidos</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Pedidos</TooltipContent>
-                  </Tooltip>
-                </SidebarMenuItem>
-                
-                <SidebarMenuItem>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link to="/cardapio" className="flex items-center gap-3">
-                          <Pizza className="h-5 w-5" />
-                          <span>Cardápio</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Cardápio</TooltipContent>
-                  </Tooltip>
-                </SidebarMenuItem>
-                
-                <SidebarMenuItem>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link to="/produtos" className="flex items-center gap-3">
-                          <Package className="h-5 w-5" />
-                          <span>Produtos</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Produtos</TooltipContent>
-                  </Tooltip>
-                </SidebarMenuItem>
-                
-                <SidebarMenuItem>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link to="/mesas" className="flex items-center gap-3">
-                          <CoffeeIcon className="h-5 w-5" />
-                          <span>Mesas</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Mesas</TooltipContent>
-                  </Tooltip>
-                </SidebarMenuItem>
-                
-                <SidebarMenuItem>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link to="/clientes" className="flex items-center gap-3">
-                          <Users className="h-5 w-5" />
-                          <span>Clientes</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Clientes</TooltipContent>
-                  </Tooltip>
-                </SidebarMenuItem>
-                
-                <SidebarMenuItem>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link to="/cozinha" className="flex items-center gap-3">
-                          <ChefHat className="h-5 w-5" />
-                          <span>Cozinha</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Cozinha</TooltipContent>
-                  </Tooltip>
-                </SidebarMenuItem>
-                
-                <SidebarMenuItem>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link to="/configuracoes" className="flex items-center gap-3">
-                          <Settings className="h-5 w-5" />
-                          <span>Configurações</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Configurações</TooltipContent>
-                  </Tooltip>
-                </SidebarMenuItem>
-              </TooltipProvider>
+              <div className="p-4">
+                {menuItems.map((item) => (
+                  <SidebarMenuItem key={item.title} className="mb-2">
+                    <SidebarMenuButton asChild>
+                      <Link to={item.href} className="flex items-center gap-3">
+                        <item.icon className="h-4 w-4" />
+                        <span className="text-sm">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </div>
             </SidebarMenu>
           </SidebarContent>
         </Sidebar>
-        <div className="flex-1 overflow-auto">
-          <Outlet />
+
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <header className="h-14 border-b bg-white/50 backdrop-blur-sm flex items-center justify-between px-6">
+            <h1 className="text-lg font-semibold">Sistema de Gestão</h1>
+            <div className="flex items-center gap-4">
+              <Link 
+                to="/cardapio-publico"
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                Ver Cardápio Público
+              </Link>
+            </div>
+          </header>
+          <main className="flex-1 overflow-auto">
+            <Outlet />
+          </main>
         </div>
       </div>
     </SidebarProvider>

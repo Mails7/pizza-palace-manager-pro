@@ -16,49 +16,58 @@ import { ShoppingBag, Users, DollarSign, Clock, ArrowDown, ArrowUp } from "lucid
 const Dashboard = () => {
   const { orders, clients, products } = useApp();
 
+  // Adicionar verificação de carregamento para evitar crash
+  if (!orders || !clients || !products) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   // Calcular estatísticas em tempo real baseado nos dados reais
   const totalOrders = orders.length;
   const totalClients = clients.length;
   const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
   const pendingOrders = orders.filter(order => order.status === 'Pendente').length;
 
-  // Pedidos dos últimos 7 dias para o gráfico
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (6 - i));
-    return date;
-  });
+  // // Pedidos dos últimos 7 dias para o gráfico
+  // const last7Days = Array.from({ length: 7 }, (_, i) => {
+  //   const date = new Date();
+  //   date.setDate(date.getDate() - (6 - i));
+  //   return date;
+  // });
 
-  const dailySalesData = last7Days.map(date => {
-    const dayOrders = orders.filter(order => {
-      const orderDate = new Date(order.createdAt);
-      return orderDate.toDateString() === date.toDateString();
-    });
+  // const dailySalesData = last7Days.map(date => {
+  //   const dayOrders = orders.filter(order => {
+  //     const orderDate = new Date(order.createdAt);
+  //     return orderDate.toDateString() === date.toDateString();
+  //   });
 
-    const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  //   const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-    return {
-      day: dayNames[date.getDay()],
-      sales: dayOrders.reduce((sum, order) => sum + order.total, 0)
-    };
-  });
+  //   return {
+  //     day: dayNames[date.getDay()],
+  //     sales: dayOrders.reduce((sum, order) => sum + order.total, 0)
+  //   };
+  // });
 
-  // Produtos mais vendidos baseado nos pedidos reais
-  const productSales = new Map();
-  orders.forEach(order => {
-    order.items.forEach(item => {
-      const current = productSales.get(item.productName) || 0;
-      productSales.set(item.productName, current + item.quantity);
-    });
-  });
+  // // Produtos mais vendidos baseado nos pedidos reais
+  // const productSales = new Map();
+  // orders.forEach(order => {
+  //   order.items.forEach(item => {
+  //     const current = productSales.get(item.productName) || 0;
+  //     productSales.set(item.productName, current + item.quantity);
+  //   });
+  // });
 
-  const topProducts = Array.from(productSales.entries())
-    .map(([name, sales]) => ({ name, sales, changePercentage: Math.floor(Math.random() * 30) - 10 }))
-    .sort((a, b) => b.sales - a.sales)
-    .slice(0, 5);
+  // const topProducts = Array.from(productSales.entries())
+  //   .map(([name, sales]) => ({ name, sales, changePercentage: Math.floor(Math.random() * 30) - 10 }))
+  //   .sort((a, b) => b.sales - a.sales)
+  //   .slice(0, 5);
 
-  // Pedidos recentes (últimos 5)
-  const recentOrders = orders.slice(0, 5);
+  // // Pedidos recentes (últimos 5)
+  // const recentOrders = orders.slice(0, 5);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -138,7 +147,7 @@ const Dashboard = () => {
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div
           className={`${changePercentage > 0 ? 'bg-blue-600' : 'bg-purple-600'} h-2 rounded-full`}
-          style={{ width: `${Math.min(100, (sales / Math.max(...topProducts.map(p => p.sales))) * 100)}%` }}
+          style={{ width: `${Math.min(100, (sales / (Math.max(...topProducts.map(p => p.sales)) || 1)) * 100)}%` }}
         ></div>
       </div>
     </div>
@@ -178,7 +187,7 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <Card className="lg:col-span-2 bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl border-purple-100">
           <CardHeader>
             <CardTitle className="text-gray-800">Vendas dos Últimos 7 Dias</CardTitle>
@@ -237,9 +246,9 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
-      <Card className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl border-purple-100">
+      {/* <Card className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl border-purple-100">
         <CardHeader>
           <CardTitle className="text-gray-800">Pedidos Recentes</CardTitle>
         </CardHeader>
@@ -255,7 +264,7 @@ const Dashboard = () => {
                     <div>
                       <p className="font-medium text-gray-800">{order.clientName}</p>
                       <p className="text-xs text-gray-500">
-                        {order.createdAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} • #{order.id}
+                        {new Date(order.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} • #{order.id}
                       </p>
                     </div>
                   </div>
@@ -272,7 +281,7 @@ const Dashboard = () => {
             )}
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 interface N8nWebhooks {
   newOrderWebhook: string;
@@ -9,7 +9,6 @@ interface N8nWebhooks {
 }
 
 export const useN8nIntegration = () => {
-  const { toast } = useToast();
   const [webhooks, setWebhooks] = useState<N8nWebhooks>({
     newOrderWebhook: localStorage.getItem('n8n_new_order_webhook') || '',
     cancelOrderWebhook: localStorage.getItem('n8n_cancel_order_webhook') || '',

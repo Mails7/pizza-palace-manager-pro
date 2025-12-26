@@ -9,7 +9,7 @@ import {
   DashboardData
 } from '@/types';
 import { products, clients, tables, orders, dashboardData } from '@/services/mockData';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { useN8nIntegration } from '@/hooks/useN8nIntegration';
 
 interface AppContextType {
